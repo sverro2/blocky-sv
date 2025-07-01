@@ -1,4 +1,4 @@
-import { pgTable, serial, integer, text, timestamp } from 'drizzle-orm/pg-core';
+import { pgTable, integer, text, timestamp, uuid, varchar } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -15,6 +15,15 @@ export const session = pgTable('session', {
 	expiresAt: timestamp('expires_at', { withTimezone: true, mode: 'date' }).notNull()
 });
 
+export const project = pgTable('project', {
+	id: uuid('id').primaryKey(),
+	createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
+	name: varchar('name', { length: 255 }),
+	description: text('description')
+});
+
 export type Session = typeof session.$inferSelect;
 
 export type User = typeof user.$inferSelect;
+
+export type Project = typeof project.$inferSelect;

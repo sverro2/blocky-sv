@@ -1,3 +1,16 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+@theme {
+	--color-backdrop: #555;
+	--color-foreground: #fff;
+	--color-passion: orange;
+}
+
+/*Just ensuring html body has same background color to prevent white flicker */
+html,
+body {
+	@apply bg-backdrop;
+	@apply text-foreground;
+}
