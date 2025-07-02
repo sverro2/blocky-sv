@@ -14,3 +14,7 @@ body {
 	@apply bg-backdrop;
 	@apply text-foreground;
 }
+
+.dragged-item {
+	opacity: 0;
+}

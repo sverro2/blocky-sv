@@ -1,15 +1,45 @@
 <script lang="ts">
 	import { MicIcon, PlayIcon, SaveIcon } from 'lucide-svelte';
 	import { opfsManager } from '$lib/client/opfs';
+	import { reorder, useSortable } from '$lib/client/use-sortable.svelte';
+	import type { MediaRecorderSession } from '$lib/types/current-recorder-session';
+	import { addMedia, getAllMediaForProject, type CachedMedia } from '$lib/client/idb';
+
 	import type { PageProps } from './$types';
+	import { onMount } from 'svelte';
 	let { data }: PageProps = $props();
 
-	let filename = 'test-file';
+	let items = $state<CachedMedia[]>([]);
+
+	let recorderSession = $state<MediaRecorderSession | null>(null);
+	let isRecording = $derived(recorderSession !== null);
+
+	let sortable = $state<HTMLElement | null>(null);
+
+	onMount(async () => {
+		await refreshItems();
+	});
+
+	async function refreshItems() {
+		let media = await getAllMediaForProject(data.projectId);
+		items = media;
+	}
+
+	useSortable(() => sortable, {
+		animation: 200,
+		// handle: '.my-handle',
+		ghostClass: 'dragged-item',
+		delayOnTouchOnly: true,
+		delay: 200,
+		onEnd(evt) {
+			items = reorder(items, evt);
+		}
+	});
 
 	async function recordMedia() {
 		let mediaDevices = window.navigator.mediaDevices;
 		let constraints: MediaStreamConstraints = {
-			video: true,
+			video: false,
 			audio: {
 				sampleRate: 48000.0, // Probably not honored by most browsers
 				sampleSize: 16.0,
@@ -23,9 +53,10 @@
 		let userMedia = await mediaDevices.getUserMedia(constraints);
 
 		// Check for supported MIME types and use the best available
-		let mimeType = 'video/webm; codecs="vp8, vorbis"';
+		// let mimeType = 'video/webm; codecs="vp8, opus"';
+		let mimeType = 'audio/webm; codecs=opus';
 		if (!MediaRecorder.isTypeSupported(mimeType)) {
-			mimeType = 'video/webm; codecs="vp8"';
+			mimeType = 'video/webm; codecs="vp8, vorbis"';
 			if (!MediaRecorder.isTypeSupported(mimeType)) {
 				mimeType = 'video/webm';
 				if (!MediaRecorder.isTypeSupported(mimeType)) {
@@ -40,6 +71,14 @@
 			: new MediaRecorder(userMedia);
 		console.log('Recording with MIME type:', mimeType || 'default');
 
+		let filename = crypto.randomUUID();
+
+		recorderSession = {
+			mediaRecorder: recorder,
+			mediaDevices: userMedia,
+			filename
+		};
+
 		let recorderCacheDirHandle = await opfsManager.getDirectoryHandle('recorder-cache', {
 			create: true
 		});
@@ -48,18 +87,12 @@
 		let testFileWritable = await testFileHandle.createWritable({ keepExistingData: false });
 
 		recorder.addEventListener('dataavailable', async (ev: BlobEvent) => {
-			console.log('Data available - size:', ev.data.size, 'type:', ev.data.type);
 			await testFileWritable.write(ev.data);
 		});
 
 		recorder.addEventListener('stop', async () => {
-			console.log('Recording stopped');
 			await testFileWritable.close();
-			console.log('File written and closed');
-		});
-
-		recorder.addEventListener('start', () => {
-			console.log('Recording started');
+			console.log('Recording finished');
 		});
 
 		recorder.addEventListener('error', (e) => {
@@ -67,18 +100,26 @@
 		});
 
 		// Record audio/video with timeslice of 5 seconds
-		console.log('Starting recording for 15 seconds...');
 		recorder.start(5000);
-
-		setTimeout(() => {
-			console.log('Stopping recording...');
-			recorder.stop();
-			// Stop all tracks to free up camera/mic
-			userMedia.getTracks().forEach((track) => track.stop());
-		}, 15000);
 	}
 
-	async function playMedia() {
+	async function stopRecording() {
+		if (recorderSession === null) {
+			return;
+		}
+
+		recorderSession.mediaRecorder.stop();
+
+		// Stop all tracks to free up camera/mic
+		recorderSession.mediaDevices.getTracks().forEach((track) => track.stop());
+
+		await addMedia({ mediaId: recorderSession.filename, projectId: data.projectId });
+
+		recorderSession = null;
+		await refreshItems();
+	}
+
+	async function playMedia(startFromIndex: number) {
 		let videoComponent = window.document.getElementById('video-player')! as HTMLVideoElement;
 
 		// Add video element error handlers
@@ -109,7 +150,8 @@
 			console.log('this is source open');
 
 			// Try to match the recording format, with fallbacks
-			let mime = 'video/webm; codecs="vp8, vorbis"';
+			let mime = 'video/webm; codecs="vp8, opus"';
+			// let mime = 'audio/webm; codecs=opus';
 			if (!MediaSource.isTypeSupported(mime)) {
 				mime = 'video/webm; codecs="vp8"';
 				if (!MediaSource.isTypeSupported(mime)) {
@@ -128,7 +170,7 @@
 			try {
 				const root = await navigator.storage.getDirectory();
 				const cacheDir = await root.getDirectoryHandle('recorder-cache');
-				const fileHandle = await cacheDir.getFileHandle(filename);
+				const fileHandle = await cacheDir.getFileHandle(`${startFromIndex}`);
 				const file = await fileHandle.getFile();
 				arrayBuffer = await file.arrayBuffer();
 
@@ -141,34 +183,30 @@
 				return;
 			}
 
-			sourceBuffer.addEventListener(
-				'updateend',
-				() => {
-					console.log(
-						'updateend event - updating:',
-						sourceBuffer.updating,
-						'readyState:',
-						mediaSource.readyState
-					);
-					if (!sourceBuffer.updating && mediaSource.readyState === 'open') {
-						try {
-							mediaSource.endOfStream();
-							console.log('MediaSource ended, attempting to play...');
-							videoComponent
-								.play()
-								.then(() => {
-									console.log('Video playback started successfully');
-								})
-								.catch((playErr) => {
-									console.error('Video play error:', playErr);
-								});
-						} catch (err) {
-							console.error('endOfStream error:', err);
-						}
+			sourceBuffer.addEventListener('updateend', () => {
+				console.log(
+					'updateend event - updating:',
+					sourceBuffer.updating,
+					'readyState:',
+					mediaSource.readyState
+				);
+				if (!sourceBuffer.updating && mediaSource.readyState === 'open') {
+					try {
+						mediaSource.endOfStream();
+						console.log('MediaSource ended, attempting to play...');
+						videoComponent
+							.play()
+							.then(() => {
+								console.log('Video playback started successfully');
+							})
+							.catch((playErr) => {
+								console.error('Video play error:', playErr);
+							});
+					} catch (err) {
+						console.error('endOfStream error:', err);
 					}
-				},
-				{ once: true }
-			);
+				}
+			});
 
 			sourceBuffer.addEventListener('error', (e) => {
 				console.error('SourceBuffer error:', e);
@@ -204,62 +242,61 @@
 			console.log('MediaSource ended');
 		});
 	}
+
+	async function listFiles() {
+		const folderHandle = await opfsManager.getDirectoryHandle('recorder-cache');
+
+		// List files in that folder
+		for await (const handle of folderHandle.values()) {
+			if (handle.kind === 'file') {
+				console.log('File:', handle.name);
+			} else if (handle.kind === 'directory') {
+				console.log('Directory:', handle.name);
+			}
+		}
+	}
 </script>
 
-Hello {data.projectId}
+<!-- Hello {data.projectId} -->
 <!-- svelte-ignore a11y_media_has_caption -->
-<video id="video-player" autoplay controls class="bg-pink-300"></video>
-<video id="video2" controls class="bg-pink-500" src="/test-file"></video>
+<video id="video-player" autoplay controls class="bg-gray-700"></video>
 
 <div class="text-foreground flex h-screen flex-col p-6">
 	<div class="flex gap-2">
 		<button
 			onclick={recordMedia}
+			disabled={isRecording}
 			class="flex gap-2 rounded-xl bg-red-500 px-5 py-2 transition duration-300 ease-in-out hover:bg-red-400 disabled:bg-gray-300"
 		>
 			<MicIcon />
 			Record
-			<!-- Conditional rendering based on `currently_recording()` and `recorded_media_signal.read().is_none()` -->
-			<!-- If not recording and no media -->
-			<!-- <svg>Mic icon</svg> -->
-			<!-- Record -->
-			<!-- Else -->
-			<!-- <svg>RotateCw icon</svg> -->
-			<!-- Retry -->
 		</button>
-
 		<button
+			disabled={!isRecording}
+			onclick={stopRecording}
 			class="flex gap-2 rounded-xl bg-green-500 px-5 py-2 transition duration-300 ease-in-out hover:bg-green-400 disabled:bg-gray-300"
-			disabled
 		>
 			<SaveIcon />
 			Save
 		</button>
-
-		<button
-			onclick={playMedia}
-			class="flex gap-2 rounded-xl bg-green-500 px-5 py-2 transition duration-300 ease-in-out hover:bg-green-400 disabled:bg-gray-300"
-		>
-			<PlayIcon />
-			Play
-		</button>
 	</div>
 
-	<!-- BlocksInProjectList component -->
-	<div class="my-10 flex flex-col gap-4">
-		<!-- Repeat for each cached media item -->
-		<div class="draggable flex max-w-96 place-content-between bg-yellow-400 p-3" draggable="true">
-			<button class="cursor-pointer hover:text-green-600">play</button>
-			<div>id of media</div>
-			<button class="cursor-pointer text-red-500">x</button>
-		</div>
-		<!-- End repeat -->
-
-		<!-- Conditional dragging message -->
-		<!-- Right now, there is drag going on -->
-		<!-- or -->
-		<!-- No dragging -->
-	</div>
+	<ul class="flex w-full list-none flex-col" bind:this={sortable}>
+		{#each items as item (item.mediaId)}
+			<li class="m-2 flex w-96 items-center justify-center gap-5 border p-3">
+				<button type="button" class="my-handle outline-none">
+					<!-- <Handle /> -->play
+				</button>
+				<span>{item.mediaId}</span>
+				<button type="button" class="my-handle outline-none">
+					<!-- <Handle /> -->han
+				</button>
+			</li>
+		{/each}
+	</ul>
+	<!-- <div class="flex justify-center">
+		<pre class="mt-5 w-fit border p-5">{JSON.stringify(items, null, 2)}</pre>
+	</div> -->
 
 	<!-- <Outlet /> -->
 </div>
