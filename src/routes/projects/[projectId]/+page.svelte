@@ -32,7 +32,7 @@
 		delayOnTouchOnly: true,
 		delay: 200,
 		onEnd(evt) {
-			items = reorder(items, evt);
+			// reorder(items, evt);
 		}
 	});
 
@@ -119,7 +119,12 @@
 		await refreshItems();
 	}
 
-	async function playMedia(startFromIndex: number) {
+	async function playMedia(startMediaId: string) {
+		let indexOfStartSong = items.findIndex((x) => x.mediaId == startMediaId);
+		let toBeplayed = items.slice(indexOfStartSong);
+
+		console.log(toBeplayed);
+
 		let videoComponent = window.document.getElementById('video-player')! as HTMLVideoElement;
 
 		// Add video element error handlers
@@ -150,8 +155,8 @@
 			console.log('this is source open');
 
 			// Try to match the recording format, with fallbacks
-			let mime = 'video/webm; codecs="vp8, opus"';
-			// let mime = 'audio/webm; codecs=opus';
+			// let mime = 'video/webm; codecs="vp8, opus"';
+			let mime = 'audio/webm; codecs=opus';
 			if (!MediaSource.isTypeSupported(mime)) {
 				mime = 'video/webm; codecs="vp8"';
 				if (!MediaSource.isTypeSupported(mime)) {
@@ -165,73 +170,60 @@
 			console.log('Playing with MIME type:', mime);
 
 			const sourceBuffer = mediaSource.addSourceBuffer(mime);
+			sourceBuffer.mode = 'sequence';
 
-			let arrayBuffer: ArrayBuffer;
-			try {
-				const root = await navigator.storage.getDirectory();
-				const cacheDir = await root.getDirectoryHandle('recorder-cache');
-				const fileHandle = await cacheDir.getFileHandle(`${startFromIndex}`);
+			const cacheDir = await opfsManager.getDirectoryHandle('recorder-cache');
+
+			let currentIndex = 0;
+
+			let offset = 0;
+
+			async function addMedia() {
+				let currentMedia = toBeplayed[currentIndex].mediaId;
+				const fileHandle = await cacheDir.getFileHandle(currentMedia);
 				const file = await fileHandle.getFile();
-				arrayBuffer = await file.arrayBuffer();
+				let arrayBuffer = await file.arrayBuffer();
 
-				if (arrayBuffer.byteLength === 0) {
-					console.error('File is empty');
-					return;
+				if (offset !== 0) {
+					console.log('did the thing!');
+					// sourceBuffer.timestampOffset = offset;
+					console.log('you are upset');
 				}
-			} catch (err) {
-				console.error('Error reading file:', err);
-				return;
+
+				sourceBuffer.appendBuffer(arrayBuffer);
+				currentIndex++;
+				offset += 3;
 			}
 
 			sourceBuffer.addEventListener('updateend', () => {
-				console.log(
-					'updateend event - updating:',
-					sourceBuffer.updating,
-					'readyState:',
-					mediaSource.readyState
-				);
 				if (!sourceBuffer.updating && mediaSource.readyState === 'open') {
-					try {
-						mediaSource.endOfStream();
-						console.log('MediaSource ended, attempting to play...');
-						videoComponent
-							.play()
-							.then(() => {
-								console.log('Video playback started successfully');
-							})
-							.catch((playErr) => {
-								console.error('Video play error:', playErr);
-							});
-					} catch (err) {
-						console.error('endOfStream error:', err);
+					if (currentIndex < toBeplayed.length) {
+						console.log('appended the thing');
+						addMedia();
+					} else {
+						try {
+							mediaSource.endOfStream();
+							console.log('MediaSource ended, attempting to play...');
+							videoComponent
+								.play()
+								.then(() => {
+									console.log('Video playback started successfully');
+								})
+								.catch((playErr) => {
+									console.error('Video play error:', playErr);
+								});
+						} catch (err) {
+							console.error('endOfStream error:', err);
+						}
 					}
 				}
 			});
 
+			addMedia();
+
 			sourceBuffer.addEventListener('error', (e) => {
 				console.error('SourceBuffer error:', e);
 			});
-
-			console.log('Appending buffer...');
-			console.log(
-				'Before append - updating:',
-				sourceBuffer.updating,
-				'readyState:',
-				mediaSource.readyState
-			);
-			console.log('ArrayBuffer size:', arrayBuffer.byteLength, 'bytes');
-
-			try {
-				sourceBuffer.appendBuffer(arrayBuffer);
-				console.log(
-					'After append - updating:',
-					sourceBuffer.updating,
-					'readyState:',
-					mediaSource.readyState
-				);
-			} catch (appendError) {
-				console.error('Error appending buffer:', appendError);
-			}
 		});
 
 		mediaSource.addEventListener('sourceclose', () => {
@@ -281,15 +273,19 @@
 		</button>
 	</div>
 
-	<ul class="flex w-full list-none flex-col" bind:this={sortable}>
+	<ul class="flex w-min list-none flex-col" bind:this={sortable}>
 		{#each items as item (item.mediaId)}
-			<li class="m-2 flex w-96 items-center justify-center gap-5 border p-3">
-				<button type="button" class="my-handle outline-none">
+			<li class="m-2 flex items-center justify-center gap-5 border p-3">
+				<button
+					type="button"
+					class="my-handle outline-none"
+					onclick={() => playMedia(item.mediaId)}
+				>
 					<!-- <Handle /> -->play
 				</button>
 				<span>{item.mediaId}</span>
 				<button type="button" class="my-handle outline-none">
-					<!-- <Handle /> -->han
+					<!-- <Handle /> -->...
 				</button>
 			</li>
 		{/each}
