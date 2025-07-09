@@ -3,13 +3,27 @@
 	import { opfsManager } from '$lib/client/opfs';
 	import { reorder, useSortable } from '$lib/client/use-sortable.svelte';
 	import type { MediaRecorderSession } from '$lib/types/current-recorder-session';
-	import { addMedia, getAllMediaForProject, type CachedMedia } from '$lib/client/idb';
+	import {
+		addMedia,
+		getAllMediaForProject,
+		putSnapshot,
+		type CachedMedia,
+		type Snapshot,
+		type Block,
+		getCurrentSnapshot
+	} from '$lib/client/idb';
 
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
+	import { stopPropagation } from 'svelte/legacy';
+	import Layout from '../../+layout.svelte';
 	let { data }: PageProps = $props();
 
-	let items = $state<CachedMedia[]>([]);
+	let currentSnapshot = $state<Snapshot | undefined>(undefined);
+
+	let currentSnapshotBlocks = $derived(
+		currentSnapshot === undefined ? [] : currentSnapshot?.data.blocks
+	);
 
 	let recorderSession = $state<MediaRecorderSession | null>(null);
 	let isRecording = $derived(recorderSession !== null);
@@ -21,8 +35,23 @@
 	});
 
 	async function refreshItems() {
-		let media = await getAllMediaForProject(data.projectId);
-		items = media;
+		let media = await getCurrentSnapshot(data.projectId);
+		currentSnapshot = media;
+	}
+
+	function toPlain<T>(value: T): T {
+		if (Array.isArray(value)) {
+			return value.map(toPlain) as T;
+		} else if (value !== null && typeof value === 'object') {
+			const plainObj = {} as Record<string, unknown>;
+			for (const key in value) {
+				if (Object.prototype.hasOwnProperty.call(value, key)) {
+					plainObj[key] = toPlain((value as Record<string, unknown>)[key]);
+				}
+			}
+			return plainObj as T;
+		}
+		return value;
 	}
 
 	useSortable(() => sortable, {
@@ -32,7 +61,22 @@
 		delayOnTouchOnly: true,
 		delay: 200,
 		onEnd(evt) {
-			// reorder(items, evt);
+			console.log('sorting now!');
+			if (currentSnapshot === undefined) {
+				return;
+			}
+
+			currentSnapshot = {
+				...currentSnapshot,
+				data: {
+					blocks: reorder(currentSnapshotBlocks, evt)
+				}
+			};
+
+			// Need to unwrap it from state, for IndexedDb to able to store the data.
+			let plainSnapshot = toPlain(currentSnapshot);
+
+			putSnapshot(plainSnapshot);
 		}
 	});
 
@@ -119,9 +163,10 @@
 		await refreshItems();
 	}
 
+	let isPlaying = $state(false);
 	async function playMedia(startMediaId: string) {
-		let indexOfStartSong = items.findIndex((x) => x.mediaId == startMediaId);
-		let toBeplayed = items.slice(indexOfStartSong);
+		let indexOfStartSong = currentSnapshotBlocks.findIndex((x) => x.currentMediaId == startMediaId);
+		let toBeplayed = currentSnapshotBlocks.slice(indexOfStartSong);
 
 		console.log(toBeplayed);
 
@@ -146,6 +191,15 @@
 
 		videoComponent.addEventListener('canplay', () => {
 			console.log('Video can start playing');
+		});
+
+		videoComponent.addEventListener('play', () => {
+			console.log('playing for some reason');
+			isPlaying = true;
+		});
+		videoComponent.addEventListener('pause', () => {
+			console.log('pausing for some reason');
+			isPlaying = false;
 		});
 
 		let mediaSource = new MediaSource();
@@ -179,7 +233,7 @@
 			let offset = 0;
 
 			async function addMedia() {
-				let currentMedia = toBeplayed[currentIndex].mediaId;
+				let currentMedia = toBeplayed[currentIndex].currentMediaId;
 				const fileHandle = await cacheDir.getFileHandle(currentMedia);
 				const file = await fileHandle.getFile();
 				let arrayBuffer = await file.arrayBuffer();
@@ -204,14 +258,16 @@
 						try {
 							mediaSource.endOfStream();
 							console.log('MediaSource ended, attempting to play...');
-							videoComponent
-								.play()
-								.then(() => {
-									console.log('Video playback started successfully');
-								})
-								.catch((playErr) => {
-									console.error('Video play error:', playErr);
-								});
+							if (isPlaying === true) {
+								videoComponent
+									.play()
+									.then(() => {
+										console.log('Video playback started successfully');
+									})
+									.catch((playErr) => {
+										console.error('Video play error:', playErr);
+									});
+							}
 						} catch (err) {
 							console.error('endOfStream error:', err);
 						}
@@ -247,11 +303,18 @@
 			}
 		}
 	}
+
+	let selectedMediaId = $state<string | null>(null);
+
+	function selectItem(id: string) {
+		selectedMediaId = id;
+		playMedia(id);
+	}
 </script>
 
 <!-- Hello {data.projectId} -->
 <!-- svelte-ignore a11y_media_has_caption -->
-<video id="video-player" autoplay controls class="bg-gray-700"></video>
+<video id="video-player" controls class="bg-gray-700"></video>
 
 <div class="text-foreground flex h-screen flex-col p-6">
 	<div class="flex gap-2">
@@ -273,17 +336,16 @@
 		</button>
 	</div>
 
-	<ul class="flex w-min list-none flex-col" bind:this={sortable}>
-		{#each items as item (item.mediaId)}
-			<li class="m-2 flex items-center justify-center gap-5 border p-3">
-				<button
-					type="button"
-					class="my-handle outline-none"
-					onclick={() => playMedia(item.mediaId)}
-				>
-					<!-- <Handle /> -->play
-				</button>
-				<span>{item.mediaId}</span>
+	<ul class="my-5 flex w-min list-none flex-col gap-2 select-none" bind:this={sortable}>
+		{#each currentSnapshotBlocks as item (item)}
+			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+			<!-- svelte-ignore a11y_click_events_have_key_events -->
+			<li
+				onclick={() => selectItem(item.currentMediaId)}
+				class="flex items-center justify-center gap-2 border p-3"
+				class:bg-red-500={selectedMediaId == item.currentMediaId}
+			>
+				<div class="w-max">{item.currentMediaId}</div>
 				<button type="button" class="my-handle outline-none">
 					<!-- <Handle /> -->...
 				</button>
