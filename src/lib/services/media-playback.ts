@@ -6,6 +6,8 @@ export interface PlaybackState {
 	currentBlockId: string | null;
 	currentPosition: number;
 	totalDuration: number;
+	currentBlockIndex: number;
+	totalBlocks: number;
 }
 
 export class MediaPlaybackService {
@@ -19,8 +21,12 @@ export class MediaPlaybackService {
 		isPlaying: false,
 		currentBlockId: null,
 		currentPosition: 0,
-		totalDuration: 0
+		totalDuration: 0,
+		currentBlockIndex: 0,
+		totalBlocks: 0
 	};
+	private blockStartTimes: number[] = [];
+	private onBlockChangeCallback: ((blockId: string, blockIndex: number) => void) | null = null;
 
 	private constructor() {}
 
@@ -53,6 +59,9 @@ export class MediaPlaybackService {
 		this.currentPlaylist = blocks.slice(startIndex);
 		this.currentIndex = 0;
 		this.playbackState.currentBlockId = startBlockId;
+		this.playbackState.currentBlockIndex = 0;
+		this.playbackState.totalBlocks = this.currentPlaylist.length;
+		this.blockStartTimes = [0]; // First block starts at 0
 
 		await this.initializeMediaSource();
 		await this.loadMediaSequence();
@@ -74,6 +83,12 @@ export class MediaPlaybackService {
 		this.cleanupMediaSource();
 		this.playbackState.isPlaying = false;
 		this.playbackState.currentBlockId = null;
+		this.playbackState.currentBlockIndex = 0;
+		this.playbackState.totalBlocks = 0;
+	}
+
+	public setBlockChangeCallback(callback: (blockId: string, blockIndex: number) => void): void {
+		this.onBlockChangeCallback = callback;
 	}
 
 	private setupVideoEventHandlers(): void {
@@ -92,6 +107,7 @@ export class MediaPlaybackService {
 		this.videoElement.addEventListener('timeupdate', () => {
 			if (this.videoElement) {
 				this.playbackState.currentPosition = this.videoElement.currentTime;
+				this.updateCurrentBlock();
 			}
 		});
 
@@ -214,6 +230,19 @@ export class MediaPlaybackService {
 
 			const appendNextCallback = () => {
 				this.sourceBuffer?.removeEventListener('updateend', appendNextCallback);
+
+				// Track when this block was added to calculate start times
+				if (this.videoElement && this.sourceBuffer) {
+					const buffered = this.sourceBuffer.buffered;
+					if (buffered.length > 0) {
+						const endTime = buffered.end(buffered.length - 1);
+						// Next block will start at the current end time
+						if (this.currentIndex + 1 < this.currentPlaylist.length) {
+							this.blockStartTimes.push(endTime);
+						}
+					}
+				}
+
 				this.currentIndex++;
 				this.appendNextMedia();
 			};
@@ -268,6 +297,42 @@ export class MediaPlaybackService {
 		console.error('Playback error:', error);
 		this.playbackState.isPlaying = false;
 		this.cleanupMediaSource();
+	}
+
+	private updateCurrentBlock(): void {
+		if (!this.videoElement || this.blockStartTimes.length === 0) {
+			return;
+		}
+
+		const currentTime = this.videoElement.currentTime;
+		let newBlockIndex = 0;
+
+		// Find which block we're currently in based on start times
+		for (let i = this.blockStartTimes.length - 1; i >= 0; i--) {
+			if (currentTime >= this.blockStartTimes[i]) {
+				newBlockIndex = i;
+				break;
+			}
+		}
+
+		// Update current block if it changed
+		if (newBlockIndex !== this.playbackState.currentBlockIndex) {
+			this.playbackState.currentBlockIndex = newBlockIndex;
+			if (newBlockIndex < this.currentPlaylist.length) {
+				const newCurrentBlock = this.currentPlaylist[newBlockIndex];
+				const oldBlockId = this.playbackState.currentBlockId;
+				this.playbackState.currentBlockId = newCurrentBlock.blockId;
+
+				console.log(
+					`Now playing block ${newBlockIndex + 1}/${this.currentPlaylist.length}: ${newCurrentBlock.blockId}`
+				);
+
+				// Notify about block change
+				if (this.onBlockChangeCallback && oldBlockId !== newCurrentBlock.blockId) {
+					this.onBlockChangeCallback(newCurrentBlock.blockId, newBlockIndex);
+				}
+			}
+		}
 	}
 }
 

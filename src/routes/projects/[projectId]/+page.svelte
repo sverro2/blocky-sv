@@ -8,6 +8,7 @@
 	import Toast from '$lib/components/ui/Toast.svelte';
 	import type { PageProps } from './$types';
 	import type { CleanupSummary } from '$lib/services/media-cleanup';
+	import { toast } from '$lib/utils/toast';
 
 	let { data }: PageProps = $props();
 
@@ -16,6 +17,8 @@
 	const { state: projectState, blocks, isLoaded } = projectStore;
 
 	let selectedBlockId = $state<string | null>(null);
+	let currentlyPlayingBlockId = $state<string | null>(null);
+	let currentBlockIndex = $state<number>(0);
 	let isLoadingProject = $state(true);
 	let projectError = $state<string | null>(null);
 
@@ -27,6 +30,12 @@
 		} finally {
 			isLoadingProject = false;
 		}
+	});
+
+	// Update currently playing block ID from media player
+	$effect(() => {
+		// This will be updated by the MediaPlayer component
+		// We'll set up a callback to get the current playing state
 	});
 
 	// Handle recording completion
@@ -49,6 +58,27 @@
 
 		// Add a small delay to allow the effect to trigger
 		await new Promise((resolve) => setTimeout(resolve, 100));
+	}
+
+	// Handle playback state changes from MediaPlayer
+	function handlePlaybackStateChange(playbackState: any) {
+		currentlyPlayingBlockId = playbackState.currentBlockId;
+	}
+
+	// Handle block transitions during playback
+	function handleBlockTransition(blockId: string, blockIndex: number) {
+		console.log(`Block transition: ${blockId} (index: ${blockIndex})`);
+		currentlyPlayingBlockId = blockId;
+		currentBlockIndex = blockIndex;
+		// Automatically select the currently playing block
+		selectedBlockId = blockId;
+
+		// Show toast notification for block transition
+		const totalBlocks = $blocks.length;
+		const shortBlockId = blockId.slice(0, 8);
+		toast.info(`Now playing block ${blockIndex + 1}/${totalBlocks} (${shortBlockId}...)`, {
+			duration: 2000
+		});
 	}
 
 	// Handle block reordering
@@ -164,6 +194,8 @@
 						<BlockList
 							blocks={$blocks}
 							{selectedBlockId}
+							{currentlyPlayingBlockId}
+							{currentBlockIndex}
 							onBlockSelect={handleBlockSelect}
 							onBlockPlay={handleBlockPlay}
 							onBlocksReorder={handleBlocksReorder}
@@ -176,7 +208,13 @@
 				<div class="space-y-6 lg:col-span-1">
 					<section class="sticky top-6 rounded-lg bg-white p-6 shadow-sm">
 						<h2 class="mb-4 text-lg font-semibold text-gray-900">Media Player</h2>
-						<MediaPlayer blocks={$blocks} {selectedBlockId} onBlockSelect={handleBlockPlay} />
+						<MediaPlayer
+							blocks={$blocks}
+							{selectedBlockId}
+							onBlockSelect={handleBlockPlay}
+							onPlaybackStateChange={handlePlaybackStateChange}
+							onBlockTransition={handleBlockTransition}
+						/>
 					</section>
 
 					<section class="rounded-lg bg-white p-6 shadow-sm">

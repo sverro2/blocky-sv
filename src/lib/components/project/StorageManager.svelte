@@ -192,7 +192,7 @@
 			{#if orphanedFiles.length > 0}
 				<div class="max-h-32 overflow-y-auto">
 					<div class="grid grid-cols-1 gap-1 sm:grid-cols-2">
-						{#each orphanedFiles as filename}
+						{#each orphanedFiles as filename (filename)}
 							<div class="flex items-center gap-2 rounded bg-orange-100 px-2 py-1 text-xs">
 								<span class="font-mono text-orange-700">{getFileDisplayName(filename)}</span>
 								{#if storageStats.files.find((f) => f.name === filename)}
@@ -274,7 +274,7 @@
 			</summary>
 			<div class="mt-3 max-h-64 overflow-y-auto">
 				<div class="space-y-1">
-					{#each storageStats.files as file}
+					{#each storageStats.files as file (file)}
 						<div class="flex items-center justify-between rounded bg-white px-3 py-1 text-sm">
 							<span class="font-mono text-gray-700">{getFileDisplayName(file.name)}</span>
 							<span class="text-gray-500">{formatFileSize(file.size)}</span>
