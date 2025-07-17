@@ -28,11 +28,32 @@
 		return () => clearInterval(interval);
 	});
 
+	// Auto-play when selectedBlockId changes
+	let lastPlayedBlockId = $state<string | null>(null);
+
+	$effect(() => {
+		if (selectedBlockId && blocks.length > 0 && selectedBlockId !== lastPlayedBlockId) {
+			startPlayback(selectedBlockId);
+		}
+	});
+
+	async function startPlayback(blockId: string) {
+		try {
+			playbackError = null;
+			await mediaPlaybackService.playFromBlock(blockId, blocks);
+			lastPlayedBlockId = blockId;
+		} catch (error) {
+			playbackError = error instanceof Error ? error.message : 'Failed to play media';
+			console.error('Playback error:', error);
+		}
+	}
+
 	async function playFromBlock(blockId: string) {
 		try {
 			playbackError = null;
 			await mediaPlaybackService.playFromBlock(blockId, blocks);
 			onBlockSelect?.(blockId);
+			lastPlayedBlockId = blockId;
 		} catch (error) {
 			playbackError = error instanceof Error ? error.message : 'Failed to play media';
 			console.error('Playback error:', error);
@@ -58,7 +79,7 @@
 	}
 </script>
 
-<div class="media-player mb-4 rounded-lg bg-gray-800 p-4">
+<div class="media-player mb-4 min-h-[200px] rounded-lg bg-gray-800 p-4">
 	<!-- Video Element -->
 	<!-- svelte-ignore a11y_media_has_caption -->
 	<video
@@ -116,8 +137,23 @@
 	<!-- Current Block Info -->
 	{#if playbackState.currentBlockId}
 		<div class="mb-2 text-sm text-white">
-			<span class="text-gray-400">Now playing:</span>
-			<span class="font-mono">{playbackState.currentBlockId}</span>
+			<div class="flex items-center gap-2">
+				<span class="text-gray-400">Now playing:</span>
+				{#if playbackState.isPlaying}
+					<div class="flex items-center gap-1">
+						<div class="h-2 w-2 animate-pulse rounded-full bg-green-500"></div>
+						<span class="text-green-400">Live</span>
+					</div>
+				{:else}
+					<div class="flex items-center gap-1">
+						<div class="h-2 w-2 rounded-full bg-gray-500"></div>
+						<span class="text-gray-400">Paused</span>
+					</div>
+				{/if}
+			</div>
+			<div class="mt-1 font-mono text-xs text-gray-300">
+				Block: {playbackState.currentBlockId}
+			</div>
 		</div>
 	{/if}
 
@@ -130,10 +166,18 @@
 					class="rounded bg-gray-600 px-3 py-2 text-sm text-white transition-colors hover:bg-gray-500"
 					class:bg-blue-600={selectedBlockId === block.blockId}
 					class:hover:bg-blue-500={selectedBlockId === block.blockId}
+					class:ring-2={playbackState.currentBlockId === block.blockId && playbackState.isPlaying}
+					class:ring-green-500={playbackState.currentBlockId === block.blockId &&
+						playbackState.isPlaying}
 					title="Play from this block"
 				>
-					<div class="truncate">
-						{block.currentMediaId.slice(0, 8)}...
+					<div class="flex items-center gap-1">
+						{#if playbackState.currentBlockId === block.blockId && playbackState.isPlaying}
+							<div class="h-1.5 w-1.5 animate-pulse rounded-full bg-green-400"></div>
+						{/if}
+						<div class="truncate">
+							{block.currentMediaId.slice(0, 8)}...
+						</div>
 					</div>
 				</button>
 			{/each}
@@ -156,9 +200,3 @@
 		</div>
 	{/if}
 </div>
-
-<style>
-	.media-player {
-		min-height: 200px;
-	}
-</style>

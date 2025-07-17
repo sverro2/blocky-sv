@@ -38,6 +38,16 @@
 		selectedBlockId = blockId;
 	}
 
+	// Handle block play request
+	async function handleBlockPlay(blockId: string): Promise<void> {
+		selectedBlockId = blockId;
+		// The MediaPlayer component will automatically start playback
+		// when selectedBlockId changes via the $effect
+
+		// Add a small delay to allow the effect to trigger
+		await new Promise((resolve) => setTimeout(resolve, 100));
+	}
+
 	// Handle block reordering
 	async function handleBlocksReorder(newBlocks: typeof $blocks) {
 		try {
@@ -143,6 +153,7 @@
 							blocks={$blocks}
 							{selectedBlockId}
 							onBlockSelect={handleBlockSelect}
+							onBlockPlay={handleBlockPlay}
 							onBlocksReorder={handleBlocksReorder}
 							onBlockDelete={handleBlockDelete}
 						/>
@@ -153,7 +164,7 @@
 				<div class="lg:col-span-1">
 					<section class="sticky top-6 rounded-lg bg-white p-6 shadow-sm">
 						<h2 class="mb-4 text-lg font-semibold text-gray-900">Media Player</h2>
-						<MediaPlayer blocks={$blocks} {selectedBlockId} onBlockSelect={handleBlockSelect} />
+						<MediaPlayer blocks={$blocks} {selectedBlockId} onBlockSelect={handleBlockPlay} />
 					</section>
 				</div>
 			</div>

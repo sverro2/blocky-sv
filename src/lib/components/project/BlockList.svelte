@@ -9,13 +9,22 @@
 		blocks: Block[];
 		selectedBlockId?: string | null;
 		onBlockSelect?: (blockId: string) => void;
+		onBlockPlay?: (blockId: string) => Promise<void>;
 		onBlocksReorder?: (newBlocks: Block[]) => void;
 		onBlockDelete?: (blockId: string) => void;
 	}
 
-	let { blocks, selectedBlockId, onBlockSelect, onBlocksReorder, onBlockDelete }: Props = $props();
+	let {
+		blocks,
+		selectedBlockId,
+		onBlockSelect,
+		onBlockPlay,
+		onBlocksReorder,
+		onBlockDelete
+	}: Props = $props();
 
 	let sortableElement: HTMLElement | null = $state(null);
+	let playingBlockId = $state<string | null>(null);
 
 	// Initialize sortable functionality
 	useSortable(() => sortableElement, {
@@ -36,6 +45,18 @@
 		onBlockSelect?.(blockId);
 	}
 
+	async function handleBlockPlay(blockId: string) {
+		playingBlockId = blockId;
+		try {
+			await onBlockPlay?.(blockId);
+		} finally {
+			// Reset playing state after a brief delay
+			setTimeout(() => {
+				playingBlockId = null;
+			}, 500);
+		}
+	}
+
 	function handleBlockDelete(blockId: string, event: Event) {
 		event.stopPropagation();
 		if (confirm('Are you sure you want to delete this block?')) {
@@ -48,9 +69,9 @@
 	}
 </script>
 
-<div class="block-list">
+<div class="block-list w-full max-w-[600px]">
 	{#if blocks.length === 0}
-		<div class="empty-state">
+		<div class="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
 			<div class="py-8 text-center text-gray-500">
 				<div class="mb-4 text-4xl">🎵</div>
 				<p class="mb-2 text-lg">No blocks yet</p>
@@ -64,17 +85,20 @@
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
 				<li
 					onclick={() => handleBlockSelect(block.blockId)}
-					class="block-item"
-					class:selected={selectedBlockId === block.blockId}
+					class="cursor-pointer overflow-hidden rounded-lg border border-gray-300 bg-white transition-all duration-200 hover:border-blue-500 hover:shadow-lg"
+					class:border-blue-500={selectedBlockId === block.blockId}
+					class:bg-blue-50={selectedBlockId === block.blockId}
+					class:shadow-md={selectedBlockId === block.blockId}
+					class:shadow-blue-200={selectedBlockId === block.blockId}
 					title="Click to select, drag to reorder"
 				>
-					<div class="block-content">
+					<div class="flex items-center gap-3 p-3">
 						<!-- Media Info -->
-						<div class="media-info">
-							<div class="media-id">
+						<div class="min-w-0 flex-1">
+							<div class="mb-0.5 font-mono text-sm font-semibold text-gray-700">
 								{formatMediaId(block.currentMediaId)}
 							</div>
-							<div class="media-count">
+							<div class="text-xs text-gray-500">
 								{block.media.length} media file{block.media.length === 1 ? '' : 's'}
 							</div>
 						</div>
@@ -83,30 +107,41 @@
 						<button
 							onclick={(e) => {
 								e.stopPropagation();
-								handleBlockSelect(block.blockId);
+								handleBlockPlay(block.blockId);
 							}}
-							class="play-button"
+							class="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white transition-colors hover:bg-blue-600"
+							class:opacity-50={playingBlockId === block.blockId}
+							disabled={playingBlockId === block.blockId}
 							title="Play from this block"
 						>
-							<PlayIcon size={16} />
+							{#if playingBlockId === block.blockId}
+								<div
+									class="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
+								></div>
+							{:else}
+								<PlayIcon size={16} />
+							{/if}
 						</button>
 
 						<!-- Drag Handle -->
-						<div class="drag-handle" title="Drag to reorder">
-							<div class="drag-dots">
-								<div class="dot"></div>
-								<div class="dot"></div>
-								<div class="dot"></div>
-								<div class="dot"></div>
-								<div class="dot"></div>
-								<div class="dot"></div>
+						<div
+							class="cursor-grab rounded p-1 transition-colors hover:bg-gray-100 active:cursor-grabbing"
+							title="Drag to reorder"
+						>
+							<div class="grid h-3 w-3 grid-cols-2 gap-0.5">
+								<div class="h-0.5 w-0.5 rounded-full bg-gray-400"></div>
+								<div class="h-0.5 w-0.5 rounded-full bg-gray-400"></div>
+								<div class="h-0.5 w-0.5 rounded-full bg-gray-400"></div>
+								<div class="h-0.5 w-0.5 rounded-full bg-gray-400"></div>
+								<div class="h-0.5 w-0.5 rounded-full bg-gray-400"></div>
+								<div class="h-0.5 w-0.5 rounded-full bg-gray-400"></div>
 							</div>
 						</div>
 
 						<!-- Delete Button -->
 						<button
 							onclick={(e) => handleBlockDelete(block.blockId, e)}
-							class="delete-button"
+							class="flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-base leading-none text-white transition-colors hover:bg-red-600"
 							title="Delete this block"
 						>
 							×
@@ -115,21 +150,25 @@
 
 					<!-- Block Details (expandable) -->
 					{#if selectedBlockId === block.blockId}
-						<div class="block-details">
-							<div class="detail-row">
-								<span class="detail-label">Block ID:</span>
-								<span class="detail-value font-mono text-xs">{block.blockId}</span>
+						<div class="border-t border-gray-200 bg-gray-50 p-3">
+							<div class="mb-2 flex items-start gap-2">
+								<span class="min-w-20 text-xs font-semibold text-gray-600">Block ID:</span>
+								<span class="font-mono text-xs break-all text-gray-700">{block.blockId}</span>
 							</div>
-							<div class="detail-row">
-								<span class="detail-label">Current Media:</span>
-								<span class="detail-value font-mono text-xs">{block.currentMediaId}</span>
+							<div class="mb-2 flex items-start gap-2">
+								<span class="min-w-20 text-xs font-semibold text-gray-600">Current Media:</span>
+								<span class="font-mono text-xs break-all text-gray-700">{block.currentMediaId}</span
+								>
 							</div>
 							{#if block.media.length > 1}
-								<div class="detail-row">
-									<span class="detail-label">All Media:</span>
-									<div class="media-list">
-										{#each block.media as media (media)}
-											<span class="media-tag">{formatMediaId(media.mediaId)}</span>
+								<div class="flex items-start gap-2">
+									<span class="min-w-20 text-xs font-semibold text-gray-600">All Media:</span>
+									<div class="flex flex-wrap gap-1">
+										{#each block.media as media (media.mediaId)}
+											<span
+												class="rounded bg-gray-200 px-1.5 py-0.5 font-mono text-xs text-gray-700"
+												>{formatMediaId(media.mediaId)}</span
+											>
 										{/each}
 									</div>
 								</div>
@@ -143,199 +182,9 @@
 </div>
 
 <style>
-	.block-list {
-		width: 100%;
-		max-width: 600px;
-	}
-
-	.empty-state {
-		border: 2px dashed #d1d5db;
-		border-radius: 8px;
-		background-color: #f9fafb;
-	}
-
-	.block-item {
-		border: 1px solid #e5e7eb;
-		border-radius: 8px;
-		background-color: white;
-		transition: all 0.2s ease;
-		cursor: pointer;
-		overflow: hidden;
-	}
-
-	.block-item:hover {
-		border-color: #3b82f6;
-		box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-	}
-
-	.block-item.selected {
-		border-color: #3b82f6;
-		background-color: #eff6ff;
-		box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-	}
-
-	.block-content {
-		display: flex;
-		align-items: center;
-		padding: 12px 16px;
-		gap: 12px;
-	}
-
-	.media-info {
-		flex: 1;
-		min-width: 0;
-	}
-
-	.media-id {
-		font-family: 'Courier New', monospace;
-		font-size: 14px;
-		font-weight: 600;
-		color: #374151;
-		margin-bottom: 2px;
-	}
-
-	.media-count {
-		font-size: 12px;
-		color: #6b7280;
-	}
-
-	.play-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 32px;
-		height: 32px;
-		border-radius: 50%;
-		background-color: #3b82f6;
-		color: white;
-		border: none;
-		cursor: pointer;
-		transition: background-color 0.2s ease;
-	}
-
-	.play-button:hover {
-		background-color: #2563eb;
-	}
-
-	.drag-handle {
-		cursor: grab;
-		padding: 4px;
-		border-radius: 4px;
-		transition: background-color 0.2s ease;
-	}
-
-	.drag-handle:hover {
-		background-color: #f3f4f6;
-	}
-
-	.drag-handle:active {
-		cursor: grabbing;
-	}
-
-	.drag-dots {
-		display: grid;
-		grid-template-columns: repeat(2, 1fr);
-		gap: 2px;
-		width: 12px;
-		height: 12px;
-	}
-
-	.dot {
-		width: 3px;
-		height: 3px;
-		background-color: #9ca3af;
-		border-radius: 50%;
-	}
-
-	.delete-button {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		width: 24px;
-		height: 24px;
-		border-radius: 50%;
-		background-color: #ef4444;
-		color: white;
-		border: none;
-		cursor: pointer;
-		font-size: 16px;
-		line-height: 1;
-		transition: background-color 0.2s ease;
-	}
-
-	.delete-button:hover {
-		background-color: #dc2626;
-	}
-
-	.block-details {
-		border-top: 1px solid #e5e7eb;
-		padding: 12px 16px;
-		background-color: #f9fafb;
-	}
-
-	.detail-row {
-		display: flex;
-		align-items: flex-start;
-		gap: 8px;
-		margin-bottom: 8px;
-	}
-
-	.detail-row:last-child {
-		margin-bottom: 0;
-	}
-
-	.detail-label {
-		font-size: 12px;
-		font-weight: 600;
-		color: #6b7280;
-		min-width: 80px;
-	}
-
-	.detail-value {
-		font-size: 12px;
-		color: #374151;
-		word-break: break-all;
-	}
-
-	.media-list {
-		display: flex;
-		flex-wrap: wrap;
-		gap: 4px;
-	}
-
-	.media-tag {
-		background-color: #e5e7eb;
-		color: #374151;
-		padding: 2px 6px;
-		border-radius: 4px;
-		font-size: 10px;
-		font-family: 'Courier New', monospace;
-	}
-
 	/* Dragging styles */
 	:global(.dragged-item) {
 		opacity: 0.5;
 		transform: rotate(5deg);
-	}
-
-	/* Responsive design */
-	@media (max-width: 640px) {
-		.block-content {
-			padding: 8px 12px;
-			gap: 8px;
-		}
-
-		.media-id {
-			font-size: 12px;
-		}
-
-		.media-count {
-			font-size: 10px;
-		}
-
-		.play-button {
-			width: 28px;
-			height: 28px;
-		}
 	}
 </style>

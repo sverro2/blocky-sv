@@ -79,7 +79,3 @@
 		</button>
 	</div>
 {/if}
-
-<style>
-	/* Add any component-specific styles here */
-</style>
