@@ -7,7 +7,7 @@
 		blocks: Block[];
 		selectedBlockId?: string | null;
 		onBlockSelect?: (blockId: string) => void;
-		onPlaybackStateChange?: (playbackState: any) => void;
+		onPlaybackStateChange?: (playbackState: unknown) => void;
 		onBlockTransition?: (blockId: string, blockIndex: number) => void;
 	}
 
@@ -207,7 +207,7 @@
 			<!-- Block Progress Indicator -->
 			{#if playbackState.totalBlocks > 1}
 				<div class="mt-2 flex items-center gap-1">
-					{#each Array(playbackState.totalBlocks) as block, index (block)}
+					{#each Array(playbackState.totalBlocks) as block, index (index)}
 						<div
 							class="h-2 flex-1 rounded-full transition-all duration-300"
 							class:bg-green-500={index < playbackState.currentBlockIndex}

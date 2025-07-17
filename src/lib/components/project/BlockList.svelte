@@ -95,7 +95,7 @@
 		</div>
 	{:else}
 		<ul class="flex list-none flex-col gap-2 select-none" bind:this={sortableElement}>
-			{#each blocks as block, blockIndex (block.blockId)}
+			{#each blocks as block, blockIndex (block)}
 				{@const blockStatus = getBlockStatus(blockIndex)}
 				<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 				<!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -114,7 +114,7 @@
 					class:ring-green-500={blockStatus === 'playing'}
 					class:playing-block={blockStatus === 'playing'}
 					class:border-green-300={blockStatus === 'completed'}
-					class:bg-green-100={blockStatus === 'completed'}
+					class:bg-green-25={blockStatus === 'completed'}
 					class:opacity-75={blockStatus === 'completed'}
 					title="Click to select, drag to reorder"
 				>
@@ -247,10 +247,10 @@
 					{#if selectedBlockId === block.blockId || blockStatus === 'playing'}
 						<div
 							class="border-t p-3"
-							class:border-green-200={blockStatus === 'playing'}
-							class:bg-green-50={blockStatus === 'playing'}
-							class:border-gray-200={blockStatus !== 'playing'}
-							class:bg-gray-50={blockStatus !== 'playing'}
+							class:border-green-200={currentlyPlayingBlockId === block.blockId}
+							class:bg-green-50={currentlyPlayingBlockId === block.blockId}
+							class:border-gray-200={currentlyPlayingBlockId !== block.blockId}
+							class:bg-gray-50={currentlyPlayingBlockId !== block.blockId}
 						>
 							<div class="mb-2 flex items-start gap-2">
 								<span class="min-w-20 text-xs font-semibold text-gray-600">Block ID:</span>
