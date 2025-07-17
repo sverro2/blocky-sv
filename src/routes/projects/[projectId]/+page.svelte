@@ -15,7 +15,6 @@
 
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
-	import { stopPropagation } from 'svelte/legacy';
 	import Layout from '../../+layout.svelte';
 	let { data }: PageProps = $props();
 
