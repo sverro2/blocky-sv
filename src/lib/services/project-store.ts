@@ -126,6 +126,141 @@ export class ProjectStore {
 		}
 	}
 
+	public async addRecordingToBlock(blockId: string, mediaId: string): Promise<void> {
+		try {
+			// Add media to IndexedDB
+			await addMedia({ mediaId, projectId: this.projectId });
+
+			// Add recording to the specified block
+			this._state.update((state) => {
+				if (!state.currentSnapshot) {
+					throw new Error('No current snapshot');
+				}
+
+				const updatedBlocks = state.currentSnapshot.data.blocks.map((block) => {
+					if (block.blockId === blockId) {
+						return {
+							...block,
+							media: [...block.media, { mediaId }],
+							currentMediaId: mediaId // Set new recording as current
+						};
+					}
+					return block;
+				});
+
+				const updatedSnapshot = {
+					...state.currentSnapshot,
+					data: { blocks: updatedBlocks }
+				};
+
+				return {
+					...state,
+					currentSnapshot: updatedSnapshot
+				};
+			});
+
+			await this.saveSnapshot();
+		} catch (error) {
+			this._state.update((state) => ({
+				...state,
+				error: error instanceof Error ? error.message : 'Failed to add recording to block'
+			}));
+		}
+	}
+
+	public async switchBlockRecording(blockId: string, mediaId: string): Promise<void> {
+		try {
+			this._state.update((state) => {
+				if (!state.currentSnapshot) {
+					throw new Error('No current snapshot');
+				}
+
+				const updatedBlocks = state.currentSnapshot.data.blocks.map((block) => {
+					if (block.blockId === blockId) {
+						// Verify the mediaId exists in the block's media array
+						const mediaExists = block.media.some((media) => media.mediaId === mediaId);
+						if (!mediaExists) {
+							throw new Error('Media not found in block');
+						}
+						return {
+							...block,
+							currentMediaId: mediaId
+						};
+					}
+					return block;
+				});
+
+				const updatedSnapshot = {
+					...state.currentSnapshot,
+					data: { blocks: updatedBlocks }
+				};
+
+				return {
+					...state,
+					currentSnapshot: updatedSnapshot
+				};
+			});
+
+			await this.saveSnapshot();
+		} catch (error) {
+			this._state.update((state) => ({
+				...state,
+				error: error instanceof Error ? error.message : 'Failed to switch recording'
+			}));
+		}
+	}
+
+	public async removeRecordingFromBlock(blockId: string, mediaId: string): Promise<void> {
+		try {
+			this._state.update((state) => {
+				if (!state.currentSnapshot) {
+					throw new Error('No current snapshot');
+				}
+
+				const updatedBlocks = state.currentSnapshot.data.blocks.map((block) => {
+					if (block.blockId === blockId) {
+						const updatedMedia = block.media.filter((media) => media.mediaId !== mediaId);
+
+						// Don't allow removing the last recording
+						if (updatedMedia.length === 0) {
+							throw new Error('Cannot remove the last recording from a block');
+						}
+
+						// If we're removing the current recording, switch to the first available one
+						let newCurrentMediaId = block.currentMediaId;
+						if (block.currentMediaId === mediaId) {
+							newCurrentMediaId = updatedMedia[0].mediaId;
+						}
+
+						return {
+							...block,
+							media: updatedMedia,
+							currentMediaId: newCurrentMediaId
+						};
+					}
+					return block;
+				});
+
+				const updatedSnapshot = {
+					...state.currentSnapshot,
+					data: { blocks: updatedBlocks }
+				};
+
+				return {
+					...state,
+					currentSnapshot: updatedSnapshot
+				};
+			});
+
+			await this.saveSnapshot();
+		} catch (error) {
+			this._state.update((state) => ({
+				...state,
+				error: error instanceof Error ? error.message : 'Failed to remove recording'
+			}));
+		}
+	}
+
 	public async reorderBlocks(newBlocks: Block[]): Promise<void> {
 		try {
 			this._state.update((state) => {

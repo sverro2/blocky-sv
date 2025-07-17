@@ -61,8 +61,10 @@
 	}
 
 	// Handle playback state changes from MediaPlayer
-	function handlePlaybackStateChange(playbackState: any) {
-		currentlyPlayingBlockId = playbackState.currentBlockId;
+	function handlePlaybackStateChange(playbackState: unknown) {
+		if (playbackState && typeof playbackState === 'object' && 'currentBlockId' in playbackState) {
+			currentlyPlayingBlockId = (playbackState as { currentBlockId: string | null }).currentBlockId;
+		}
 	}
 
 	// Handle block transitions during playback
@@ -180,7 +182,11 @@
 					<!-- Recording Controls -->
 					<section class="rounded-lg bg-white p-6 shadow-sm">
 						<h2 class="mb-4 text-lg font-semibold text-gray-900">Recording Controls</h2>
-						<RecordingControls {projectStore} onRecordingComplete={handleRecordingComplete} />
+						<RecordingControls
+							{projectStore}
+							blocks={$blocks}
+							onRecordingComplete={handleRecordingComplete}
+						/>
 					</section>
 
 					<!-- Block List -->
@@ -214,6 +220,7 @@
 							onBlockSelect={handleBlockPlay}
 							onPlaybackStateChange={handlePlaybackStateChange}
 							onBlockTransition={handleBlockTransition}
+							{projectStore}
 						/>
 					</section>
 
