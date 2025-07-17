@@ -6,6 +6,8 @@ import {
 	type Snapshot,
 	type Block
 } from '$lib/client/idb';
+import { mediaCleanupService } from './media-cleanup';
+import { toast } from '$lib/utils/toast';
 
 export interface ProjectState {
 	projectId: string;
@@ -153,6 +155,17 @@ export class ProjectStore {
 
 	public async removeBlock(blockId: string): Promise<void> {
 		try {
+			// Get the block to be removed so we can clean up its media
+			const currentState = this.getCurrentState();
+			const blockToRemove = currentState.currentSnapshot?.data.blocks.find(
+				(block) => block.blockId === blockId
+			);
+
+			if (!blockToRemove) {
+				throw new Error('Block not found');
+			}
+
+			// Update the snapshot to remove the block
 			this._state.update((state) => {
 				if (!state.currentSnapshot) {
 					throw new Error('No current snapshot');
@@ -173,7 +186,36 @@ export class ProjectStore {
 				};
 			});
 
+			// Save the updated snapshot
 			await this.saveSnapshot();
+
+			// Clean up media files that are no longer used
+			const mediaIds = blockToRemove.media.map((media) => media.mediaId);
+			const cleanupResult = await mediaCleanupService.cleanupBlockMedia(
+				mediaIds,
+				this.projectId,
+				blockId
+			);
+
+			console.log('Media cleanup result:', cleanupResult);
+
+			// Show success notification
+			if (cleanupResult.totalSuccessful > 0) {
+				toast.success(
+					`Block deleted and ${cleanupResult.totalSuccessful} media file${cleanupResult.totalSuccessful === 1 ? '' : 's'} cleaned up`,
+					{ duration: 4000 }
+				);
+			} else {
+				toast.info('Block deleted', { duration: 3000 });
+			}
+
+			// Show warning if some files couldn't be cleaned up
+			if (cleanupResult.totalFailed > 0) {
+				toast.warning(
+					`${cleanupResult.totalFailed} media file${cleanupResult.totalFailed === 1 ? '' : 's'} could not be cleaned up`,
+					{ duration: 6000 }
+				);
+			}
 		} catch (error) {
 			this._state.update((state) => ({
 				...state,

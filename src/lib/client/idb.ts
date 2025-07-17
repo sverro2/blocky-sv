@@ -106,3 +106,29 @@ export async function addMedia(media: CachedMedia): Promise<void> {
 	const database = await db();
 	database.put('fileCacheStore', media);
 }
+
+export async function removeMedia(mediaId: string): Promise<void> {
+	const database = await db();
+	await database.delete('fileCacheStore', mediaId);
+}
+
+export async function getMediaById(mediaId: string): Promise<CachedMedia | undefined> {
+	const database = await db();
+	return database.get('fileCacheStore', mediaId);
+}
+
+export async function isMediaUsedInOtherBlocks(
+	mediaId: string,
+	projectId: string,
+	excludeBlockId?: string
+): Promise<boolean> {
+	const database = await db();
+	const snapshot = await database.get('snapshotStore', ['current', projectId]);
+
+	if (!snapshot) return false;
+
+	return snapshot.data.blocks.some(
+		(block) =>
+			block.blockId !== excludeBlockId && block.media.some((media) => media.mediaId === mediaId)
+	);
+}

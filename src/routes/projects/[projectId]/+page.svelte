@@ -4,7 +4,10 @@
 	import RecordingControls from '$lib/components/project/RecordingControls.svelte';
 	import MediaPlayer from '$lib/components/project/MediaPlayer.svelte';
 	import BlockList from '$lib/components/project/BlockList.svelte';
+	import StorageManager from '$lib/components/project/StorageManager.svelte';
+	import Toast from '$lib/components/ui/Toast.svelte';
 	import type { PageProps } from './$types';
+	import type { CleanupSummary } from '$lib/services/media-cleanup';
 
 	let { data }: PageProps = $props();
 
@@ -73,6 +76,15 @@
 	function clearProjectError() {
 		projectStore.clearError();
 		projectError = null;
+	}
+
+	// Handle storage cleanup completion
+	function handleCleanupComplete(summary: CleanupSummary) {
+		console.log('Storage cleanup completed:', summary);
+		if (summary.totalSuccessful > 0) {
+			// Optionally refresh the project to reflect any changes
+			projectStore.loadProject();
+		}
 	}
 </script>
 
@@ -160,11 +172,15 @@
 					</section>
 				</div>
 
-				<!-- Right Column: Media Player -->
-				<div class="lg:col-span-1">
+				<!-- Right Column: Media Player & Storage -->
+				<div class="space-y-6 lg:col-span-1">
 					<section class="sticky top-6 rounded-lg bg-white p-6 shadow-sm">
 						<h2 class="mb-4 text-lg font-semibold text-gray-900">Media Player</h2>
 						<MediaPlayer blocks={$blocks} {selectedBlockId} onBlockSelect={handleBlockPlay} />
+					</section>
+
+					<section class="rounded-lg bg-white p-6 shadow-sm">
+						<StorageManager projectId={data.projectId} onCleanupComplete={handleCleanupComplete} />
 					</section>
 				</div>
 			</div>
@@ -193,6 +209,9 @@
 		{/if}
 	</div>
 </div>
+
+<!-- Toast Notifications -->
+<Toast />
 
 <style>
 	.project-page {

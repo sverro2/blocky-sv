@@ -59,7 +59,11 @@
 
 	function handleBlockDelete(blockId: string, event: Event) {
 		event.stopPropagation();
-		if (confirm('Are you sure you want to delete this block?')) {
+		if (
+			confirm(
+				'Are you sure you want to delete this block? This will also remove any unused media files.'
+			)
+		) {
 			onBlockDelete?.(blockId);
 		}
 	}
