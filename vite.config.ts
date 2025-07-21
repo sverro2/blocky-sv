@@ -41,5 +41,8 @@ export default defineConfig({
 				}
 			}
 		]
+	},
+	server: {
+		allowedHosts: ['audiospire.nl']
 	}
 });
