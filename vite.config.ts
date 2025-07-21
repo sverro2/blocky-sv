@@ -43,6 +43,8 @@ export default defineConfig({
 		]
 	},
 	server: {
-		allowedHosts: ['audiospire.nl']
+		allowedHosts: ['audiospire.nl'],
+		host: '127.0.0.1',
+		port: 8080
 	}
 });
