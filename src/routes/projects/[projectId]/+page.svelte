@@ -131,7 +131,7 @@
 			<h1 class="mb-2 text-3xl font-bold text-gray-900">
 				Project: {data.projectId}
 			</h1>
-			<p class="text-gray-600">Manage your audio recordings and create seamless playlists</p>
+			<p class="text-gray-600">hi!</p>
 		</header>
 
 		<!-- Loading State -->

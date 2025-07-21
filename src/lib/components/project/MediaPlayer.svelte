@@ -485,7 +485,7 @@
 		</div>
 
 		<!-- Keyboard Shortcuts Help -->
-		<div class="mt-4 rounded-lg bg-gray-100 p-3">
+		<!-- <div class="mt-4 rounded-lg bg-gray-100 p-3">
 			<h3 class="mb-2 text-sm font-medium text-gray-700">Keyboard Shortcuts</h3>
 			<div class="grid grid-cols-2 gap-2 text-xs text-gray-600">
 				<div>
@@ -498,7 +498,7 @@
 				<div>🗑️ - Delete recording</div>
 				<div>✓ - Active recording</div>
 			</div>
-		</div>
+		</div> -->
 	{/if}
 
 	<!-- Error Display -->
