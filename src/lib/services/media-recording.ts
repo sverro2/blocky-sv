@@ -35,7 +35,7 @@ export class MediaRecordingService {
 				sampleSize: 16.0,
 				channelCount: 1.0,
 				echoCancellation: false,
-				noiseSuppression: true,
+				noiseSuppression: false,
 				autoGainControl: true
 			}
 		};
@@ -78,11 +78,7 @@ export class MediaRecordingService {
 	}
 
 	private getSupportedMimeType(): string {
-		const mimeTypes = [
-			'audio/webm; codecs=opus',
-			'video/webm; codecs="vp8, vorbis"',
-			'video/webm'
-		];
+		const mimeTypes = ['audio/webm; codecs=opus', 'video/webm; codecs="vp8, vorbis"', 'video/webm'];
 
 		for (const mimeType of mimeTypes) {
 			if (MediaRecorder.isTypeSupported(mimeType)) {
