@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { MicIcon, PlayIcon, SaveIcon } from 'lucide-svelte';
 	import { opfsManager } from '$lib/client/opfs';
-	import { reorder, useSortable } from '$lib/client/use-sortable.svelte';
 	import type { MediaRecorderSession } from '$lib/types/current-recorder-session';
 	import {
 		addMedia,
@@ -16,6 +15,20 @@
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
 	import Layout from '../../+layout.svelte';
+
+	import Droppable from '$lib/components/droppable.svelte';
+	import SortableItem from '$lib/components/sortable/sortable-item.svelte';
+	import {
+		DndContext,
+		DragOverlay,
+		type DragEndEvent,
+		type DragOverEvent,
+		type DragStartEvent
+	} from '@dnd-kit-svelte/core';
+	import { SortableContext, arrayMove } from '@dnd-kit-svelte/sortable';
+	import { dropAnimation, sensors } from '$lib';
+	import { crossfade } from 'svelte/transition';
+
 	let { data }: PageProps = $props();
 
 	let currentSnapshot = $state<Snapshot | undefined>(undefined);
@@ -53,31 +66,31 @@
 		return value;
 	}
 
-	useSortable(() => sortable, {
-		animation: 200,
-		// handle: '.my-handle',
-		ghostClass: 'dragged-item',
-		delayOnTouchOnly: true,
-		delay: 200,
-		onEnd(evt) {
-			console.log('sorting now!');
-			if (currentSnapshot === undefined) {
-				return;
-			}
+	// useSortable(() => sortable, {
+	// 	animation: 200,
+	// 	// handle: '.my-handle',
+	// 	ghostClass: 'dragged-item',
+	// 	delayOnTouchOnly: true,
+	// 	delay: 200,
+	// 	onEnd(evt) {
+	// 		console.log('sorting now!');
+	// 		if (currentSnapshot === undefined) {
+	// 			return;
+	// 		}
 
-			currentSnapshot = {
-				...currentSnapshot,
-				data: {
-					blocks: reorder(currentSnapshotBlocks, evt)
-				}
-			};
+	// 		currentSnapshot = {
+	// 			...currentSnapshot,
+	// 			data: {
+	// 				blocks: reorder(currentSnapshotBlocks, evt)
+	// 			}
+	// 		};
 
-			// Need to unwrap it from state, for IndexedDb to able to store the data.
-			let plainSnapshot = toPlain(currentSnapshot);
+	// 		// Need to unwrap it from state, for IndexedDb to able to store the data.
+	// 		let plainSnapshot = toPlain(currentSnapshot);
 
-			putSnapshot(plainSnapshot);
-		}
-	});
+	// 		putSnapshot(plainSnapshot);
+	// 	}
+	// });
 
 	async function recordMedia() {
 		let mediaDevices = window.navigator.mediaDevices;
@@ -88,7 +101,7 @@
 				sampleSize: 16.0,
 				channelCount: 1.0,
 				echoCancellation: false,
-				noiseSuppression: true,
+				noiseSuppression: false,
 				autoGainControl: true
 			}
 		};
@@ -309,6 +322,70 @@
 		selectedMediaId = id;
 		playMedia(id);
 	}
+
+	interface Todo {
+		id: string;
+		content: string;
+		done: boolean;
+	}
+
+	const defaultTasks: Todo[] = [
+		{ id: 'task-1', content: 'Learn Svelte', done: false },
+		{ id: 'task-2', content: 'Build a Kanban board', done: false },
+		{ id: 'task-3', content: 'Review code', done: false },
+		{ id: 'task-4', content: 'Setup project', done: false }
+	];
+
+	let todos = $state<Todo[]>(defaultTasks);
+	let activeId = $state<string | null>(null);
+
+	const activeTodo = $derived(todos.find((todo) => todo.id === activeId));
+	const done = $derived(todos.filter((task) => task.done));
+	const inProgress = $derived(todos.filter((task) => !task.done));
+
+	function handleDragStart(event: DragStartEvent) {
+		activeId = event.active.id as string;
+	}
+
+	function handleDragEnd({ active, over }: DragEndEvent) {
+		if (!over) return;
+
+		if (over.id === 'done' || over.id === 'in-progress') {
+			todos.find((todo) => todo.id === active.id)!.done = over.id === 'done';
+			return;
+		}
+
+		const overTodo = $state.snapshot(todos.find((todo) => todo.id === over?.id));
+		if (!overTodo || activeId === overTodo.id) return;
+
+		const oldIndex = todos.findIndex((todo) => todo.id === active.id);
+		const newIndex = todos.findIndex((todo) => todo.id === over.id);
+		todos = arrayMove(todos, oldIndex, newIndex);
+
+		activeId = null;
+	}
+
+	function handleDragOver({ active, over }: DragOverEvent) {
+		if (!over) return;
+
+		const activeTask = todos.find((todo) => todo.id === active.id);
+		if (!activeTask) return;
+
+		// Handle container drag-over
+		if (over.id === 'done' || over.id === 'in-progress') {
+			activeTask.done = over.id === 'done';
+			return;
+		}
+
+		// Handle item drag-over
+		const overTask = todos.find((todo) => todo.id === over.id);
+		if (!overTask) return;
+
+		// Update the active task's done status to match the container it's being dragged over
+		activeTask.done = overTask.done;
+	}
+
+	const [send, recieve] = crossfade({ duration: 100 });
 </script>
 
 <!-- Hello {data.projectId} -->
@@ -351,9 +428,42 @@
 			</li>
 		{/each}
 	</ul>
-	<!-- <div class="flex justify-center">
-		<pre class="mt-5 w-fit border p-5">{JSON.stringify(items, null, 2)}</pre>
-	</div> -->
 
 	<!-- <Outlet /> -->
 </div>
+
+<DndContext
+	{sensors}
+	onDragStart={handleDragStart}
+	onDragEnd={handleDragEnd}
+	onDragOver={handleDragOver}
+>
+	<div class="text-black">
+		<div class="grid gap-4 text-black md:grid-cols-2">
+			{@render taskList('in-progress', 'In Progress', inProgress)}
+			{@render taskList('done', 'Done', done)}
+		</div>
+
+		<DragOverlay {dropAnimation}>
+			{#if activeTodo && activeId}
+				<SortableItem task={activeTodo} />
+			{/if}
+		</DragOverlay>
+	</div>
+</DndContext>
+
+{#snippet taskList(id: string, title: string, tasks: Todo[])}
+	<SortableContext items={tasks}>
+		<Droppable class="rounded-3xl bg-[#F9F9F9] p-3 pt-6" {id}>
+			<p class="pb-3 text-lg font-bold">{title}</p>
+
+			<div class="grid gap-2">
+				{#each tasks as task (task.id)}
+					<div class="" in:recieve={{ key: task.id }} out:send={{ key: task.id }}>
+						<SortableItem {task} />
+					</div>
+				{/each}
+			</div>
+		</Droppable>
+	</SortableContext>
+{/snippet}
