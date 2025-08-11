@@ -22,8 +22,11 @@
 			<form class="space-y-6" method="post" action="?/login" use:enhance>
 				<!-- Username field -->
 				<div>
-					<label class="text-foreground/90 mb-2 block text-sm font-medium"> Username </label>
+					<label for="username" class="text-foreground/90 mb-2 block text-sm font-medium">
+						Username
+					</label>
 					<input
+						id="username"
 						name="username"
 						type="text"
 						required
@@ -34,8 +37,11 @@
 
 				<!-- Password field -->
 				<div>
-					<label class="text-foreground/90 mb-2 block text-sm font-medium"> Password </label>
+					<label for="password" class="text-foreground/90 mb-2 block text-sm font-medium">
+						Password
+					</label>
 					<input
+						id="password"
 						name="password"
 						type="password"
 						required
