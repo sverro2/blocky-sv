@@ -36,7 +36,7 @@ export interface SnapshotData {
 }
 
 export interface Block {
-	blockId: string;
+	id: string;
 	media: BlockMedia[];
 	currentMediaId: string;
 }

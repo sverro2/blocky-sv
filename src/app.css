@@ -5,7 +5,8 @@
 @theme {
 	--color-backdrop: #555;
 	--color-foreground: #fff;
-	--color-passion: orange;
+	--color-passion: #ee991a;
+	--color-passion-light: #ffaf1e;
 }
 
 /*Just ensuring html body has same background color to prevent white flicker */

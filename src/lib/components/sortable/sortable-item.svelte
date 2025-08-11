@@ -2,17 +2,13 @@
 	import type { UniqueIdentifier } from '@dnd-kit-svelte/core';
 	import { CSS, styleObjectToString } from '@dnd-kit-svelte/utilities';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
+	import type { Block } from '$lib/client/idb';
 
-	interface Task {
-		id: UniqueIdentifier;
-		content: string;
-	}
-
-	let { task }: { task: Task } = $props();
+	let { block: block }: { block: Block } = $props();
 
 	const { attributes, listeners, node, transform, transition, isDragging, isSorting } = useSortable(
 		{
-			id: task.id
+			id: block.id
 		}
 	);
 
@@ -34,7 +30,7 @@
 >
 	<!-- Original element - becomes invisible during drag but maintains dimensions -->
 	<div class={['rounded-[18px] bg-white p-4', { invisible: isDragging.current }]}>
-		{task.content}
+		T: {block.id}
 	</div>
 
 	<!-- Drag placeholder - set to match original dimensions -->
@@ -44,7 +40,7 @@
 			<div
 				class="flex h-full w-full items-center justify-center rounded-[18px] border-2 border-dashed border-orange-500 bg-orange-500/10"
 			>
-				<span class="text-orange-500">Moving: {task.content}</span>
+				<span class="text-orange-500">Moving: {block.id}</span>
 			</div>
 		</div>
 	{/if}

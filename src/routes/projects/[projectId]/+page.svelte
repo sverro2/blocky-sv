@@ -47,8 +47,26 @@
 	});
 
 	async function refreshItems() {
-		let media = await getCurrentSnapshot(data.projectId);
-		currentSnapshot = media;
+		// let media = await getCurrentSnapshot(data.projectId);
+		currentSnapshot = {
+			version: 1,
+			snapshotId: 'asdf',
+			projectId: 'moeka',
+			data: {
+				blocks: [
+					{
+						currentMediaId: 'ab',
+						id: 'bc',
+						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
+					},
+					{
+						currentMediaId: 'ef',
+						id: 'efg',
+						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
+					}
+				]
+			}
+		};
 	}
 
 	function toPlain<T>(value: T): T {
@@ -329,19 +347,9 @@
 		done: boolean;
 	}
 
-	const defaultTasks: Todo[] = [
-		{ id: 'task-1', content: 'Learn Svelte', done: false },
-		{ id: 'task-2', content: 'Build a Kanban board', done: false },
-		{ id: 'task-3', content: 'Review code', done: false },
-		{ id: 'task-4', content: 'Setup project', done: false }
-	];
-
-	let todos = $state<Todo[]>(defaultTasks);
 	let activeId = $state<string | null>(null);
 
-	const activeTodo = $derived(todos.find((todo) => todo.id === activeId));
-	const done = $derived(todos.filter((task) => task.done));
-	const inProgress = $derived(todos.filter((task) => !task.done));
+	const activeBlock = $derived(currentSnapshotBlocks.find((block) => block.id === activeId));
 
 	function handleDragStart(event: DragStartEvent) {
 		activeId = event.active.id as string;
@@ -350,39 +358,14 @@
 	function handleDragEnd({ active, over }: DragEndEvent) {
 		if (!over) return;
 
-		if (over.id === 'done' || over.id === 'in-progress') {
-			todos.find((todo) => todo.id === active.id)!.done = over.id === 'done';
-			return;
-		}
+		const overBlock = $state.snapshot(currentSnapshotBlocks.find((block) => block.id === over?.id));
+		if (!overBlock || activeId === overBlock.id) return;
 
-		const overTodo = $state.snapshot(todos.find((todo) => todo.id === over?.id));
-		if (!overTodo || activeId === overTodo.id) return;
-
-		const oldIndex = todos.findIndex((todo) => todo.id === active.id);
-		const newIndex = todos.findIndex((todo) => todo.id === over.id);
-		todos = arrayMove(todos, oldIndex, newIndex);
+		const oldIndex = currentSnapshotBlocks.findIndex((block) => block.id === active.id);
+		const newIndex = currentSnapshotBlocks.findIndex((block) => block.id === over.id);
+		currentSnapshotBlocks = arrayMove(currentSnapshotBlocks, oldIndex, newIndex);
 
 		activeId = null;
-	}
-
-	function handleDragOver({ active, over }: DragOverEvent) {
-		if (!over) return;
-
-		const activeTask = todos.find((todo) => todo.id === active.id);
-		if (!activeTask) return;
-
-		// Handle container drag-over
-		if (over.id === 'done' || over.id === 'in-progress') {
-			activeTask.done = over.id === 'done';
-			return;
-		}
-
-		// Handle item drag-over
-		const overTask = todos.find((todo) => todo.id === over.id);
-		if (!overTask) return;
-
-		// Update the active task's done status to match the container it's being dragged over
-		activeTask.done = overTask.done;
 	}
 
 	const [send, recieve] = crossfade({ duration: 100 });
@@ -392,7 +375,7 @@
 <!-- svelte-ignore a11y_media_has_caption -->
 <video id="video-player" controls class="bg-gray-700"></video>
 
-<div class="text-foreground flex h-screen flex-col p-6">
+<div class="text-foreground flex flex-col p-6">
 	<div class="flex gap-2">
 		<button
 			onclick={recordMedia}
@@ -432,35 +415,29 @@
 	<!-- <Outlet /> -->
 </div>
 
-<DndContext
-	{sensors}
-	onDragStart={handleDragStart}
-	onDragEnd={handleDragEnd}
-	onDragOver={handleDragOver}
->
+<DndContext {sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
 	<div class="text-black">
 		<div class="grid gap-4 text-black md:grid-cols-2">
-			{@render taskList('in-progress', 'In Progress', inProgress)}
-			{@render taskList('done', 'Done', done)}
+			{@render taskList('in-progress', 'In Progress', currentSnapshotBlocks)}
 		</div>
 
 		<DragOverlay {dropAnimation}>
-			{#if activeTodo && activeId}
-				<SortableItem task={activeTodo} />
+			{#if activeBlock && activeId}
+				<SortableItem block={activeBlock} />
 			{/if}
 		</DragOverlay>
 	</div>
 </DndContext>
 
-{#snippet taskList(id: string, title: string, tasks: Todo[])}
-	<SortableContext items={tasks}>
+{#snippet taskList(id: string, title: string, blocks: Block[])}
+	<SortableContext items={blocks}>
 		<Droppable class="rounded-3xl bg-[#F9F9F9] p-3 pt-6" {id}>
 			<p class="pb-3 text-lg font-bold">{title}</p>
 
 			<div class="grid gap-2">
-				{#each tasks as task (task.id)}
-					<div class="" in:recieve={{ key: task.id }} out:send={{ key: task.id }}>
-						<SortableItem {task} />
+				{#each blocks as block (block.id)}
+					<div class="" in:recieve={{ key: block.id }} out:send={{ key: block.id }}>
+						<SortableItem {block} />
 					</div>
 				{/each}
 			</div>

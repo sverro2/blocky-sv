@@ -5,30 +5,35 @@
 	let { form }: { form: ActionData } = $props();
 </script>
 
-<h1>Login/Register</h1>
-<form method="post" action="?/login" use:enhance>
-	<label>
-		Username
-		<input
-			name="username"
-			class="mt-1 rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-		/>
-	</label>
-	<label>
-		Password
-		<input
-			type="password"
-			name="password"
-			class="mt-1 rounded-md border border-gray-300 bg-white px-3 py-2 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-		/>
-	</label>
-	<button class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-		>Login</button
-	>
-	<button
-		formaction="?/register"
-		class="rounded-md bg-blue-600 px-4 py-2 text-white transition hover:bg-blue-700"
-		>Register</button
-	>
-</form>
-<p style="color: red">{form?.message ?? ''}</p>
+<div class="p-3">
+	<h1 class="mb-3 text-5xl">Please login to start</h1>
+	<form class="flex max-w-96 flex-col gap-3" method="post" action="?/login" use:enhance>
+		<label>
+			<div>Username</div>
+			<input
+				name="username"
+				class="bg-backdrop focus:border-passion focus:ring-passion mt-1 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:outline-none"
+			/>
+		</label>
+		<label>
+			<div>Password</div>
+			<input
+				type="password"
+				name="password"
+				class="bg-backdrop focus:border-passion focus:ring-passion mt-1 rounded-md border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:outline-none"
+			/>
+		</label>
+
+		<div class="flex grow gap-2">
+			<button class="bg-passion hover:bg-passion-light rounded-md px-4 py-2 text-white transition"
+				>Login</button
+			>
+			<button
+				formaction="?/register"
+				class="bg-passion hover:bg-passion-light rounded-md px-4 py-2 text-white transition"
+				>Register</button
+			>
+		</div>
+	</form>
+	<p style="color: red">{form?.message ?? ''}</p>
+</div>
