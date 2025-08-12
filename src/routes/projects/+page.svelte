@@ -41,9 +41,9 @@
 							<CardTitle class="text-lg">{project.name}</CardTitle>
 							<Badge variant="secondary">
 								{#if project.mediaType === 'audio'}
-									<AudioWaveform></AudioWaveform>
+									<AudioWaveform></AudioWaveform>Audio
 								{:else}
-									<Video></Video>
+									<Video></Video>Video
 								{/if}
 							</Badge>
 						</div>
