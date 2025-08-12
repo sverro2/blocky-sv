@@ -31,20 +31,22 @@
 			<HoverCard class="border-dashed">
 				<CardContent class="flex h-full flex-col items-center justify-center gap-2">
 					<Plus class="group-hover:text-primary h-8 w-8 transition-colors duration-200" />
-					<span class="group-hover:text-primary text-sm font-medium transition-colors duration-200"
-						>Create Project</span
-					>
+					<span class="group-hover:text-primary text-sm font-medium transition-colors duration-200">
+						Create Project
+					</span>
 				</CardContent>
 			</HoverCard>
 			{#each data.projects as project (project.id)}
 				<HoverCard href="/projects/{project.id}">
-					<CardHeader>
+					<CardHeader class="h-20">
 						<div class="flex items-center justify-between">
 							<CardTitle class="text-lg">{project.name}</CardTitle>
 							<Badge variant="secondary">Active</Badge>
 						</div>
 						{#if project.description}
-							<CardDescription>{project.description}</CardDescription>
+							<CardDescription>
+								<span class="line-clamp-2 max-w-4/5">{project.description}</span>
+							</CardDescription>
 						{:else}
 							<CardDescription class="text-muted-foreground/50">No description</CardDescription>
 						{/if}
