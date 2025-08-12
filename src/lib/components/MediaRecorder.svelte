@@ -3,6 +3,7 @@
 	import { opfsManager } from '$lib/client/opfs';
 	import type { MediaRecorderSession } from '$lib/types/current-recorder-session';
 	import { addMedia } from '$lib/client/idb';
+	import { logMedia } from '$lib/utils/logger';
 
 	interface Props {
 		projectId: string;
@@ -47,7 +48,7 @@
 		let recorder = mimeType
 			? new MediaRecorder(userMedia, { mimeType })
 			: new MediaRecorder(userMedia);
-		console.log('Recording with MIME type:', mimeType || 'default');
+		logMedia('Recording with MIME type:', mimeType || 'default');
 
 		let filename = crypto.randomUUID();
 

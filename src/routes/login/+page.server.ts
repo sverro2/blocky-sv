@@ -29,6 +29,7 @@ export const actions: Actions = {
 				message: 'Invalid username (min 3, max 31 characters, alphanumeric only)'
 			});
 		}
+
 		if (!validatePassword(password)) {
 			return fail(400, { message: 'Invalid password (min 6, max 255 characters)' });
 		}
@@ -65,6 +66,14 @@ export const actions: Actions = {
 		if (!validateUsername(username)) {
 			return fail(400, { message: 'Invalid username' });
 		}
+
+		// Also check if username is in beta
+		if (!validateUserIsInvitedInBeta(username)) {
+			return fail(400, {
+				message: 'Sorry, this username hasn’t received an invitation to our beta program yet.'
+			});
+		}
+
 		if (!validatePassword(password)) {
 			return fail(400, { message: 'Invalid password' });
 		}
@@ -105,6 +114,11 @@ function validateUsername(username: unknown): username is string {
 		username.length <= 31 &&
 		/^[a-z0-9_-]+$/.test(username)
 	);
+}
+
+function validateUserIsInvitedInBeta(username: string): boolean {
+	const allowed_usernames = ['sven', 'bernd'];
+	return allowed_usernames.includes(username);
 }
 
 function validatePassword(password: unknown): password is string {
