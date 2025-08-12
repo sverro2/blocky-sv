@@ -5,32 +5,14 @@
 	interface Props {
 		href?: string;
 		class?: string;
-		hoverScale?: boolean;
-		hoverShadow?: boolean;
-		hoverBorder?: boolean;
 		children: Snippet;
 	}
 
-	let {
-		href,
-		class: className = '',
-		hoverScale = true,
-		hoverShadow = true,
-		hoverBorder = false,
-		children
-	}: Props = $props();
+	let { href, class: className = '', children }: Props = $props();
 
-	const hoverClasses = $derived(() => {
-		const classes = ['cursor-pointer', 'transition-all', 'duration-200'];
-
-		if (hoverScale) classes.push('hover:scale-105');
-		if (hoverShadow) classes.push('hover:shadow-lg');
-		if (hoverBorder) classes.push('hover:border-primary/50');
-
-		return classes.join(' ');
-	});
-
-	const cardClass = $derived(`${hoverClasses} ${className}`);
+	const cardClass = $derived(
+		`cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg hover:border-primary/50 ${className}`
+	);
 </script>
 
 {#if href}
