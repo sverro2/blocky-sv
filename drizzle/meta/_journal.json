@@ -8,6 +8,13 @@
       "when": 1754987966592,
       "tag": "0000_lucky_zarda",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1755023009262,
+      "tag": "0001_outgoing_wallow",
+      "breakpoints": true
     }
   ]
 }

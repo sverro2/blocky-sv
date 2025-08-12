@@ -1,4 +1,15 @@
-import { pgTable, integer, text, timestamp, uuid, varchar, index } from 'drizzle-orm/pg-core';
+import {
+	pgTable,
+	integer,
+	text,
+	timestamp,
+	uuid,
+	varchar,
+	index,
+	pgEnum
+} from 'drizzle-orm/pg-core';
+
+export const mediaTypeEnum = pgEnum('media_type', ['audio', 'video']);
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -22,6 +33,7 @@ export const project = pgTable(
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
 		name: varchar('name', { length: 32 }),
 		description: text('description'),
+		mediaType: mediaTypeEnum('media_type').notNull().default('audio'),
 		userId: text('user_id')
 			.notNull()
 			.references(() => user.id)
