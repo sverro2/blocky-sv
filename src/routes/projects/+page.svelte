@@ -20,7 +20,7 @@
 			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 class="text-3xl font-bold tracking-tight">Your Projects</h1>
-					<p class="text-muted-foreground">Manage and organize your audio projects</p>
+					<p class="text-muted-foreground">Manage and organize your ideas</p>
 				</div>
 				<div class="flex items-center gap-4">
 					<span class="text-muted-foreground text-sm">Welcome, {data.user.username}</span>
@@ -33,10 +33,14 @@
 		<!-- Projects Grid -->
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 			<!-- Create Project Card -->
-			<Card class="cursor-pointer border-dashed transition-shadow hover:shadow-md">
-				<CardContent class="flex h-full items-center justify-center gap-2">
-					<Plus class="h-10 w-10" />
-					<span class="text-sm font-medium">Create Project</span>
+			<Card
+				class="hover:border-primary/50 cursor-pointer border-dashed transition-all duration-200 hover:scale-105 hover:shadow-lg"
+			>
+				<CardContent class="flex flex-col items-center justify-center gap-4 py-8">
+					<Plus class="group-hover:text-primary h-16 w-16 transition-colors duration-200" />
+					<span class="group-hover:text-primary text-sm font-medium transition-colors duration-200"
+						>Create Project</span
+					>
 				</CardContent>
 			</Card>
 			{#each data.projects as project (project.id)}
