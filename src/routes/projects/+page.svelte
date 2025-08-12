@@ -8,7 +8,7 @@
 	let { data } = $props();
 </script>
 
-<div class="bg-background min-h-screen">
+<div class="min-h-screen">
 	<div class="container mx-auto space-y-6 p-6">
 		<!-- Header -->
 		<div class="space-y-4">
