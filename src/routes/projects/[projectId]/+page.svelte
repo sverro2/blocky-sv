@@ -1,20 +1,11 @@
 <script lang="ts">
-	import { MicIcon, PlayIcon, SaveIcon } from 'lucide-svelte';
+	import { MicIcon, SaveIcon } from 'lucide-svelte';
 	import { opfsManager } from '$lib/client/opfs';
 	import type { MediaRecorderSession } from '$lib/types/current-recorder-session';
-	import {
-		addMedia,
-		getAllMediaForProject,
-		putSnapshot,
-		type CachedMedia,
-		type Snapshot,
-		type Block,
-		getCurrentSnapshot
-	} from '$lib/client/idb';
+	import { addMedia, type Snapshot, type Block } from '$lib/client/idb';
 
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
-	import Layout from '../../+layout.svelte';
 
 	import Droppable from '$lib/components/droppable.svelte';
 	import SortableItem from '$lib/components/sortable/sortable-item.svelte';
@@ -22,7 +13,6 @@
 		DndContext,
 		DragOverlay,
 		type DragEndEvent,
-		type DragOverEvent,
 		type DragStartEvent
 	} from '@dnd-kit-svelte/core';
 	import { SortableContext, arrayMove } from '@dnd-kit-svelte/sortable';
@@ -69,20 +59,20 @@
 		};
 	}
 
-	function toPlain<T>(value: T): T {
-		if (Array.isArray(value)) {
-			return value.map(toPlain) as T;
-		} else if (value !== null && typeof value === 'object') {
-			const plainObj = {} as Record<string, unknown>;
-			for (const key in value) {
-				if (Object.prototype.hasOwnProperty.call(value, key)) {
-					plainObj[key] = toPlain((value as Record<string, unknown>)[key]);
-				}
-			}
-			return plainObj as T;
-		}
-		return value;
-	}
+	// function toPlain<T>(value: T): T {
+	// 	if (Array.isArray(value)) {
+	// 		return value.map(toPlain) as T;
+	// 	} else if (value !== null && typeof value === 'object') {
+	// 		const plainObj = {} as Record<string, unknown>;
+	// 		for (const key in value) {
+	// 			if (Object.prototype.hasOwnProperty.call(value, key)) {
+	// 				plainObj[key] = toPlain((value as Record<string, unknown>)[key]);
+	// 			}
+	// 		}
+	// 		return plainObj as T;
+	// 	}
+	// 	return value;
+	// }
 
 	// useSortable(() => sortable, {
 	// 	animation: 200,
@@ -321,30 +311,24 @@
 		});
 	}
 
-	async function listFiles() {
-		const folderHandle = await opfsManager.getDirectoryHandle('recorder-cache');
+	// async function listFiles() {
+	// 	const folderHandle = await opfsManager.getDirectoryHandle('recorder-cache');
 
-		// List files in that folder
-		for await (const handle of folderHandle.values()) {
-			if (handle.kind === 'file') {
-				console.log('File:', handle.name);
-			} else if (handle.kind === 'directory') {
-				console.log('Directory:', handle.name);
-			}
-		}
-	}
+	// 	// List files in that folder
+	// 	for await (const handle of folderHandle.values()) {
+	// 		if (handle.kind === 'file') {
+	// 			console.log('File:', handle.name);
+	// 		} else if (handle.kind === 'directory') {
+	// 			console.log('Directory:', handle.name);
+	// 		}
+	// 	}
+	// }
 
 	let selectedMediaId = $state<string | null>(null);
 
 	function selectItem(id: string) {
 		selectedMediaId = id;
 		playMedia(id);
-	}
-
-	interface Todo {
-		id: string;
-		content: string;
-		done: boolean;
 	}
 
 	let activeId = $state<string | null>(null);

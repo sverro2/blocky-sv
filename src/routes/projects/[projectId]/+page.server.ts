@@ -1,7 +1,11 @@
+import { requireAuth } from '$lib/server/auth';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async (event) => {
+	const user = requireAuth(event);
+
 	return {
-		projectId: params.projectId
+		projectId: event.params.projectId,
+		user
 	};
 };

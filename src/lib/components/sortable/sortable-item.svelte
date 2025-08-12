@@ -1,10 +1,9 @@
 <script lang="ts">
-	import type { UniqueIdentifier } from '@dnd-kit-svelte/core';
 	import { CSS, styleObjectToString } from '@dnd-kit-svelte/utilities';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import type { Block } from '$lib/client/idb';
 
-	let { block: block }: { block: Block } = $props();
+	let { block }: { block: Block } = $props();
 
 	const { attributes, listeners, node, transform, transition, isDragging, isSorting } = useSortable(
 		{

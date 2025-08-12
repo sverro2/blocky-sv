@@ -1,8 +1,7 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import type { ActionData } from './$types';
 
-	let { form }: { form: ActionData } = $props();
+	let { data, form } = $props();
 </script>
 
 <!-- Full screen container with centered content -->
@@ -20,6 +19,11 @@
 		<!-- Form card -->
 		<div class="bg-backdrop/50 border-foreground/10 rounded-xl border p-8 shadow-2xl backdrop-blur">
 			<form class="space-y-6" method="post" action="?/login" use:enhance>
+				<!-- Hidden return URL field -->
+				{#if data.returnUrl}
+					<input type="hidden" name="returnUrl" value={data.returnUrl} />
+				{/if}
+
 				<!-- Username field -->
 				<div>
 					<label for="username" class="text-foreground/90 mb-2 block text-sm font-medium">
