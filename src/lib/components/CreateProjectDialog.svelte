@@ -69,11 +69,9 @@
 
 {#if isDesktop}
 	<Dialog.Root bind:open>
-		<Dialog.Trigger>
-			<Button variant="ghost" class="h-full w-full flex-col gap-2">
-				<Plus class="h-8 w-8 transition-colors duration-200" />
-				<span class="text-sm font-medium transition-colors duration-200"> Create Project </span>
-			</Button>
+		<Dialog.Trigger class="flex h-full w-full flex-col items-center justify-center gap-2">
+			<Plus class="h-8 w-8 transition-colors duration-200" />
+			<span class="text-sm font-medium transition-colors duration-200"> Create Project </span>
 		</Dialog.Trigger>
 		<Dialog.Content class="sm:max-w-[425px]">
 			<Dialog.Header>
@@ -129,11 +127,9 @@
 	</Dialog.Root>
 {:else}
 	<Drawer.Root bind:open>
-		<Drawer.Trigger>
-			<Button variant="ghost" class="h-full w-full flex-col gap-2">
-				<Plus class="h-8 w-8 transition-colors duration-200" />
-				<span class="text-sm font-medium transition-colors duration-200"> Create Project </span>
-			</Button>
+		<Drawer.Trigger class="flex h-full w-full flex-col items-center justify-center gap-2">
+			<Plus class="h-8 w-8 transition-colors duration-200" />
+			<span class="text-sm font-medium transition-colors duration-200"> Create Project </span>
 		</Drawer.Trigger>
 		<Drawer.Content>
 			<Drawer.Header>

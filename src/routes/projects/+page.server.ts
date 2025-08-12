@@ -19,7 +19,12 @@ const createProjectSchema = z.object({
 export const load: PageServerLoad = async (event) => {
 	const user = requireAuth(event);
 
-	const projects = (await db.query.project.findMany()).filter((e) => e.userId === user.id);
+	const projects = (
+		await db.query.project.findMany({
+			where: (project, { eq }) => eq(project.userId, user.id),
+			orderBy: (project, { desc }) => desc(project.createdAt)
+		})
+	).filter((e) => e.userId === user.id);
 
 	const form = await superValidate(zod(createProjectSchema));
 
