@@ -36,8 +36,8 @@
 			<Card
 				class="hover:border-primary/50 cursor-pointer border-dashed transition-all duration-200 hover:scale-105 hover:shadow-lg"
 			>
-				<CardContent class="flex flex-col items-center justify-center gap-4 py-8">
-					<Plus class="group-hover:text-primary h-16 w-16 transition-colors duration-200" />
+				<CardContent class="flex flex-col items-center justify-center gap-4">
+					<Plus class="group-hover:text-primary h-10 w-10 transition-colors duration-200" />
 					<span class="group-hover:text-primary text-sm font-medium transition-colors duration-200"
 						>Create Project</span
 					>
