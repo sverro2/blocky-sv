@@ -1,3 +1,4 @@
+import { logDb } from '$lib/utils/logger';
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 
 // Filecache store
@@ -49,7 +50,7 @@ let db_connection: IDBPDatabase<MyDB> | null = null;
 
 async function db(): Promise<IDBPDatabase<MyDB>> {
 	if (db_connection === null) {
-		console.log('creating indexedDB connection');
+		logDb('creating indexedDB connection');
 		db_connection = await openDB<MyDB>('audiospire', 1.0, {
 			upgrade(db, _oldVersion, _newVersion, _transaction, _event) {
 				const fileCacheStore = db.createObjectStore('fileCacheStore', {
