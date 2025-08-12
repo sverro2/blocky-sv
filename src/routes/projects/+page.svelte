@@ -32,9 +32,16 @@
 
 		<!-- Projects Grid -->
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+			<!-- Create Project Card -->
+			<Card class="cursor-pointer border-dashed transition-shadow hover:shadow-md">
+				<CardContent class="flex h-full items-center justify-center gap-2">
+					<Plus class="h-10 w-10" />
+					<span class="text-sm font-medium">Create Project</span>
+				</CardContent>
+			</Card>
 			{#each data.projects as project (project.id)}
 				<Card class="cursor-pointer transition-shadow hover:shadow-md">
-					<a href="/projects/{project.id}" class="block">
+					<a href="/projects/{project.id}" class="block h-full">
 						<CardHeader>
 							<div class="flex items-center justify-between">
 								<CardTitle class="text-lg">{project.name}</CardTitle>
@@ -54,16 +61,6 @@
 					</a>
 				</Card>
 			{/each}
-
-			<!-- Create Project Card -->
-			<Card class="cursor-pointer border-dashed transition-shadow hover:shadow-md">
-				<CardContent class="flex items-center justify-center p-6">
-					<Button variant="ghost" class="h-full w-full flex-col gap-2">
-						<Plus class="h-8 w-8" />
-						<span>Create New Project</span>
-					</Button>
-				</CardContent>
-			</Card>
 		</div>
 	</div>
 </div>
