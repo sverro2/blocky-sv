@@ -98,10 +98,13 @@
 	function handleRecordingComplete() {
 		refreshItems();
 	}
+
+	let showEditor = $state(false);
 </script>
 
 <!-- Hello {data.projectId} -->
 <MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
+<input type="checkbox" bind:checked={showEditor} />
 
 <div class="flex flex-col p-6">
 	<!-- <MediaRecorder projectId={data.projectId} onRecordingComplete={handleRecordingComplete} /> -->
