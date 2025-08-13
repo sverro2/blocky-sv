@@ -1,12 +1,13 @@
 import { db } from '$lib/server/db';
 import { project } from '$lib/server/db/schema';
 import { requireAuth } from '$lib/server/auth';
-import { fail } from '@sveltejs/kit';
+import { fail, redirect } from '@sveltejs/kit';
 import { zod } from 'sveltekit-superforms/adapters';
 import { superValidate } from 'sveltekit-superforms';
 import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import type { PageServerLoad, Actions } from './$types';
+import { logger } from '$lib/utils/logger';
 
 const createProjectSchema = z.object({
 	name: z
@@ -44,6 +45,7 @@ export const actions: Actions = {
 			return fail(400, { form });
 		}
 
+		let newProjectId = null;
 		try {
 			const [newProject] = await db
 				.insert(project)
@@ -56,10 +58,14 @@ export const actions: Actions = {
 				})
 				.returning();
 
-			return { form, success: true, project: newProject };
+			newProjectId = newProject.id;
 		} catch (error) {
-			console.error('Error creating project:', error);
+			logger.error('Error creating project:', error);
 			return fail(500, { form, error: 'Failed to create project' });
+		}
+
+		if (newProjectId) {
+			redirect(303, `/projects/${newProjectId}`);
 		}
 	}
 };
