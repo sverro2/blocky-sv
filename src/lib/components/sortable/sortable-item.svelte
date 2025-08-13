@@ -28,7 +28,7 @@
 	{...attributes.current}
 >
 	<!-- Original element - becomes invisible during drag but maintains dimensions -->
-	<div class={['rounded-[18px] bg-white p-4', { invisible: isDragging.current }]}>
+	<div class={['rounded-[18px] bg-white p-4 text-center', { invisible: isDragging.current }]}>
 		T: {block.id}
 	</div>
 
