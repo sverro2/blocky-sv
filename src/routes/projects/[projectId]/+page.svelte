@@ -100,7 +100,7 @@
 	}
 
 	let showEditor = $state(false);
-	let isMobile = $state(false);
+	let isMobile = $state(true);
 
 	onMount(() => {
 		const checkMobile = () => {
