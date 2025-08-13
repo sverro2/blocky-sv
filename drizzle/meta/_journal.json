@@ -15,6 +15,13 @@
       "when": 1755023009262,
       "tag": "0001_outgoing_wallow",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1755082380624,
+      "tag": "0002_hot_quicksilver",
+      "breakpoints": true
     }
   ]
 }

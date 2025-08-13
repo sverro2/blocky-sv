@@ -16,7 +16,7 @@
 			<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 				<div>
 					<h1 class="mb-2 text-3xl font-bold tracking-tight">Your Projects</h1>
-					<p class="text-muted-foreground">Manage and organize your ideas</p>
+					<p class="text-muted-foreground hidden md:block">Manage and organize your ideas</p>
 				</div>
 				<div class="flex items-center gap-4">
 					<span class="text-muted-foreground text-sm">Welcome, {data.user.username}</span>

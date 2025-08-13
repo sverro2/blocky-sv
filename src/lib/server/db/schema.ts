@@ -6,10 +6,13 @@ import {
 	uuid,
 	varchar,
 	index,
-	pgEnum
+	pgEnum,
+	jsonb,
+	boolean
 } from 'drizzle-orm/pg-core';
 
 export const mediaTypeEnum = pgEnum('media_type', ['audio', 'video']);
+export const projectSnapshotVersionEnum = pgEnum('project_snapshot_version', ['V1']);
 
 export const user = pgTable('user', {
 	id: text('id').primaryKey(),
@@ -31,7 +34,7 @@ export const project = pgTable(
 	{
 		id: uuid('id').primaryKey(),
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
-		name: varchar('name', { length: 32 }),
+		name: varchar('name', { length: 32 }).notNull(),
 		description: text('description'),
 		mediaType: mediaTypeEnum('media_type').notNull().default('audio'),
 		userId: text('user_id')
@@ -39,6 +42,19 @@ export const project = pgTable(
 			.references(() => user.id)
 	},
 	(table) => [index('project_id_user_id_idx').on(table.id, table.userId)]
+);
+
+export const projectSnapshot = pgTable(
+	'project_snapshot',
+	{
+		id: uuid('id').primaryKey(),
+		modifiedAt: timestamp('modified_at', { withTimezone: true, mode: 'date' }).notNull(),
+		name: varchar('name', { length: 32 }),
+		isAutosafe: boolean('is_autosafe').notNull(),
+		body: jsonb('body').notNull(),
+		body_version: projectSnapshotVersionEnum('version').notNull()
+	},
+	(table) => [index('project_snapshot_id_modified_at_idx').on(table.id, table.modifiedAt)]
 );
 
 export type Session = typeof session.$inferSelect;

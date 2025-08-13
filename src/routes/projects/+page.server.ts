@@ -47,6 +47,7 @@ export const actions: Actions = {
 
 		let newProjectId = null;
 		try {
+			const now = new Date();
 			const [newProject] = await db
 				.insert(project)
 				.values({
@@ -54,7 +55,7 @@ export const actions: Actions = {
 					name: form.data.name,
 					mediaType: form.data.mediaType,
 					userId: user.id,
-					createdAt: new Date()
+					createdAt: now
 				})
 				.returning();
 
