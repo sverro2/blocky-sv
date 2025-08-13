@@ -42,7 +42,6 @@
 <div class="relative select-none" bind:this={node.current} {style} {...attributes.current}>
 	<!-- Original element -->
 	<Card.Root
-		{...listeners.current}
 		class={cn('transition-all duration-200 hover:shadow-md', {
 			'ring-primary ring-2 ring-offset-2': isSelected,
 			'opacity-50': isDragging.current
@@ -51,6 +50,7 @@
 		<Card.Content class="flex items-center gap-3">
 			<!-- Drag handle -->
 			<button
+				{...listeners.current}
 				class="text-muted-foreground hover:text-foreground -m-4 cursor-grab p-4 active:cursor-grabbing"
 			>
 				<GripVertical class="h-4 w-4" />
