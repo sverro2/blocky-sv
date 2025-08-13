@@ -17,7 +17,7 @@
 	} from '@dnd-kit-svelte/core';
 	import { SortableContext, arrayMove } from '@dnd-kit-svelte/sortable';
 	import { dropAnimation, sensors } from '$lib';
-	import { crossfade } from 'svelte/transition';
+	import { fly } from 'svelte/transition';
 
 	let { data }: PageProps = $props();
 
@@ -100,10 +100,31 @@
 	}
 
 	let showEditor = $state(false);
+	let isMobile = $state(false);
+
+	onMount(() => {
+		const checkMobile = () => {
+			isMobile = window.innerWidth < 1024;
+		};
+		checkMobile();
+		window.addEventListener('resize', checkMobile);
+		return () => window.removeEventListener('resize', checkMobile);
+	});
+
+	$effect(() => {
+		console.log('showEditor changed:', showEditor);
+	});
 </script>
 
-<div class="flex">
-	<div id="project-blocks-overview">
+<div class="relative h-screen overflow-hidden lg:flex">
+	<!-- Shared Overview Content -->
+	<div
+		id="project-blocks-overview"
+		class="h-full w-full lg:w-auto lg:shrink-0 lg:!translate-x-0 lg:border-r lg:!opacity-100"
+		style:transform={showEditor && isMobile ? 'translateX(-100%)' : 'translateX(0)'}
+		style:opacity={showEditor && isMobile ? '0' : '1'}
+		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"
+	>
 		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		<input type="checkbox" bind:checked={showEditor} />
 
@@ -117,5 +138,15 @@
 			/>
 		</div>
 	</div>
-	<div id="block-editor" class="grow bg-red-500"></div>
+
+	<!-- Shared Editor Content -->
+	<div
+		id="block-editor"
+		class="absolute inset-0 h-full w-full bg-red-500 lg:relative lg:flex-1"
+		style:transform={!showEditor && isMobile ? 'translateX(100%)' : 'translateX(0)'}
+		style:opacity={!showEditor && isMobile ? '0' : '1'}
+		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"
+	>
+		<button onclick={() => (showEditor = !showEditor)}>Test</button>
+	</div>
 </div>
