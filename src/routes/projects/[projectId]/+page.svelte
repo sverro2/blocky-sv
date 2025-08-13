@@ -103,7 +103,7 @@
 </script>
 
 <div class="flex">
-	<div id="project-overview">
+	<div id="project-blocks-overview">
 		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		<input type="checkbox" bind:checked={showEditor} />
 
