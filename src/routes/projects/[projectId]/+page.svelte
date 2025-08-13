@@ -120,7 +120,7 @@
 	<!-- Shared Overview Content -->
 	<div
 		id="project-blocks-overview"
-		class="h-full w-full overflow-y-auto lg:w-auto lg:shrink-0 lg:!translate-x-0 lg:border-r lg:!opacity-100"
+		class="h-full w-full overflow-x-hidden overflow-y-auto lg:w-auto lg:shrink-0 lg:!translate-x-0 lg:border-r lg:!opacity-100"
 		style:transform={showEditor && isMobile ? 'translateX(-100%)' : 'translateX(0)'}
 		style:opacity={showEditor && isMobile ? '0' : '1'}
 		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"
