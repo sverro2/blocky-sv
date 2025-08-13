@@ -8,6 +8,10 @@
 		type DragStartEvent
 	} from '@dnd-kit-svelte/core';
 	import { arrayMove, SortableContext } from '@dnd-kit-svelte/sortable';
+	import * as Card from '$lib/components/ui/card';
+	import { Badge } from '$lib/components/ui/badge';
+	import { Button } from '$lib/components/ui/button';
+	import { GripVertical, Play } from 'lucide-svelte';
 	import Droppable from './droppable.svelte';
 	import SortableItem from './sortable/sortable-item.svelte';
 	import { crossfade } from 'svelte/transition';
@@ -47,40 +51,57 @@
 
 		activeId = null;
 	}
-	const [send, recieve] = crossfade({ duration: 100 });
+	const [send, recieve] = crossfade({ duration: 200 });
 </script>
 
-<DndContext {sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-	<div class="text-black">
-		<div class="grid gap-4 text-black md:grid-cols-2">
-			{@render taskList('in-progress', 'In Progress', blocks)}
+<div class="space-y-6">
+	<div class="flex items-center justify-between">
+		<div>
+			<h2 class="text-2xl font-semibold tracking-tight">Audio Blocks</h2>
+			<p class="text-muted-foreground text-sm">Manage and organize your audio recordings</p>
 		</div>
-
-		<DragOverlay {dropAnimation}>
-			{#if activeBlock && activeId}
-				<SortableItem block={activeBlock} />
-			{/if}
-		</DragOverlay>
+		<Badge variant="secondary">{blocks.length} blocks</Badge>
 	</div>
-</DndContext>
+
+	<DndContext {sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+		<div class="space-y-4">
+			{@render taskList('blocks', 'Audio Blocks', blocks)}
+
+			<DragOverlay {dropAnimation}>
+				{#if activeBlock && activeId}
+					<Card.Root class="shadow-lg">
+						<Card.Content class="flex items-center gap-3">
+							<GripVertical class="text-muted-foreground h-4 w-4" />
+							<div class="flex-1">
+								<p class="font-medium">Block {activeBlock.id}</p>
+							</div>
+						</Card.Content>
+					</Card.Root>
+				{/if}
+			</DragOverlay>
+		</div>
+	</DndContext>
+</div>
 
 {#snippet taskList(id: string, title: string, blocks: Block[])}
 	<SortableContext items={blocks}>
-		<Droppable class="p-3 pt-6" {id}>
-			<div class="grid gap-2">
-				{#each blocks as block (block.id)}
-					<!-- svelte-ignore a11y_click_events_have_key_events -->
-					<!-- svelte-ignore a11y_no_static_element_interactions -->
-					<div
-						onclick={() => selectItem(block.currentMediaId)}
-						class=""
-						in:recieve={{ key: block.id }}
-						out:send={{ key: block.id }}
-					>
-						<SortableItem {block} />
+		<Droppable {id}>
+			{#if blocks.length === 0}
+				<div class="flex h-32 items-center justify-center">
+					<div class="text-center">
+						<p class="text-muted-foreground text-sm">No audio blocks yet</p>
+						<p class="text-muted-foreground text-xs">Start recording to create your first block</p>
 					</div>
-				{/each}
-			</div>
+				</div>
+			{:else}
+				<div class="space-y-3">
+					{#each blocks as block (block.id)}
+						<div in:recieve={{ key: block.id }} out:send={{ key: block.id }}>
+							<SortableItem {block} {selectedMediaId} {onSelectItem} />
+						</div>
+					{/each}
+				</div>
+			{/if}
 		</Droppable>
 	</SortableContext>
 {/snippet}

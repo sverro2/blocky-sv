@@ -2,8 +2,18 @@
 	import { CSS, styleObjectToString } from '@dnd-kit-svelte/utilities';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import type { Block } from '$lib/client/idb';
+	import * as Card from '$lib/components/ui/card';
+	import { Button } from '$lib/components/ui/button';
+	import { GripVertical, Play, Pause } from 'lucide-svelte';
+	import { cn } from '$lib/utils';
 
-	let { block }: { block: Block } = $props();
+	interface Props {
+		block: Block;
+		selectedMediaId?: string | null;
+		onSelectItem?: (mediaId: string) => void;
+	}
+
+	let { block, selectedMediaId, onSelectItem }: Props = $props();
 
 	const { attributes, listeners, node, transform, transition, isDragging, isSorting } = useSortable(
 		{
@@ -18,29 +28,47 @@
 			zIndex: isDragging.current ? 1 : undefined
 		})
 	);
+
+	const isSelected = $derived(selectedMediaId === block.currentMediaId);
+
+	function handlePlay(event: MouseEvent) {
+		event.stopPropagation();
+		if (onSelectItem) {
+			onSelectItem(block.currentMediaId);
+		}
+	}
 </script>
 
-<div
-	class="relative select-none"
-	bind:this={node.current}
-	{style}
-	{...listeners.current}
-	{...attributes.current}
->
-	<!-- Original element - becomes invisible during drag but maintains dimensions -->
-	<div class={['rounded-[18px] bg-white p-4 text-center', { invisible: isDragging.current }]}>
-		T: {block.id}
-	</div>
-
-	<!-- Drag placeholder - set to match original dimensions -->
-	{#if isDragging.current}
-		<div class="absolute inset-0 flex items-center justify-center">
-			<!-- You can put any content here for the dragging state -->
-			<div
-				class="flex h-full w-full items-center justify-center rounded-[18px] border-2 border-dashed border-orange-500 bg-orange-500/10"
+<div class="relative select-none" bind:this={node.current} {style} {...attributes.current}>
+	<!-- Original element -->
+	<Card.Root
+		{...listeners.current}
+		class={cn('transition-all duration-200 hover:shadow-md', {
+			'ring-primary ring-2 ring-offset-2': isSelected,
+			'opacity-50': isDragging.current
+		})}
+	>
+		<Card.Content class="flex items-center gap-3">
+			<!-- Drag handle -->
+			<button
+				class="text-muted-foreground hover:text-foreground -m-4 cursor-grab p-4 active:cursor-grabbing"
 			>
-				<span class="text-orange-500">Moving: {block.id}</span>
+				<GripVertical class="h-4 w-4" />
+			</button>
+
+			<!-- Block info -->
+			<div class="flex-1">
+				<p class="font-medium">Block {block.id}</p>
 			</div>
-		</div>
-	{/if}
+
+			<!-- Play button -->
+			<Button variant="outline" size="sm" onclick={handlePlay} class="-m-2 shrink-0">
+				{#if isSelected}
+					<Pause class="h-4 w-4" />
+				{:else}
+					<Play class="h-4 w-4" />
+				{/if}
+			</Button>
+		</Card.Content>
+	</Card.Root>
 </div>
