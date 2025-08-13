@@ -70,7 +70,7 @@ export const actions: Actions = {
 		// Also check if username is in beta
 		if (!validateUserIsInvitedInBeta(username)) {
 			return fail(400, {
-				message: 'Sorry, this username hasn’t received an invitation to our beta program yet.'
+				message: 'Sorry, this username hasn’t received an invitation to our app preview yet.'
 			});
 		}
 

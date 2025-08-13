@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { Plus } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { CardContent, CardDescription, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import HoverCard from '$lib/components/HoverCard.svelte';
+	import CreateProjectDialog from '$lib/components/CreateProjectDialog.svelte';
+	import { AudioWaveform, Video } from 'lucide-svelte';
 	let { data } = $props();
 </script>
 
-<div class="bg-background min-h-screen">
+<div class="min-h-screen">
 	<div class="container mx-auto space-y-6 p-6">
 		<!-- Header -->
 		<div class="space-y-4">
@@ -29,22 +30,27 @@
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
 			<!-- Create Project Card -->
 			<HoverCard class="border-dashed">
-				<CardContent class="flex h-full flex-col items-center justify-center gap-2">
-					<Plus class="group-hover:text-primary h-8 w-8 transition-colors duration-200" />
-					<span class="group-hover:text-primary text-sm font-medium transition-colors duration-200"
-						>Create Project</span
-					>
+				<CardContent class="flex h-full flex-col items-center justify-center gap-2 p-0">
+					<CreateProjectDialog form={data.form} />
 				</CardContent>
 			</HoverCard>
 			{#each data.projects as project (project.id)}
 				<HoverCard href="/projects/{project.id}">
-					<CardHeader>
+					<CardHeader class="h-20">
 						<div class="flex items-center justify-between">
 							<CardTitle class="text-lg">{project.name}</CardTitle>
-							<Badge variant="secondary">Active</Badge>
+							<Badge variant="secondary">
+								{#if project.mediaType === 'audio'}
+									<AudioWaveform></AudioWaveform>Audio
+								{:else}
+									<Video></Video>Video
+								{/if}
+							</Badge>
 						</div>
 						{#if project.description}
-							<CardDescription>{project.description}</CardDescription>
+							<CardDescription>
+								<span class="line-clamp-2 max-w-4/5">{project.description}</span>
+							</CardDescription>
 						{:else}
 							<CardDescription class="text-muted-foreground/50">No description</CardDescription>
 						{/if}
