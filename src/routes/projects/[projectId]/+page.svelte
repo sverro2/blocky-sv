@@ -102,12 +102,20 @@
 	let showEditor = $state(false);
 </script>
 
-<!-- Hello {data.projectId} -->
-<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
-<input type="checkbox" bind:checked={showEditor} />
+<div class="flex">
+	<div id="project-overview">
+		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
+		<input type="checkbox" bind:checked={showEditor} />
 
-<div class="flex flex-col p-6">
-	<!-- <MediaRecorder projectId={data.projectId} onRecordingComplete={handleRecordingComplete} /> -->
+		<div class="flex flex-col p-6">
+			<!-- <MediaRecorder projectId={data.projectId} onRecordingComplete={handleRecordingComplete} /> -->
 
-	<BlocksList blocks={currentSnapshotBlocks} {selectedMediaId} onSelectItem={handleSelectItem} />
+			<BlocksList
+				blocks={currentSnapshotBlocks}
+				{selectedMediaId}
+				onSelectItem={handleSelectItem}
+			/>
+		</div>
+	</div>
+	<div id="block-editor" class="grow bg-red-500"></div>
 </div>
