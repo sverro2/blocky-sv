@@ -27,7 +27,7 @@
 {/snippet}
 
 {#snippet desktopActions()}
-	
+	<!-- Space for additional desktop dropdown menus or buttons -->
 {/snippet}
 
 <PageLayout>
