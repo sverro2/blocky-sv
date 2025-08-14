@@ -1,12 +1,13 @@
 <script lang="ts">
-	import type { Snippet, SvelteComponent } from 'svelte';
+	import type { Snippet } from 'svelte';
+	import type { Icon as LucideIcon } from 'lucide-svelte';
 	import { onMount } from 'svelte';
 	import MobileHeader from '$lib/components/MobileHeader.svelte';
 	import DesktopHeader from '$lib/components/DesktopHeader.svelte';
 
 	interface Props {
 		backButton?: {
-			icon: typeof SvelteComponent;
+			icon: typeof LucideIcon;
 			href?: string;
 			onclick?: () => void;
 		};

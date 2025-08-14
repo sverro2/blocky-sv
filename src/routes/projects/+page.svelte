@@ -10,8 +10,8 @@
 	let { data } = $props();
 
 	const backButton = {
-	  icon: TvIcon,
-		
+		icon: TvIcon,
+		href: 'http://www.google.com'
 	};
 </script>
 

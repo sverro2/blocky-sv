@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Snippet, SvelteComponent } from 'svelte';
-	import type { Component } from 'svelte';
+	import type { Snippet } from 'svelte';
+	import type { Icon as LucideIcon } from 'lucide-svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
@@ -19,7 +19,7 @@
 		username?: string;
 		menuItems?: Snippet;
 		backButton?: {
-			icon: typeof SvelteComponent;
+			icon: typeof LucideIcon;
 			href?: string;
 			onclick?: () => void;
 		};
