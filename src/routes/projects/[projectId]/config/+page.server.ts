@@ -41,7 +41,7 @@ export const actions = {
 		const projectId = event.params.projectId;
 		const formData = await event.request.formData();
 
-		const name = formData.get('name')?.toString().trim();
+		const name = formData.get('project-name')?.toString().trim();
 		const description = formData.get('description')?.toString().trim() || null;
 
 		if (!name || name.length === 0) {

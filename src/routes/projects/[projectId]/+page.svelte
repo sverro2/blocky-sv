@@ -6,16 +6,12 @@
 
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
 	import BlocksList from '$lib/components/BlocksList.svelte';
-	import ResponsiveProjectContainer from '$lib/components/ResponsiveProjectContainer.svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
-	import MobileHeader from '$lib/components/MobileHeader.svelte';
-	import DesktopHeader from '$lib/components/DesktopHeader.svelte';
-	import { useMobile } from '$lib/utils/mobile.svelte.js';
 	import { ListIcon, LogOutIcon, Settings } from 'lucide-svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
 
-	let { data: _data }: PageProps = $props();
+	let { data }: PageProps = $props();
 
 	let currentSnapshot = $state<Snapshot | undefined>(undefined);
 
@@ -123,13 +119,17 @@
 </PageLayout>
 
 {#snippet mobileMenuItems()}
-	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Refresh Project</button>
-	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Export Data</button>
-	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Settings</button>
+	<a
+		href="/projects/{data.projectId}/config"
+		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+	>
+		<Settings class="mr-2 h-4 w-4" />
+		Settings
+	</a>
 {/snippet}
 
 {#snippet desktopMenuItems()}
-	<Button variant="ghost" href="/settings" class="w-full justify-start" disabled>
+	<Button variant="ghost" href="/projects/{data.projectId}/config" class="w-full justify-start">
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
 	</Button>

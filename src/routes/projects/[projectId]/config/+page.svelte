@@ -7,7 +7,16 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import PageLayout from '$lib/components/PageLayout.svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
-	import { ArrowLeft, Save, Trash2, AudioWaveform, Video, User, LogOutIcon } from 'lucide-svelte';
+	import {
+		ArrowLeft,
+		Save,
+		Trash2,
+		AudioWaveform,
+		Video,
+		User,
+		LogOutIcon,
+		ListIcon
+	} from 'lucide-svelte';
 	import type { PageData } from './$types';
 	import type { User as UserType } from '$lib/server/db/schema';
 
@@ -59,6 +68,7 @@
 
 <PageLayout>
 	<ResponsiveHeader
+		backButton={{ icon: ListIcon, href: '.' }}
 		title="Configure “{data.project.name}”"
 		{mobileMenuItems}
 		{desktopMenuItems}
@@ -76,10 +86,10 @@
 				<form method="POST" action="?/updateProject" use:enhance onsubmit={handleUpdateSubmit}>
 					<div class="space-y-4">
 						<div class="space-y-2">
-							<Label for="name">Project Name</Label>
+							<Label for="project-name">Project Name</Label>
 							<Input
-								id="name"
-								name="name"
+								id="project-name"
+								name="project-name"
 								bind:value={name}
 								placeholder="Enter project name"
 								maxlength={32}
@@ -95,7 +105,7 @@
 								name="description"
 								bind:value={description}
 								placeholder="Enter project description (optional)"
-								rows="3"
+								rows="10"
 								class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							></textarea>
 						</div>
@@ -113,7 +123,9 @@
 									<span class="text-sm">Video</span>
 								{/if}
 							</div>
-							<p class="text-primary text-xs">Project type cannot be changed after creation</p>
+							<p class="text-primary text-xs">
+								Once the project is created, its type cannot be changed.
+							</p>
 						</div>
 
 						<div class="flex justify-end">
