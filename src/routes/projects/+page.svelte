@@ -55,7 +55,7 @@
 	/>
 
 	<!-- Projects Grid -->
-	<div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+	<div class="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 lg:grid-cols-3">
 		<!-- Create Project Card -->
 		<HoverCard class="border-dashed">
 			<CardContent class="flex h-full flex-col items-center justify-center gap-2 p-0">
