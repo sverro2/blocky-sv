@@ -6,7 +6,7 @@
 	import CreateProjectDialog from '$lib/components/CreateProjectDialog.svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
-	import { AudioWaveform, Video, Settings, User, LogOutIcon, TvIcon } from 'lucide-svelte';
+	import { AudioWaveform, Video, Settings, User, LogOutIcon } from 'lucide-svelte';
 	let { data } = $props();
 </script>
 

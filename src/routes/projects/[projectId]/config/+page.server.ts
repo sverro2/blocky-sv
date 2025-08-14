@@ -22,7 +22,8 @@ export const load: PageServerLoad = async (event) => {
 		}
 
 		return {
-			project: projectData[0]
+			project: projectData[0],
+			user
 		};
 	} catch (err) {
 		// If it's already an error we threw, re-throw it

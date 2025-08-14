@@ -5,10 +5,13 @@
 	import { Label } from '$lib/components/ui/label';
 	import * as Card from '$lib/components/ui/card';
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
-	import { Settings, ArrowLeft, Save, Trash2 } from 'lucide-svelte';
+	import PageLayout from '$lib/components/PageLayout.svelte';
+	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
+	import { ArrowLeft, Save, Trash2, AudioWaveform, Video, User, LogOutIcon } from 'lucide-svelte';
 	import type { PageData } from './$types';
+	import type { User as UserType } from '$lib/server/db/schema';
 
-	let { data }: { data: PageData } = $props();
+	let { data }: { data: PageData & { user: UserType } } = $props();
 
 	let name = $state(data.project.name);
 	let description = $state(data.project.description || '');
@@ -25,26 +28,44 @@
 	}
 </script>
 
-<svelte:head>
-	<title>Config - {data.project.name} | Blocky</title>
-</svelte:head>
+{#snippet mobileMenuItems()}
+	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
+		<ArrowLeft class="mr-2 h-4 w-4" />
+		Back to Project
+	</Button>
+	<Button variant="ghost" href="/logout" class="w-full justify-start">
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
 
-<div class="container max-w-2xl py-8">
-	<div class="mb-8">
-		<Button variant="ghost" href="/projects/{data.project.id}" class="mb-4 -ml-4">
-			<ArrowLeft class="mr-2 h-4 w-4" />
-			Back to Project
-		</Button>
-		<div class="flex items-center gap-3">
-			<Settings class="h-6 w-6" />
-			<div>
-				<h1 class="text-2xl font-bold">Project Settings</h1>
-				<p class="text-muted-foreground">Configure your project details and settings</p>
-			</div>
-		</div>
+{#snippet desktopMenuItems()}
+	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
+		<ArrowLeft class="mr-2 h-4 w-4" />
+		Back to Project
+	</Button>
+	<Button variant="ghost" href="/logout" class="w-full justify-start">
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
+
+{#snippet desktopActions()}
+	<div class="text-muted-foreground flex items-center gap-1">
+		<User size={16}></User>
+		{data.user.username}
 	</div>
+{/snippet}
 
-	<div class="space-y-6">
+<PageLayout>
+	<ResponsiveHeader
+		title="Configure “{data.project.name}”"
+		{mobileMenuItems}
+		{desktopMenuItems}
+		{desktopActions}
+	/>
+
+	<div class="container max-w-2xl space-y-6 p-5">
 		<!-- Project Details Card -->
 		<Card.Root>
 			<Card.Header>
@@ -77,6 +98,22 @@
 								rows="3"
 								class="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex min-h-[80px] w-full rounded-md border px-3 py-2 text-sm focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
 							></textarea>
+						</div>
+
+						<div class="space-y-2">
+							<Label for="mediaType">Project Type</Label>
+							<div
+								class="border-input bg-muted/50 flex items-center gap-3 rounded-md border px-3 py-2"
+							>
+								{#if data.project.mediaType === 'audio'}
+									<AudioWaveform class="text-muted-foreground h-4 w-4" />
+									<span class="text-sm">Audio</span>
+								{:else}
+									<Video class="text-muted-foreground h-4 w-4" />
+									<span class="text-sm">Video</span>
+								{/if}
+							</div>
+							<p class="text-primary text-xs">Project type cannot be changed after creation</p>
 						</div>
 
 						<div class="flex justify-end">
@@ -117,7 +154,7 @@
 			</Card.Content>
 		</Card.Root>
 	</div>
-</div>
+</PageLayout>
 
 <!-- Delete Confirmation Dialog -->
 <AlertDialog.Root bind:open={isDeleteDialogOpen}>
