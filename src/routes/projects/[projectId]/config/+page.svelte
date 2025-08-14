@@ -4,7 +4,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
 	import * as Card from '$lib/components/ui/card';
-	import * as Dialog from '$lib/components/ui/dialog';
+	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import { Settings, ArrowLeft, Save, Trash2 } from 'lucide-svelte';
 	import type { PageData } from './$types';
 
@@ -120,17 +120,17 @@
 </div>
 
 <!-- Delete Confirmation Dialog -->
-<Dialog.Root bind:open={isDeleteDialogOpen}>
-	<Dialog.Content>
-		<Dialog.Header>
-			<Dialog.Title>Are you absolutely sure?</Dialog.Title>
-			<Dialog.Description>
+<AlertDialog.Root bind:open={isDeleteDialogOpen}>
+	<AlertDialog.Content>
+		<AlertDialog.Header>
+			<AlertDialog.Title>Are you absolutely sure?</AlertDialog.Title>
+			<AlertDialog.Description>
 				This action cannot be undone. This will permanently delete your project
 				<strong>"{data.project.name}"</strong> and remove all of its data from our servers.
-			</Dialog.Description>
-		</Dialog.Header>
-		<Dialog.Footer>
-			<Button variant="outline" onclick={() => (isDeleteDialogOpen = false)}>Cancel</Button>
+			</AlertDialog.Description>
+		</AlertDialog.Header>
+		<AlertDialog.Footer>
+			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
 			<form
 				method="POST"
 				action="?/deleteProject"
@@ -138,7 +138,7 @@
 				onsubmit={handleDeleteSubmit}
 				class="inline"
 			>
-				<Button type="submit" variant="destructive" disabled={isDeleting}>
+				<AlertDialog.Action type="submit" disabled={isDeleting}>
 					{#if isDeleting}
 						<div
 							class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
@@ -147,8 +147,8 @@
 					{:else}
 						Delete Project
 					{/if}
-				</Button>
+				</AlertDialog.Action>
 			</form>
-		</Dialog.Footer>
-	</Dialog.Content>
-</Dialog.Root>
+		</AlertDialog.Footer>
+	</AlertDialog.Content>
+</AlertDialog.Root>
