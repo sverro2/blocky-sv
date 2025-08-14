@@ -1,25 +1,14 @@
 <script lang="ts">
-	import type { Snapshot, Block } from '$lib/client/idb';
+	import type { Snapshot } from '$lib/client/idb';
 
 	import type { PageProps } from './$types';
 	import { onMount } from 'svelte';
 
-	import MediaRecorder from '$lib/components/MediaRecorder.svelte';
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
 	import BlocksList from '$lib/components/BlocksList.svelte';
-	import Droppable from '$lib/components/droppable.svelte';
-	import SortableItem from '$lib/components/sortable/sortable-item.svelte';
-	import {
-		DndContext,
-		DragOverlay,
-		type DragEndEvent,
-		type DragStartEvent
-	} from '@dnd-kit-svelte/core';
-	import { SortableContext, arrayMove } from '@dnd-kit-svelte/sortable';
-	import { dropAnimation, sensors } from '$lib';
-	import { fly } from 'svelte/transition';
+	import ResponsiveProjectContainer from '$lib/components/ResponsiveProjectContainer.svelte';
 
-	let { data }: PageProps = $props();
+	let { data: _data }: PageProps = $props();
 
 	let currentSnapshot = $state<Snapshot | undefined>(undefined);
 
@@ -95,36 +84,17 @@
 		}
 	}
 
-	function handleRecordingComplete() {
-		refreshItems();
-	}
-
 	let showEditor = $state(false);
-	let isMobile = $state(true);
-
-	onMount(() => {
-		const checkMobile = () => {
-			isMobile = window.innerWidth < 1024;
-		};
-		checkMobile();
-		window.addEventListener('resize', checkMobile);
-		return () => window.removeEventListener('resize', checkMobile);
-	});
 
 	$effect(() => {
 		console.log('showEditor changed:', showEditor);
 	});
 </script>
 
-<div class="relative h-screen overflow-hidden lg:flex">
-	<!-- Shared Overview Content -->
-	<div
-		id="project-blocks-overview"
-		class="h-full w-full overflow-x-hidden overflow-y-auto lg:w-auto lg:shrink-0 lg:!translate-x-0 lg:border-r lg:!opacity-100"
-		style:transform={showEditor && isMobile ? 'translateX(-100%)' : 'translateX(0)'}
-		style:opacity={showEditor && isMobile ? '0' : '1'}
-		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"
-	>
+<ResponsiveProjectContainer bind:showEditor {overview} {editor}></ResponsiveProjectContainer>
+
+{#snippet overview()}
+	<div id="project-blocks-overview">
 		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		<input type="checkbox" bind:checked={showEditor} />
 
@@ -138,15 +108,10 @@
 			/>
 		</div>
 	</div>
+{/snippet}
 
-	<!-- Shared Editor Content -->
-	<div
-		id="block-editor"
-		class="absolute inset-0 h-full w-full overflow-y-auto bg-red-500 lg:relative lg:flex-1"
-		style:transform={!showEditor && isMobile ? 'translateX(100%)' : 'translateX(0)'}
-		style:opacity={!showEditor && isMobile ? '0' : '1'}
-		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"
-	>
+{#snippet editor()}
+	<div id="block-editor" class="h-full bg-red-500">
 		<button onclick={() => (showEditor = !showEditor)}>Test</button>
 	</div>
-</div>
+{/snippet}
