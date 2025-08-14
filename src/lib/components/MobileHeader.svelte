@@ -34,11 +34,11 @@
 			<!-- Back Button (optional) -->
 			{#if backButton}
 				<Button
-					variant="ghost"
+					variant="outline"
 					size="sm"
 					href={backButton.href}
 					onclick={backButton.onclick}
-					class="shrink-0"
+					class="text-muted-foreground hover:text-foreground -ml-2 shrink-0 px-2 py-1.5"
 				>
 					{@const Icon = backButton.icon}
 					<Icon class="mr-2 h-4 w-4" />

@@ -4,7 +4,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 	import DropdownMenu from '$lib/components/DropdownMenu.svelte';
-	import { Menu } from 'lucide-svelte';
+	import { EllipsisVerticalIcon, Menu } from 'lucide-svelte';
 
 	interface Props {
 		backButton?: {
@@ -26,11 +26,11 @@
 			<!-- Back Button (optional) -->
 			{#if backButton}
 				<Button
-					variant="ghost"
+					variant="outline"
 					size="sm"
 					href={backButton.href}
 					onclick={backButton.onclick}
-					class="shrink-0"
+					class="text-muted-foreground hover:text-foreground shrink-0 px-3 py-2"
 				>
 					{@const Icon = backButton.icon}
 					<Icon class="mr-2 h-4 w-4" />
@@ -55,7 +55,7 @@
 			<DropdownMenu align="right">
 				{#snippet trigger()}
 					<Button variant="ghost" size="icon">
-						<Menu class="h-5 w-5" />
+						<EllipsisVerticalIcon class="h-5 w-5" />
 					</Button>
 				{/snippet}
 				{#snippet content()}
