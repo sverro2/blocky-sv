@@ -26,7 +26,12 @@
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
 	</Button>
-	<Button variant="ghost" href="/logout" class="w-full justify-start">
+	<Button
+		variant="ghost"
+		href="/logout"
+		class="w-full justify-start"
+		data-sveltekit-preload-data="off"
+	>
 		<LogOutIcon class="mr-2 h-4 w-4" />
 		Sign out
 	</Button>
