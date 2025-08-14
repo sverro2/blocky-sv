@@ -15,8 +15,6 @@
 
 	interface Props {
 		title: string;
-		subtitle?: string;
-		username?: string;
 		menuItems?: Snippet;
 		backButton?: {
 			icon: typeof LucideIcon;
@@ -25,10 +23,10 @@
 		};
 	}
 
-	let { title, subtitle, username, menuItems, backButton }: Props = $props();
+	let { title, menuItems, backButton }: Props = $props();
 </script>
 
-<div class="space-y-4">
+<div class="px-5">
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex min-w-0 flex-1 items-center gap-4">
 			<!-- Back Button (optional) -->
@@ -38,7 +36,7 @@
 					size="sm"
 					href={backButton.href}
 					onclick={backButton.onclick}
-					class="text-muted-foreground hover:text-foreground -ml-2 shrink-0 px-2 py-1.5"
+					class="text-muted-foreground hover:text-foreground shrink-0"
 				>
 					{@const Icon = backButton.icon}
 					<Icon class="mr-2 h-4 w-4" />
@@ -47,11 +45,8 @@
 			{/if}
 
 			<!-- Title and Subtitle -->
-			<div class="min-w-0 flex-1">
+			<div class="flex min-w-0 py-2">
 				<h1 class="truncate text-2xl font-bold tracking-tight">{title}</h1>
-				{#if subtitle}
-					<p class="text-muted-foreground truncate text-sm">{subtitle}</p>
-				{/if}
 			</div>
 		</div>
 
@@ -61,7 +56,7 @@
 			<Drawer direction="top">
 				<DrawerTrigger>
 					<Button variant="ghost" size="icon">
-						<Menu class="h-5 w-5" />
+						<Menu class="mt-2 -mr-5 h-5 w-5" />
 					</Button>
 				</DrawerTrigger>
 				<DrawerContent>
@@ -70,11 +65,6 @@
 						<DrawerDescription>Access your options</DrawerDescription>
 					</DrawerHeader>
 					<div class="space-y-4 p-4 pb-8">
-						{#if username}
-							<div class="text-muted-foreground border-b pb-4 text-center text-sm">
-								Welcome, {username}
-							</div>
-						{/if}
 						{#if menuItems}
 							{@render menuItems()}
 						{/if}

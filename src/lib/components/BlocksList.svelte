@@ -35,6 +35,15 @@
 	let activeId = $state<string | null>(null);
 	const activeBlock = $derived(blocks.find((block) => block.id === activeId));
 
+	let scrollContainer: HTMLElement;
+	let scrollY = $state(0);
+
+	function updateScrollPosition() {
+		if (scrollContainer) {
+			scrollY = scrollContainer.scrollTop;
+		}
+	}
+
 	function handleDragStart(event: DragStartEvent) {
 		activeId = event.active.id as string;
 	}
@@ -54,11 +63,11 @@
 	const [send, recieve] = crossfade({ duration: 200 });
 </script>
 
-<div class="space-y-6 overflow-y-scroll px-5 lg:pr-0">
+<div class="space-y-6 px-5" bind:this={scrollContainer} onscroll={updateScrollPosition}>
 	<div class="flex items-center justify-between">
 		<div>
 			<h2 class="text-2xl font-semibold tracking-tight">Audio Blocks</h2>
-			<p class="text-muted-foreground text-sm">Manage and organize your audio recordings</p>
+			<p class="text-muted-foreground text-sm">Manage and organize your recordings</p>
 		</div>
 		<Badge variant="secondary">{blocks.length} blocks</Badge>
 	</div>
@@ -69,14 +78,16 @@
 
 			<DragOverlay {dropAnimation}>
 				{#if activeBlock && activeId}
-					<Card.Root class="shadow-lg">
-						<Card.Content class="flex items-center gap-3">
-							<GripVertical class="text-muted-foreground h-4 w-4" />
-							<div class="flex-1">
-								<p class="font-medium">Block {activeBlock.id}</p>
-							</div>
-						</Card.Content>
-					</Card.Root>
+					<div style="transform: translateY({scrollY}px);">
+						<Card.Root class="shadow-lg">
+							<Card.Content class="flex items-center gap-3">
+								<GripVertical class="text-muted-foreground h-4 w-4" />
+								<div class="flex-1">
+									<p class="font-medium">Block {activeBlock.id}</p>
+								</div>
+							</Card.Content>
+						</Card.Root>
+					</div>
 				{/if}
 			</DragOverlay>
 		</div>

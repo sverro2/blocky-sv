@@ -152,4 +152,4 @@
 
 <!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
 <!-- svelte-ignore a11y_media_has_caption -->
-<video class="h-1/3 w-full bg-blue-300 sm:w-auto lg:w-full">Player stub</video>
+<video class="sticky top-0 max-h-[25vh] w-full bg-blue-300 object-contain">Player stub</video>

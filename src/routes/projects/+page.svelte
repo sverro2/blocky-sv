@@ -8,11 +8,6 @@
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { AudioWaveform, Video, Settings, User, LogOutIcon, TvIcon } from 'lucide-svelte';
 	let { data } = $props();
-
-	const backButton = {
-		icon: TvIcon,
-		href: 'http://www.google.com'
-	};
 </script>
 
 {#snippet mobileMenuItems()}
@@ -46,13 +41,7 @@
 {/snippet}
 
 <PageLayout>
-	<ResponsiveHeader
-		title="Your Projects"
-		{backButton}
-		{mobileMenuItems}
-		{desktopMenuItems}
-		{desktopActions}
-	/>
+	<ResponsiveHeader title="Your Projects" {mobileMenuItems} {desktopMenuItems} {desktopActions} />
 
 	<!-- Projects Grid -->
 	<div class="grid grid-cols-1 gap-4 p-5 md:grid-cols-2 lg:grid-cols-3">

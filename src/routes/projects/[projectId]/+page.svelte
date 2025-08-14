@@ -11,6 +11,9 @@
 	import MobileHeader from '$lib/components/MobileHeader.svelte';
 	import DesktopHeader from '$lib/components/DesktopHeader.svelte';
 	import { useMobile } from '$lib/utils/mobile.svelte.js';
+	import { ListIcon, LogOutIcon, Settings } from 'lucide-svelte';
+	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
+	import { Button } from '$lib/components/ui/button';
 
 	let { data: _data }: PageProps = $props();
 
@@ -93,56 +96,49 @@
 	$effect(() => {
 		console.log('showEditor changed:', showEditor);
 	});
-
-	const mobile = useMobile();
 </script>
 
 <PageLayout>
-	{#if !mobile.isMobile}
-		<DesktopHeader title="Project Editor" {desktopActions} {menuItems} />
-	{/if}
-	<ResponsiveProjectContainer bind:showEditor {overview} {editor}></ResponsiveProjectContainer>
+	<div class="flex h-screen flex-col">
+		<div>
+			<ResponsiveHeader
+				title="Project Editor"
+				{desktopActions}
+				{mobileMenuItems}
+				{desktopMenuItems}
+				backButton={{ icon: ListIcon, href: '../' }}
+			/>
+			<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
+		</div>
+		<div class="h-full overflow-y-scroll">
+			<div class="mt-8">
+				<BlocksList
+					blocks={currentSnapshotBlocks}
+					{selectedMediaId}
+					onSelectItem={handleSelectItem}
+				/>
+			</div>
+		</div>
+	</div>
 </PageLayout>
 
-{#snippet overview()}
-	<div id="project-blocks-overview">
-		{#if mobile.isMobile}
-			<MobileHeader title="Overview" {menuItems} />
-		{/if}
-
-		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
-		<input type="checkbox" bind:checked={showEditor} />
-
-		<div class="flex flex-col lg:pr-6">
-			<!-- <MediaRecorder projectId={data.projectId} onRecordingComplete={handleRecordingComplete} /> -->
-
-			<BlocksList
-				blocks={currentSnapshotBlocks}
-				{selectedMediaId}
-				onSelectItem={handleSelectItem}
-			/>
-		</div>
-	</div>
-{/snippet}
-
-{#snippet editor()}
-	<div id="block-editor" class="h-full">
-		{#if mobile.isMobile}
-			<MobileHeader title="Details" {menuItems} />
-		{/if}
-
-		<div class="p-4">
-			<button onclick={() => (showEditor = !showEditor)}>Test</button>
-		</div>
-	</div>
-{/snippet}
-
-{#snippet menuItems()}
+{#snippet mobileMenuItems()}
 	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Refresh Project</button>
 	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Export Data</button>
 	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Settings</button>
 {/snippet}
 
+{#snippet desktopMenuItems()}
+	<Button variant="ghost" href="/settings" class="w-full justify-start" disabled>
+		<Settings class="mr-2 h-4 w-4" />
+		Settings
+	</Button>
+	<Button variant="ghost" href="/logout" class="w-full justify-start">
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
+
 {#snippet desktopActions()}
-	<button class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Save Project</button>
+	<Button variant="ghost">Save Project</Button>
 {/snippet}

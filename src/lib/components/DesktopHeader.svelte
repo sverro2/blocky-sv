@@ -20,7 +20,7 @@
 	let { backButton, title, desktopActions, menuItems }: Props = $props();
 </script>
 
-<div class="space-y-4">
+<div class="space-y-4 px-5 pt-5">
 	<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 		<div class="flex items-center gap-4">
 			<!-- Back Button (optional) -->
