@@ -7,6 +7,7 @@
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
 	import BlocksList from '$lib/components/BlocksList.svelte';
 	import ResponsiveProjectContainer from '$lib/components/ResponsiveProjectContainer.svelte';
+	import PageLayout from '$lib/components/PageLayout.svelte';
 
 	let { data: _data }: PageProps = $props();
 
@@ -91,14 +92,16 @@
 	});
 </script>
 
-<ResponsiveProjectContainer bind:showEditor {overview} {editor}></ResponsiveProjectContainer>
+<PageLayout>
+	<ResponsiveProjectContainer bind:showEditor {overview} {editor}></ResponsiveProjectContainer>
+</PageLayout>
 
 {#snippet overview()}
 	<div id="project-blocks-overview">
 		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		<input type="checkbox" bind:checked={showEditor} />
 
-		<div class="flex flex-col p-6">
+		<div class="flex flex-col lg:pr-6">
 			<!-- <MediaRecorder projectId={data.projectId} onRecordingComplete={handleRecordingComplete} /> -->
 
 			<BlocksList
@@ -111,7 +114,7 @@
 {/snippet}
 
 {#snippet editor()}
-	<div id="block-editor" class="bg-accent h-full">
+	<div id="block-editor" class="h-full">
 		<button onclick={() => (showEditor = !showEditor)}>Test</button>
 	</div>
 {/snippet}

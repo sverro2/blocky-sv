@@ -58,7 +58,7 @@
 		<!-- Right Side Actions - Always stay on the right -->
 		<div class="flex shrink-0 items-center gap-2">
 			<!-- Hamburger Menu (Right Side) -->
-			<Drawer>
+			<Drawer direction="top">
 				<DrawerTrigger>
 					<Button variant="ghost" size="icon">
 						<Menu class="h-5 w-5" />
