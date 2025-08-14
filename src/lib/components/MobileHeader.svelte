@@ -1,5 +1,6 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import type { Snippet, SvelteComponent } from 'svelte';
+	import type { Component } from 'svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
 	import {
@@ -17,18 +18,32 @@
 		subtitle?: string;
 		username?: string;
 		menuItems?: Snippet;
-		leftActions?: Snippet;
+		backButton?: {
+			icon: typeof SvelteComponent;
+			href?: string;
+			onclick?: () => void;
+		};
 	}
 
-	let { title, subtitle, username, menuItems, leftActions }: Props = $props();
+	let { title, subtitle, username, menuItems, backButton }: Props = $props();
 </script>
 
 <div class="space-y-4">
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex min-w-0 flex-1 items-center gap-4">
-			<!-- Left Actions (optional) -->
-			{#if leftActions}
-				{@render leftActions()}
+			<!-- Back Button (optional) -->
+			{#if backButton}
+				<Button
+					variant="ghost"
+					size="sm"
+					href={backButton.href}
+					onclick={backButton.onclick}
+					class="shrink-0"
+				>
+					{@const Icon = backButton.icon}
+					<Icon class="mr-2 h-4 w-4" />
+					Back
+				</Button>
 			{/if}
 
 			<!-- Title and Subtitle -->

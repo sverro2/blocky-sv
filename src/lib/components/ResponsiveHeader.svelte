@@ -1,30 +1,22 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import type { Snippet, SvelteComponent } from 'svelte';
 	import { onMount } from 'svelte';
 	import MobileHeader from '$lib/components/MobileHeader.svelte';
 	import DesktopHeader from '$lib/components/DesktopHeader.svelte';
 
 	interface Props {
+		backButton?: {
+			icon: typeof SvelteComponent;
+			href?: string;
+			onclick?: () => void;
+		};
 		title: string;
-		subtitle?: string;
-		username?: string;
 		mobileMenuItems?: Snippet;
 		desktopMenuItems?: Snippet;
-		leftActions?: Snippet;
-		centerActions?: Snippet;
 		desktopActions?: Snippet;
 	}
 
-	let {
-		title,
-		subtitle,
-		username,
-		mobileMenuItems,
-		desktopMenuItems,
-		leftActions,
-		centerActions,
-		desktopActions
-	}: Props = $props();
+	let { backButton, title, mobileMenuItems, desktopMenuItems, desktopActions }: Props = $props();
 
 	let isMobile = $state(true);
 
@@ -40,15 +32,7 @@
 </script>
 
 {#if isMobile}
-	<MobileHeader {title} {subtitle} {username} menuItems={mobileMenuItems} {leftActions} />
+	<MobileHeader {backButton} {title} menuItems={mobileMenuItems} />
 {:else}
-	<DesktopHeader
-		{title}
-		{subtitle}
-		{username}
-		menuItems={desktopMenuItems}
-		{leftActions}
-		{centerActions}
-		rightActions={desktopActions}
-	/>
+	<DesktopHeader {backButton} {title} {desktopActions} menuItems={desktopMenuItems} />
 {/if}
