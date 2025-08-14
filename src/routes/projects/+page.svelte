@@ -38,7 +38,7 @@
 				<HoverCard href="/projects/{project.id}">
 					<CardHeader class="h-20">
 						<div class="flex items-center justify-between">
-							<CardTitle class="text-lg">{project.name}</CardTitle>
+							<CardTitle class="line-clamp-1 text-lg">{project.name}</CardTitle>
 							<Badge variant="secondary">
 								{#if project.mediaType === 'audio'}
 									<AudioWaveform></AudioWaveform>Audio
