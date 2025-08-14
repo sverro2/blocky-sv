@@ -13,10 +13,10 @@
 	const mobile = useMobile();
 </script>
 
-<div class="relative h-screen overflow-hidden lg:flex">
+<div class="relative h-screen lg:flex">
 	<!-- Overview Panel -->
 	<div
-		class="relative z-20 h-full w-full overflow-x-hidden overflow-y-auto lg:w-auto lg:shrink-0 lg:!translate-x-0 lg:border-r lg:!opacity-100"
+		class="relative z-20 h-full w-full lg:w-auto lg:shrink-0 lg:!translate-x-0 lg:border-r lg:!opacity-100"
 		style:transform={showEditor && mobile.isMobile ? 'translateX(-100%)' : 'translateX(0)'}
 		style:opacity={showEditor && mobile.isMobile ? '0' : '1'}
 		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"

@@ -8,6 +8,9 @@
 	import BlocksList from '$lib/components/BlocksList.svelte';
 	import ResponsiveProjectContainer from '$lib/components/ResponsiveProjectContainer.svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
+	import MobileHeader from '$lib/components/MobileHeader.svelte';
+	import DesktopHeader from '$lib/components/DesktopHeader.svelte';
+	import { useMobile } from '$lib/utils/mobile.svelte.js';
 
 	let { data: _data }: PageProps = $props();
 
@@ -90,14 +93,23 @@
 	$effect(() => {
 		console.log('showEditor changed:', showEditor);
 	});
+
+	const mobile = useMobile();
 </script>
 
 <PageLayout>
+	{#if !mobile.isMobile}
+		<DesktopHeader title="Project Editor" {desktopActions} {menuItems} />
+	{/if}
 	<ResponsiveProjectContainer bind:showEditor {overview} {editor}></ResponsiveProjectContainer>
 </PageLayout>
 
 {#snippet overview()}
 	<div id="project-blocks-overview">
+		{#if mobile.isMobile}
+			<MobileHeader title="Overview" {menuItems} />
+		{/if}
+
 		<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		<input type="checkbox" bind:checked={showEditor} />
 
@@ -115,6 +127,22 @@
 
 {#snippet editor()}
 	<div id="block-editor" class="h-full">
-		<button onclick={() => (showEditor = !showEditor)}>Test</button>
+		{#if mobile.isMobile}
+			<MobileHeader title="Details" {menuItems} />
+		{/if}
+
+		<div class="p-4">
+			<button onclick={() => (showEditor = !showEditor)}>Test</button>
+		</div>
 	</div>
+{/snippet}
+
+{#snippet menuItems()}
+	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Refresh Project</button>
+	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Export Data</button>
+	<button class="w-full rounded p-2 text-left hover:bg-gray-100">Settings</button>
+{/snippet}
+
+{#snippet desktopActions()}
+	<button class="rounded bg-blue-500 px-4 py-2 text-white hover:bg-blue-600">Save Project</button>
 {/snippet}

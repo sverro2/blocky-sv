@@ -54,7 +54,7 @@
 	const [send, recieve] = crossfade({ duration: 200 });
 </script>
 
-<div class="space-y-6">
+<div class="space-y-6 overflow-y-scroll px-5 lg:pr-0">
 	<div class="flex items-center justify-between">
 		<div>
 			<h2 class="text-2xl font-semibold tracking-tight">Audio Blocks</h2>

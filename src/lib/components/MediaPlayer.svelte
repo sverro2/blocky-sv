@@ -150,5 +150,6 @@
 	}
 </script>
 
+<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
 <!-- svelte-ignore a11y_media_has_caption -->
-<video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video>
+<video class="h-1/3 w-full bg-blue-300 sm:w-auto lg:w-full">Player stub</video>
