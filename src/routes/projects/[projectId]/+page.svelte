@@ -111,7 +111,7 @@
 {/snippet}
 
 {#snippet editor()}
-	<div id="block-editor" class="h-full bg-red-500">
+	<div id="block-editor" class="bg-accent h-full">
 		<button onclick={() => (showEditor = !showEditor)}>Test</button>
 	</div>
 {/snippet}
