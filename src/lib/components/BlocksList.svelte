@@ -10,8 +10,7 @@
 	import { arrayMove, SortableContext } from '@dnd-kit-svelte/sortable';
 	import * as Card from '$lib/components/ui/card';
 	import { Badge } from '$lib/components/ui/badge';
-	import { Button } from '$lib/components/ui/button';
-	import { GripVertical, Play } from 'lucide-svelte';
+	import { GripVertical } from 'lucide-svelte';
 	import Droppable from './droppable.svelte';
 	import SortableItem from './sortable/sortable-item.svelte';
 	import { crossfade } from 'svelte/transition';
