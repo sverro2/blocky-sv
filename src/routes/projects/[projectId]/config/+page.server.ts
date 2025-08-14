@@ -9,20 +9,29 @@ export const load: PageServerLoad = async (event) => {
 	const user = requireAuth(event);
 	const projectId = event.params.projectId;
 
-	// Fetch the project and verify ownership
-	const projectData = await db
-		.select()
-		.from(project)
-		.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
-		.limit(1);
+	try {
+		// Fetch the project and verify ownership
+		const projectData = await db
+			.select()
+			.from(project)
+			.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
+			.limit(1);
 
-	if (projectData.length === 0) {
+		if (projectData.length === 0) {
+			throw error(404, 'Project not found');
+		}
+
+		return {
+			project: projectData[0]
+		};
+	} catch (err) {
+		// If it's already an error we threw, re-throw it
+		if (err && typeof err === 'object' && 'status' in err) {
+			throw err;
+		}
+		// Database error (including invalid UUID format)
 		throw error(404, 'Project not found');
 	}
-
-	return {
-		project: projectData[0]
-	};
 };
 
 export const actions = {
@@ -46,47 +55,67 @@ export const actions = {
 			};
 		}
 
-		// Verify project ownership
-		const projectData = await db
-			.select()
-			.from(project)
-			.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
-			.limit(1);
+		try {
+			// Verify project ownership
+			const projectData = await db
+				.select()
+				.from(project)
+				.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
+				.limit(1);
 
-		if (projectData.length === 0) {
-			throw error(404, 'Project not found');
+			if (projectData.length === 0) {
+				throw error(404, 'Project not found');
+			}
+
+			// Update the project
+			await db
+				.update(project)
+				.set({
+					name,
+					description
+				})
+				.where(eq(project.id, projectId));
+
+			redirect(302, `/projects/${projectId}`);
+		} catch (err) {
+			// If it's already an error we threw, re-throw it
+			if (err && typeof err === 'object' && 'status' in err) {
+				throw err;
+			}
+			// Otherwise, return a form error
+			return {
+				error: 'Failed to update project'
+			};
 		}
-
-		// Update the project
-		await db
-			.update(project)
-			.set({
-				name,
-				description
-			})
-			.where(eq(project.id, projectId));
-
-		redirect(302, `/projects/${projectId}`);
 	},
 
 	deleteProject: async (event) => {
 		const user = requireAuth(event);
 		const projectId = event.params.projectId;
 
-		// Verify project ownership
-		const projectData = await db
-			.select()
-			.from(project)
-			.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
-			.limit(1);
+		try {
+			// Verify project ownership
+			const projectData = await db
+				.select()
+				.from(project)
+				.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
+				.limit(1);
 
-		if (projectData.length === 0) {
+			if (projectData.length === 0) {
+				throw error(404, 'Project not found');
+			}
+
+			// Delete the project
+			await db.delete(project).where(eq(project.id, projectId));
+
+			redirect(302, '/projects');
+		} catch (err) {
+			// If it's already an error we threw, re-throw it
+			if (err && typeof err === 'object' && 'status' in err) {
+				throw err;
+			}
+			// Otherwise, it's likely a database error, return 404
 			throw error(404, 'Project not found');
 		}
-
-		// Delete the project
-		await db.delete(project).where(eq(project.id, projectId));
-
-		redirect(302, '/projects');
 	}
 } satisfies Actions;
