@@ -9,7 +9,8 @@
 		Pause,
 		ChevronRight,
 		SkipForward,
-		VolumeX
+		VolumeX,
+		Edit
 	} from 'lucide-svelte';
 
 	interface Props {
@@ -169,6 +170,7 @@
 
 <div class="relative">
 	<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
+	<!-- svelte-ignore a11y_media_has_caption -->
 	<video
 		bind:this={videoElement}
 		class="sticky top-0 max-h-[25vh] w-full bg-blue-300 object-contain shadow-md"
@@ -177,9 +179,26 @@
 		Player stub
 	</video>
 
+	<!-- Top Left - Current Media Info -->
+	<div class="absolute top-3 left-3">
+		<div class="rounded bg-black/50 p-2 text-white backdrop-blur-sm">
+			<div class="text-sm font-medium">stub current</div>
+			<div class="text-xs text-gray-300">stub option</div>
+		</div>
+	</div>
+
+	<!-- Top Right - Edit Button -->
+	<div class="absolute top-3 right-3 rounded-md bg-black/50">
+		<Button variant="outline" size="icon" class="h-8 w-8 text-white hover:bg-white/20">
+			<Edit class="h-4 w-4" />
+		</Button>
+	</div>
+
 	<!-- Custom Media Controls -->
-	<div class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-		<div class="flex items-center gap-2 rounded-lg bg-black/50 p-3 backdrop-blur-sm">
+	<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+		<div
+			class="pointer-events-auto flex items-center gap-2 rounded-lg bg-black/50 p-3 backdrop-blur-sm"
+		>
 			<!-- Go to start -->
 			<Button
 				variant="ghost"
