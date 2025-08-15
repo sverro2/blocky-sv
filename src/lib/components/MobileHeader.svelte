@@ -28,7 +28,7 @@
 
 <div class="bg-background sticky top-0 px-5">
 	<div class="flex items-center justify-between gap-4">
-		<div class="flex min-w-0 flex-1 items-center gap-4">
+		<div class="flex min-w-0 items-center gap-4">
 			<!-- Back Button (optional) -->
 			{#if backButton}
 				<Button
@@ -45,7 +45,7 @@
 			{/if}
 
 			<!-- Title and Subtitle -->
-			<div class="flex min-w-0 py-2">
+			<div class="flex min-w-0 py-4">
 				<h1 class="truncate text-2xl font-bold tracking-tight">{title}</h1>
 			</div>
 		</div>

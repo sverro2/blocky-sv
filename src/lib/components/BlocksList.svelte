@@ -99,8 +99,8 @@
 			{#if blocks.length === 0}
 				<div class="flex h-32 items-center justify-center">
 					<div class="text-center">
-						<p class="text-muted-foreground text-sm">No audio blocks yet</p>
-						<p class="text-muted-foreground text-xs">Start recording to create your first block</p>
+						<p class="text-muted-foreground text-sm">No audio blocks</p>
+						<p class="text-muted-foreground text-xs">This should never happen. You are stuck :(</p>
 					</div>
 				</div>
 			{:else}

@@ -74,7 +74,7 @@
 <PageLayout>
 	<ResponsiveHeader
 		backButton={{ icon: ListIcon, href: '.' }}
-		title="Configure “{data.project.name}”"
+		title="Configure Project"
 		{mobileMenuItems}
 		{desktopMenuItems}
 		{desktopActions}

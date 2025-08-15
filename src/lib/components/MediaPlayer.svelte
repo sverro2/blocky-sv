@@ -192,10 +192,14 @@
 	</div>
 
 	<!-- Top Right - Edit Button -->
-	<div class="absolute top-3 right-3 rounded-md bg-black/50">
-		<Button variant="outline" size="icon" class="h-13 w-13 text-orange-300 hover:text-orange-500">
-			<Edit />
-		</Button>
+	<div
+		class="absolute top-3 right-3 rounded-md bg-gradient-to-br from-orange-500 to-red-500 p-1 shadow-lg ring-2 ring-orange-400/50 ring-offset-2 ring-offset-black/20"
+	>
+		<button
+			class="flex h-12 w-12 items-center justify-center rounded-md text-white transition-transform duration-200 hover:scale-105 hover:bg-white/20"
+		>
+			<Edit class="h-7 w-7" />
+		</button>
 	</div>
 
 	<!-- Custom Media Controls -->
