@@ -1,50 +1,62 @@
 <script lang="ts">
 	import '../app.css';
-	import { navigating, page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { onNavigate } from '$app/navigation';
 
 	let { children } = $props();
 
-	let isNavigating = $state(false);
-	let currentPath = $state('');
-	let container: HTMLDivElement;
+	onNavigate((navigation) => {
+		if (!document.startViewTransition) {
+			// Fallback for browsers without View Transitions API
+			return new Promise((resolve) => {
+				document.body.style.opacity = '0';
+				document.body.style.transition = 'opacity 0.15s ease-out';
 
-	onMount(() => {
-		currentPath = $page.url.pathname;
-	});
-
-	$effect(() => {
-		if ($navigating) {
-			isNavigating = true;
-			// Start slide out animation
-			if (container) {
-				container.style.transform = 'translateX(-100%)';
-			}
-		} else if (isNavigating) {
-			// Navigation finished, slide in new content
-			setTimeout(() => {
-				currentPath = $page.url.pathname;
-				if (container) {
-					// container.style.transform = 'translateX(100%)';
-					// Force reflow
-					container.style.transform = 'translateX(0)';
-				}
-				isNavigating = false;
-			}, 10);
+				setTimeout(async () => {
+					resolve();
+					await navigation.complete;
+					document.body.style.opacity = '1';
+					setTimeout(() => {
+						document.body.style.transition = '';
+					}, 150);
+				}, 150);
+			});
 		}
+
+		return new Promise((resolve) => {
+			document.startViewTransition(async () => {
+				resolve();
+				await navigation.complete;
+			});
+		});
 	});
 </script>
 
-<div
-	bind:this={container}
-	class="transition-transform duration-300 ease-out"
-	style="transform: translateX(0)"
->
-	{@render children()}
-</div>
+{@render children()}
 
 <style>
-	div {
-		will-change: transform;
+	:global(::view-transition-old(root)) {
+		animation: slide-out 0.2s ease-out;
+	}
+
+	:global(::view-transition-new(root)) {
+		animation: slide-in 0.2s ease-out;
+	}
+
+	@keyframes slide-out {
+		to {
+			transform: translateX(-100%);
+			opacity: 0;
+		}
+	}
+
+	@keyframes slide-in {
+		from {
+			transform: translateX(-100%);
+			opacity: 0;
+		}
+		to {
+			transform: translateX(0);
+			opacity: 1;
+		}
 	}
 </style>
