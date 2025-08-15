@@ -31,6 +31,7 @@
 	let open = $state(false);
 	let search = $state('');
 	let triggerRef = $state<HTMLButtonElement>();
+	let showAbove = $state(false);
 
 	const filteredOptions = $derived(
 		options.filter((option) => option.label.toLowerCase().includes(search.toLowerCase()))
@@ -48,6 +49,14 @@
 		open = newOpen;
 		if (!newOpen) {
 			search = '';
+		} else if (triggerRef) {
+			// Check if there's enough space below, otherwise show above
+			const rect = triggerRef.getBoundingClientRect();
+			const dropdownHeight = Math.min(320, window.innerHeight * 0.33); // 20rem or 33vh
+			const spaceBelow = window.innerHeight - rect.bottom;
+			const spaceAbove = rect.top;
+
+			showAbove = spaceBelow < dropdownHeight && spaceAbove > dropdownHeight;
 		}
 	}
 
@@ -94,8 +103,10 @@
 
 	{#if open}
 		<div
-			class="bg-popover absolute z-50 mt-1 w-full rounded-md border shadow-md"
-			style="min-width: {triggerRef?.offsetWidth}px; max-height: 33vh;"
+			class="bg-popover absolute z-50 max-h-[min(20rem,33vh)] w-full rounded-md border shadow-md {showAbove
+				? 'bottom-full mb-1'
+				: 'top-full mt-1'}"
+			style="min-width: {triggerRef?.offsetWidth}px;"
 		>
 			<div class="p-2">
 				<Input
@@ -106,7 +117,11 @@
 					autofocus
 				/>
 			</div>
-			<div id="combobox-options" class="max-h-60 overflow-auto p-1">
+			<div
+				id="combobox-options"
+				class="overflow-auto p-1"
+				style="max-height: calc(min(20rem, 33vh) - 4rem);"
+			>
 				{#if filteredOptions.length === 0}
 					<div class="text-muted-foreground py-6 text-center text-sm">No options found.</div>
 				{:else}

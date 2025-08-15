@@ -129,7 +129,7 @@
 		</div>
 		<div class="h-full">
 			<div class="mt-8 p-5">
-				<div class="max-w-sm">
+				<div class="mt-24 max-w-sm">
 					<label for="option-combobox" class="mb-2 block text-sm font-medium">
 						Select an option:
 					</label>
