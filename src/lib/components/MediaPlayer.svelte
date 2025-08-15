@@ -170,7 +170,6 @@
 
 <div class="relative">
 	<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
-	<!-- svelte-ignore a11y_media_has_caption -->
 	<video
 		bind:this={videoElement}
 		class="sticky top-0 max-h-[25vh] w-full bg-blue-300 object-contain shadow-md"
@@ -181,9 +180,14 @@
 
 	<!-- Top Left - Current Media Info -->
 	<div class="absolute top-3 left-3">
-		<div class="rounded bg-black/50 p-2 text-white backdrop-blur-sm">
-			<div class="text-sm font-medium">stub current</div>
-			<div class="text-xs text-gray-300">stub option</div>
+		<div class="flex items-center gap-2 rounded bg-black/50 p-2 text-white backdrop-blur-sm">
+			<div>
+				<div class="text-xs text-gray-400">1 / {blocks.length}</div>
+			</div>
+			<div>
+				<div class="text-sm font-medium">stub current</div>
+				<div class="text-xs text-gray-300">stub option</div>
+			</div>
 		</div>
 	</div>
 
@@ -195,7 +199,7 @@
 	</div>
 
 	<!-- Custom Media Controls -->
-	<div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+	<div class="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">
 		<div
 			class="pointer-events-auto flex items-center gap-2 rounded-lg bg-black/50 p-3 backdrop-blur-sm"
 		>
