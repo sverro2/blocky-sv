@@ -172,7 +172,7 @@
 	<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
 	<video
 		bind:this={videoElement}
-		class="sticky top-0 max-h-[25vh] w-full bg-blue-300 object-contain shadow-md"
+		class="max-h-[25vh] w-full bg-blue-300 object-contain shadow-md"
 		muted={isMuted}
 	>
 		Player stub

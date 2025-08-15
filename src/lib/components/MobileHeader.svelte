@@ -26,7 +26,7 @@
 	let { title, menuItems, backButton }: Props = $props();
 </script>
 
-<div class="px-5">
+<div class="bg-background sticky top-0 px-5">
 	<div class="flex items-center justify-between gap-4">
 		<div class="flex min-w-0 flex-1 items-center gap-4">
 			<!-- Back Button (optional) -->

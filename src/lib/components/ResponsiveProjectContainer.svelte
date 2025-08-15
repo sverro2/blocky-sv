@@ -29,7 +29,7 @@
 
 	<!-- Editor Panel -->
 	<div
-		class="absolute inset-0 z-10 h-full w-full overflow-y-auto lg:flex-1"
+		class="absolute inset-0 h-full w-full overflow-y-auto lg:flex-1"
 		style:transform={!showEditor && mobile.isMobile ? 'translateX(100%)' : 'translateX(0)'}
 		style:opacity={!showEditor && mobile.isMobile ? '0' : '1'}
 		style:transition="transform 300ms ease-in-out, opacity 300ms ease-in-out"

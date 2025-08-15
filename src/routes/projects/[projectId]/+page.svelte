@@ -95,8 +95,8 @@
 </script>
 
 <PageLayout>
-	<div class="flex h-screen flex-col">
-		<div>
+	<div class="flex flex-col">
+		<div class="sticky top-0 z-10">
 			<ResponsiveHeader
 				title={data.project.name}
 				{desktopActions}
@@ -106,7 +106,7 @@
 			/>
 			<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		</div>
-		<div class="h-full overflow-y-scroll">
+		<div class="h-full">
 			<div class="mt-8">
 				<BlocksList
 					blocks={currentSnapshotBlocks}
