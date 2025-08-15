@@ -10,6 +10,7 @@
 	import { ListIcon, LogOutIcon, Settings } from 'lucide-svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { Combobox, type ComboboxOption } from '$lib/components/ui/combobox';
 
 	let { data }: PageProps = $props();
 
@@ -20,6 +21,32 @@
 	);
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
+
+	// Stub data for combobox (about 20 items)
+	const comboboxOptions: ComboboxOption[] = [
+		{ value: 'option1', label: 'First Option Item' },
+		{ value: 'option2', label: 'Second Option Item' },
+		{ value: 'option3', label: 'Third Option Item' },
+		{ value: 'option4', label: 'Fourth Option Item' },
+		{ value: 'option5', label: 'Fifth Option Item' },
+		{ value: 'option6', label: 'Sixth Option Item' },
+		{ value: 'option7', label: 'Seventh Option Item' },
+		{ value: 'option8', label: 'Eighth Option Item' },
+		{ value: 'option9', label: 'Ninth Option Item' },
+		{ value: 'option10', label: 'Tenth Option Item' },
+		{ value: 'option11', label: 'Eleventh Option Item' },
+		{ value: 'option12', label: 'Twelfth Option Item' },
+		{ value: 'option13', label: 'Thirteenth Option Item' },
+		{ value: 'option14', label: 'Fourteenth Option Item' },
+		{ value: 'option15', label: 'Fifteenth Option Item' },
+		{ value: 'option16', label: 'Sixteenth Option Item' },
+		{ value: 'option17', label: 'Seventeenth Option Item' },
+		{ value: 'option18', label: 'Eighteenth Option Item' },
+		{ value: 'option19', label: 'Nineteenth Option Item' },
+		{ value: 'option20', label: 'Twentieth Option Item' }
+	];
+
+	let selectedValue = $state<string>('');
 
 	onMount(async () => {
 		await refreshItems();
@@ -102,7 +129,18 @@
 		</div>
 		<div class="h-full">
 			<div class="mt-8 p-5">
-			    Add dropdowns here
+				<div class="max-w-sm">
+					<label for="option-combobox" class="mb-2 block text-sm font-medium">
+						Select an option:
+					</label>
+					<Combobox
+						id="option-combobox"
+						options={comboboxOptions}
+						bind:value={selectedValue}
+						placeholder="Choose an option..."
+						searchPlaceholder="Search options..."
+					/>
+				</div>
 			</div>
 		</div>
 	</div>
