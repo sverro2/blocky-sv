@@ -16,6 +16,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import * as Select from '$lib/components/ui/select';
 	import * as Dialog from '$lib/components/ui/dialog';
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { superForm } from 'sveltekit-superforms';
@@ -93,17 +94,20 @@
 
 			<div class="space-y-2">
 				<Label for={isMobile ? 'mediaType-mobile' : 'mediaType'}>Media Type</Label>
-				<select
-					id={isMobile ? 'mediaType-mobile' : 'mediaType'}
-					name="mediaType"
-					bind:value={$form.mediaType}
-					class="border-input ring-offset-background placeholder:text-muted-foreground focus:ring-ring [&>option]:bg-popover [&>option]:text-popover-foreground flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
-					aria-invalid={$errors.mediaType ? 'true' : undefined}
-				>
-					<option value="" class="bg-popover text-popover-foreground">Select media type</option>
-					<option value="audio" class="bg-popover text-popover-foreground">Audio</option>
-					<option value="video" class="bg-popover text-popover-foreground">Video</option>
-				</select>
+				<Select.Root type="single" bind:value={$form.mediaType}>
+					<Select.Trigger class="w-full">
+						{$form.mediaType === 'audio'
+							? 'Audio'
+							: $form.mediaType === 'video'
+								? 'Video'
+								: 'Select media type'}
+					</Select.Trigger>
+					<Select.Content>
+						<Select.Item value="audio">Audio</Select.Item>
+						<Select.Item value="video" disabled>Video</Select.Item>
+					</Select.Content>
+				</Select.Root>
+				<input type="hidden" name="mediaType" bind:value={$form.mediaType} />
 				{#if $errors.mediaType}
 					<p class="text-destructive text-sm">{$errors.mediaType}</p>
 				{/if}
