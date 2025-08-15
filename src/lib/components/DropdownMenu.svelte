@@ -52,8 +52,7 @@
 </script>
 
 <div class="relative">
-	<!-- Trigger -->
-	<button bind:this={triggerElement} onclick={toggleDropdown} class="inline-flex">
+	<button bind:this={triggerElement} onclick={toggleDropdown} class=" h-full">
 		{@render trigger()}
 	</button>
 

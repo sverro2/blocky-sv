@@ -4,13 +4,13 @@
 	import { Button } from '$lib/components/ui/button';
 	import {
 		SkipBack,
-		ChevronLeft,
 		Play,
 		Pause,
-		ChevronRight,
 		SkipForward,
 		VolumeX,
-		Edit
+		Edit,
+		StepForward,
+		StepBack
 	} from 'lucide-svelte';
 
 	interface Props {
@@ -220,7 +220,7 @@
 				disabled={!canGoBack}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
-				<ChevronLeft class="h-5 w-5" />
+				<StepBack class="h-5 w-5" />
 			</Button>
 
 			<!-- Play/Pause -->
@@ -239,7 +239,7 @@
 				disabled={!canGoForward}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
-				<ChevronRight class="h-5 w-5" />
+				<StepForward class="h-5 w-5" />
 			</Button>
 
 			<!-- Go to end -->

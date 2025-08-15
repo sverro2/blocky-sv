@@ -86,12 +86,6 @@
 			mediaPlayer.playMedia();
 		}
 	}
-
-	let showEditor = $state(false);
-
-	$effect(() => {
-		console.log('showEditor changed:', showEditor);
-	});
 </script>
 
 <PageLayout>
