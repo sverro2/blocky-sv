@@ -101,12 +101,8 @@
 			<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
 		</div>
 		<div class="h-full">
-			<div class="mt-8">
-				<BlocksList
-					blocks={currentSnapshotBlocks}
-					{selectedMediaId}
-					onSelectItem={handleSelectItem}
-				/>
+			<div class="mt-8 p-5">
+			    Add dropdowns here
 			</div>
 		</div>
 	</div>
