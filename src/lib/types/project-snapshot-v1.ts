@@ -1,3 +1,5 @@
+import { generateSlug } from 'random-word-slugs';
+
 export interface SnapshotDataV1 {
 	blocks: Block[];
 }
@@ -41,3 +43,29 @@ export enum Codec {
 // export const defaultProject: SnapshotDataV1 = {
 // 	blocks: [{}]
 // };
+
+export function create(): SnapshotDataV1 {
+	const completelyEmpty = {
+		blocks: []
+	};
+	return addBlock(completelyEmpty, 0);
+}
+
+export function addBlock(snapshot: SnapshotDataV1, newBlockIndex: number): SnapshotDataV1 {
+	snapshot.blocks.splice(newBlockIndex, 0, {
+		id: crypto.randomUUID(),
+		name: generateSlug(2, { format: 'title' }),
+		description: '',
+		disable: false,
+		alternatives: [
+			{
+				id: crypto.randomUUID(),
+				name: generateSlug(1, { format: 'title' }),
+				description: '',
+				modifiedAt: new Date(),
+				recording: undefined
+			}
+		],
+		currentAltId: ''
+	});
+	return snapshot;
