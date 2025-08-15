@@ -10,41 +10,6 @@
 	let { data } = $props();
 </script>
 
-{#snippet mobileMenuItems()}
-	<Button variant="ghost" href="/settings" class="w-full justify-start" disabled>
-		<Settings class="mr-2 h-4 w-4" />
-		Settings
-	</Button>
-	<Button variant="ghost" href="/logout" class="w-full justify-start">
-		<LogOutIcon class="mr-2 h-4 w-4" />
-		Sign out
-	</Button>
-{/snippet}
-
-{#snippet desktopMenuItems()}
-	<Button variant="ghost" href="/settings" class="w-full justify-start" disabled>
-		<Settings class="mr-2 h-4 w-4" />
-		Settings
-	</Button>
-	<Button
-		variant="ghost"
-		href="/logout"
-		class="w-full justify-start"
-		data-sveltekit-preload-data="off"
-	>
-		<LogOutIcon class="mr-2 h-4 w-4" />
-		Sign out
-	</Button>
-{/snippet}
-
-{#snippet desktopActions()}
-	<!-- Space for additional desktop dropdown menus or buttons -->
-	<div class="text-muted-foreground flex items-center gap-1">
-		<User size={16}></User>
-		{data.user.username}
-	</div>
-{/snippet}
-
 <PageLayout>
 	<ResponsiveHeader title="Your Projects" {mobileMenuItems} {desktopMenuItems} {desktopActions} />
 
@@ -86,3 +51,38 @@
 		{/each}
 	</div>
 </PageLayout>
+
+{#snippet mobileMenuItems()}
+	<Button variant="ghost" href="/settings" class="w-full justify-start" disabled>
+		<Settings class="mr-2 h-4 w-4" />
+		Settings
+	</Button>
+	<Button variant="ghost" href="/logout" class="w-full justify-start">
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
+
+{#snippet desktopMenuItems()}
+	<Button variant="ghost" href="/settings" class="w-full justify-start" disabled>
+		<Settings class="mr-2 h-4 w-4" />
+		Settings
+	</Button>
+	<Button
+		variant="ghost"
+		href="/logout"
+		class="w-full justify-start"
+		data-sveltekit-preload-data="off"
+	>
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
+
+{#snippet desktopActions()}
+	<!-- Space for additional desktop dropdown menus or buttons -->
+	<div class="text-muted-foreground flex items-center gap-1">
+		<User size={16}></User>
+		{data.user.username}
+	</div>
+{/snippet}

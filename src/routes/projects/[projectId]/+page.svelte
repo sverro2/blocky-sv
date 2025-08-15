@@ -26,7 +26,7 @@
 	});
 
 	async function refreshItems() {
-		// let media = await getCurrentSnapshot(data.projectId);
+		// let media = await getCurrentSnapshot(data.project.id);
 		currentSnapshot = {
 			version: 1,
 			snapshotId: 'asdf',
@@ -98,7 +98,7 @@
 	<div class="flex h-screen flex-col">
 		<div>
 			<ResponsiveHeader
-				title="Project Editor"
+				title={data.project.name}
 				{desktopActions}
 				{mobileMenuItems}
 				{desktopMenuItems}
@@ -120,7 +120,7 @@
 
 {#snippet mobileMenuItems()}
 	<a
-		href="/projects/{data.projectId}/config"
+		href="/projects/{data.project.id}/config"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
 	>
 		<Settings class="mr-2 h-4 w-4" />
@@ -129,7 +129,7 @@
 {/snippet}
 
 {#snippet desktopMenuItems()}
-	<Button variant="ghost" href="/projects/{data.projectId}/config" class="w-full justify-start">
+	<Button variant="ghost" href="/projects/{data.project.id}/config" class="w-full justify-start">
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
 	</Button>
