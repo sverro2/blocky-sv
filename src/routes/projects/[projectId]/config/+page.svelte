@@ -37,40 +37,6 @@
 	}
 </script>
 
-{#snippet mobileMenuItems()}
-	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
-		<ArrowLeft class="mr-2 h-4 w-4" />
-		Back to Project
-	</Button>
-	<Button variant="ghost" href="/logout" class="w-full justify-start">
-		<LogOutIcon class="mr-2 h-4 w-4" />
-		Sign out
-	</Button>
-{/snippet}
-
-{#snippet desktopMenuItems()}
-	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
-		<ArrowLeft class="mr-2 h-4 w-4" />
-		Back to Project
-	</Button>
-	<Button
-		variant="ghost"
-		href="/logout"
-		class="w-full justify-start"
-		data-sveltekit-preload-data="off"
-	>
-		<LogOutIcon class="mr-2 h-4 w-4" />
-		Sign out
-	</Button>
-{/snippet}
-
-{#snippet desktopActions()}
-	<div class="text-muted-foreground flex items-center gap-1">
-		<User size={16}></User>
-		{data.user.username}
-	</div>
-{/snippet}
-
 <PageLayout>
 	<ResponsiveHeader
 		backButton={{ icon: ListIcon, href: '.' }}
@@ -185,14 +151,8 @@
 		</AlertDialog.Header>
 		<AlertDialog.Footer>
 			<AlertDialog.Cancel>Cancel</AlertDialog.Cancel>
-			<form
-				method="POST"
-				action="?/deleteProject"
-				use:enhance
-				onsubmit={handleDeleteSubmit}
-				class="inline"
-			>
-				<AlertDialog.Action type="submit" disabled={isDeleting}>
+			<form method="POST" action="?/deleteProject" use:enhance onsubmit={handleDeleteSubmit}>
+				<AlertDialog.Action type="submit" disabled={isDeleting} class="w-full">
 					{#if isDeleting}
 						<div
 							class="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"
@@ -206,3 +166,42 @@
 		</AlertDialog.Footer>
 	</AlertDialog.Content>
 </AlertDialog.Root>
+
+{#snippet mobileMenuItems()}
+	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
+		<ArrowLeft class="mr-2 h-4 w-4" />
+		Back to Project
+	</Button>
+	<Button
+		variant="ghost"
+		href="/logout"
+		class="w-full justify-start"
+		data-sveltekit-preload-data="off"
+	>
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
+
+{#snippet desktopMenuItems()}
+	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
+		<ArrowLeft class="mr-2 h-4 w-4" />
+		Back to Project
+	</Button>
+	<Button
+		variant="ghost"
+		href="/logout"
+		class="w-full justify-start"
+		data-sveltekit-preload-data="off"
+	>
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Sign out
+	</Button>
+{/snippet}
+
+{#snippet desktopActions()}
+	<div class="text-muted-foreground flex items-center gap-1">
+		<User size={16}></User>
+		{data.user.username}
+	</div>
+{/snippet}
