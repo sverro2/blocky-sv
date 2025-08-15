@@ -102,7 +102,7 @@
 				>
 					<option value="" class="bg-popover text-popover-foreground">Select media type</option>
 					<option value="audio" class="bg-popover text-popover-foreground">Audio</option>
-					<option value="video" class="bg-popover text-popover-foreground" disabled>Video</option>
+					<option value="video" class="bg-popover text-popover-foreground">Video</option>
 				</select>
 				{#if $errors.mediaType}
 					<p class="text-destructive text-sm">{$errors.mediaType}</p>
@@ -113,15 +113,13 @@
 		{#if isMobile}
 			<Drawer.Footer class="mt-6">
 				<Button type="submit" class="w-full">Create Project</Button>
-				<Drawer.Close>
-					<Button variant="outline" class="w-full">Cancel</Button>
-				</Drawer.Close>
+				<Button variant="outline" class="w-full" type="button" onclick={() => (open = false)}>
+					Cancel
+				</Button>
 			</Drawer.Footer>
 		{:else}
 			<Dialog.Footer class="mt-6">
-				<Dialog.Close>
-					<Button variant="outline">Cancel</Button>
-				</Dialog.Close>
+				<Button variant="outline" type="button" onclick={() => (open = false)}>Cancel</Button>
 				<Button type="submit">Create Project</Button>
 			</Dialog.Footer>
 		{/if}
