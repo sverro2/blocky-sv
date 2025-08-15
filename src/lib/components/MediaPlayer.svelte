@@ -1,6 +1,16 @@
 <script lang="ts">
 	import { opfsManager } from '$lib/client/opfs';
 	import type { Block } from '$lib/client/idb';
+	import { Button } from '$lib/components/ui/button';
+	import {
+		SkipBack,
+		ChevronLeft,
+		Play,
+		Pause,
+		ChevronRight,
+		SkipForward,
+		VolumeX
+	} from 'lucide-svelte';
 
 	interface Props {
 		blocks: Block[];
@@ -11,7 +21,14 @@
 	let { blocks, selectedMediaId, onPlayingStateChange }: Props = $props();
 
 	let isPlaying = $state(false);
+	let isMuted = $state(false);
 	let videoElement = $state<HTMLVideoElement | null>(null);
+
+	// Control button states
+	let canGoToStart = $state(true);
+	let canGoBack = $state(true);
+	let canGoForward = $state(true);
+	let canGoToEnd = $state(true);
 
 	$effect(() => {
 		if (onPlayingStateChange) {
@@ -150,8 +167,72 @@
 	}
 </script>
 
-<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
-<!-- svelte-ignore a11y_media_has_caption -->
-<video class="sticky top-0 max-h-[25vh] w-full bg-blue-300 object-contain shadow-md"
-	>Player stub</video
->
+<div class="relative">
+	<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
+	<video
+		bind:this={videoElement}
+		class="sticky top-0 max-h-[25vh] w-full bg-blue-300 object-contain shadow-md"
+		muted={isMuted}
+	>
+		Player stub
+	</video>
+
+	<!-- Custom Media Controls -->
+	<div class="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm">
+		<div class="flex items-center gap-2 rounded-lg bg-black/50 p-3 backdrop-blur-sm">
+			<!-- Go to start -->
+			<Button
+				variant="ghost"
+				size="icon"
+				disabled={!canGoToStart}
+				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
+			>
+				<SkipBack class="h-5 w-5" />
+			</Button>
+
+			<!-- Go back -->
+			<Button
+				variant="ghost"
+				size="icon"
+				disabled={!canGoBack}
+				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
+			>
+				<ChevronLeft class="h-5 w-5" />
+			</Button>
+
+			<!-- Play/Pause -->
+			<Button variant="ghost" size="icon" class="h-12 w-12 text-white hover:bg-white/20">
+				{#if isPlaying}
+					<Pause class="h-6 w-6" />
+				{:else}
+					<Play class="h-6 w-6" />
+				{/if}
+			</Button>
+
+			<!-- Go forward -->
+			<Button
+				variant="ghost"
+				size="icon"
+				disabled={!canGoForward}
+				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
+			>
+				<ChevronRight class="h-5 w-5" />
+			</Button>
+
+			<!-- Go to end -->
+			<Button
+				variant="ghost"
+				size="icon"
+				disabled={!canGoToEnd}
+				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
+			>
+				<SkipForward class="h-5 w-5" />
+			</Button>
+
+			<!-- Mute toggle -->
+			<Button variant="ghost" size="icon" class="h-10 w-10 text-white hover:bg-white/20">
+				<VolumeX class="h-5 w-5" />
+			</Button>
+		</div>
+	</div>
+</div>
