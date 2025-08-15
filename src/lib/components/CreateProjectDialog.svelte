@@ -97,12 +97,12 @@
 					id={isMobile ? 'mediaType-mobile' : 'mediaType'}
 					name="mediaType"
 					bind:value={$form.mediaType}
-					class="border-input ring-offset-background placeholder:text-muted-foreground focus:ring-ring flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
+					class="border-input ring-offset-background placeholder:text-muted-foreground focus:ring-ring [&>option]:bg-popover [&>option]:text-popover-foreground flex h-9 w-full items-center justify-between rounded-md border bg-transparent px-3 py-2 text-sm whitespace-nowrap shadow-sm focus:ring-1 focus:outline-none disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1"
 					aria-invalid={$errors.mediaType ? 'true' : undefined}
 				>
-					<option value="">Select media type</option>
-					<option value="audio">Audio</option>
-					<option value="video">Video</option>
+					<option value="" class="bg-popover text-popover-foreground">Select media type</option>
+					<option value="audio" class="bg-popover text-popover-foreground">Audio</option>
+					<option value="video" class="bg-popover text-popover-foreground" disabled>Video</option>
 				</select>
 				{#if $errors.mediaType}
 					<p class="text-destructive text-sm">{$errors.mediaType}</p>

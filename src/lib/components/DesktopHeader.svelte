@@ -45,7 +45,7 @@
 		</div>
 
 		<!-- Right Side Actions -->
-		<div class="center relative flex items-end gap-4">
+		<div class="center relative flex gap-4">
 			<!-- Desktop Actions -->
 			{#if desktopActions}
 				{@render desktopActions()}

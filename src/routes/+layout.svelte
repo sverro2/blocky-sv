@@ -32,31 +32,3 @@
 </script>
 
 {@render children()}
-
-<style>
-	:global(::view-transition-old(root)) {
-		animation: slide-out 0.2s ease-out;
-	}
-
-	:global(::view-transition-new(root)) {
-		animation: slide-in 0.2s ease-out;
-	}
-
-	@keyframes slide-out {
-		to {
-			transform: translateX(-100%);
-			opacity: 0;
-		}
-	}
-
-	@keyframes slide-in {
-		from {
-			transform: translateX(-100%);
-			opacity: 0;
-		}
-		to {
-			transform: translateX(0);
-			opacity: 1;
-		}
-	}
-</style>

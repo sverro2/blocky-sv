@@ -59,7 +59,7 @@
 
 				<!-- Block info -->
 				<div class="flex-1">
-					<p class="font-medium">Block {block.id}</p>
+					<p class="font-medium">{block.id}</p>
 				</div>
 			</div>
 

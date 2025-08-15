@@ -12,7 +12,7 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { GripVertical } from 'lucide-svelte';
 	import Droppable from './droppable.svelte';
-	import SortableItem from './sortable/sortable-item.svelte';
+	import SortableBlock from './sortable/sortable-block.svelte';
 	import { crossfade } from 'svelte/transition';
 
 	interface Props {
@@ -82,7 +82,7 @@
 							<Card.Content class="flex items-center gap-3">
 								<GripVertical class="text-muted-foreground h-4 w-4" />
 								<div class="flex-1">
-									<p class="font-medium">Block {activeBlock.id}</p>
+									<p class="font-medium">{activeBlock.id}</p>
 								</div>
 							</Card.Content>
 						</Card.Root>
@@ -107,7 +107,7 @@
 				<div class="space-y-3">
 					{#each blocks as block (block.id)}
 						<div in:recieve={{ key: block.id }} out:send={{ key: block.id }}>
-							<SortableItem {block} {selectedMediaId} {onSelectItem} />
+							<SortableBlock {block} {selectedMediaId} {onSelectItem} />
 						</div>
 					{/each}
 				</div>

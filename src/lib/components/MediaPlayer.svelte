@@ -168,7 +168,7 @@
 	}
 </script>
 
-<div class="relative">
+<div class="relative sm:mx-5">
 	<!-- <video bind:this={videoElement} id="video-player" controls class="bg-gray-700"></video> -->
 	<video
 		bind:this={videoElement}
