@@ -47,18 +47,20 @@
 			'opacity-50': isDragging.current
 		})}
 	>
-		<Card.Content class="flex items-center gap-3">
-			<!-- Drag handle -->
-			<button
+		<Card.Content class="flex items-center justify-between gap-3">
+			<div
 				{...listeners.current}
-				class="text-muted-foreground hover:text-foreground -m-4 cursor-grab p-4 active:cursor-grabbing"
+				class="-my-5 flex grow cursor-grab items-center gap-3 py-5 active:cursor-grabbing"
 			>
-				<GripVertical class="h-4 w-4" />
-			</button>
+				<!-- Drag handle -->
+				<button class="text-muted-foreground hover:text-foreground -m-4 p-4">
+					<GripVertical class="h-4 w-4" />
+				</button>
 
-			<!-- Block info -->
-			<div class="flex-1">
-				<p class="font-medium">Block {block.id}</p>
+				<!-- Block info -->
+				<div class="flex-1">
+					<p class="font-medium">Block {block.id}</p>
+				</div>
 			</div>
 
 			<!-- Play button -->

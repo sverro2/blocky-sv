@@ -193,8 +193,8 @@
 
 	<!-- Top Right - Edit Button -->
 	<div class="absolute top-3 right-3 rounded-md bg-black/50">
-		<Button variant="outline" size="icon" class="h-8 w-8 text-white hover:bg-white/20">
-			<Edit class="h-4 w-4" />
+		<Button variant="outline" size="icon" class="h-13 w-13 text-orange-300 hover:text-orange-500">
+			<Edit />
 		</Button>
 	</div>
 
