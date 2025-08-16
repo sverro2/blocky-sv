@@ -2,6 +2,8 @@ import { randomUUID, type UUID } from 'crypto';
 import { db } from '../db';
 import { project, projectSnapshot } from '../db/schema';
 import { createNewSnapshot } from '$lib/types/project-snapshot-v1';
+import type { SuperValidated } from 'sveltekit-superforms';
+import type { CreateProjectForm } from '$lib/schemas/forms';
 
 export async function getProjectList(userId: string) {
 	const projects = (
@@ -14,7 +16,10 @@ export async function getProjectList(userId: string) {
 	return projects;
 }
 
-export async function createProject(userId: string, form: any): Promise<string> {
+export async function createProject(
+	userId: string,
+	form: SuperValidated<CreateProjectForm>
+): Promise<string> {
 	const projectId = await db.transaction(async (tx) => {
 		const now = new Date();
 		const [newProject] = await tx

@@ -4,17 +4,9 @@ import { requireAuth } from '$lib/server/repo/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import { zod } from 'sveltekit-superforms/adapters';
 import { superValidate } from 'sveltekit-superforms';
-import { z } from 'zod';
 import type { PageServerLoad, Actions } from './$types';
 import { createProject, getProjectList } from '$lib/server/repo/projects';
-
-const createProjectSchema = z.object({
-	name: z
-		.string()
-		.min(1, 'Project name is required')
-		.max(32, 'Project name must be 32 characters or less'),
-	mediaType: z.enum(['audio', 'video'])
-});
+import { createProjectSchema } from '$lib/schemas/forms';
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireAuth(event);

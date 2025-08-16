@@ -21,21 +21,13 @@
 	import * as Drawer from '$lib/components/ui/drawer';
 	import { superForm } from 'sveltekit-superforms';
 	import { zodClient } from 'sveltekit-superforms/adapters';
-	import { z } from 'zod';
 	import { onMount } from 'svelte';
+	import { createProjectSchema } from '$lib/schemas/forms';
 
 	let { form: formData } = $props();
 
 	let isDesktop = $state(false);
 	let open = $state(false);
-
-	const createProjectSchema = z.object({
-		name: z
-			.string()
-			.min(1, 'Project name is required')
-			.max(32, 'Project name must be 32 characters or less'),
-		mediaType: z.enum(['audio', 'video'])
-	});
 
 	const {
 		form,
