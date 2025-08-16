@@ -6,10 +6,9 @@ import type { SnapshotDataV1Dao } from '$lib/types/project-snapshot-v1';
 import { uuidValid } from '$lib/utils/uuid-checker';
 import z from 'zod';
 
-async function getProjectInfo(projectId: unknown, userId: string): Promise<object> {
-	// Check here projectId
+async function getProjectDetails(projectId: unknown, userId: string) {
 	if (!uuidValid(projectId)) {
-		throw error(400, 'Invalid project ID');
+		throw error(404, 'Invalid project ID');
 	}
 
 	const projectRows = await db
@@ -33,11 +32,6 @@ async function getProjectInfo(projectId: unknown, userId: string): Promise<objec
  * @throws 404 error if snapshot not found
  */
 async function getProjectSnapshot(projectId: unknown): Promise<SnapshotDataV1Dao> {
-	// Check here projectId
-	//
-	const magix = await getProjectInfo('page', 'sluda');
-	const p = magix.id;
-
 	if (!uuidValid(projectId)) {
 		throw error(400, 'Invalid project ID');
 	}
