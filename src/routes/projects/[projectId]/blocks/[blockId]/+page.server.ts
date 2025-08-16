@@ -1,9 +1,10 @@
 import { requireAuth } from '$lib/server/auth';
 import { db } from '$lib/server/db';
-import { project } from '$lib/server/db/schema';
+import { project, projectSnapshot } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import type { PageServerLoad } from './$types';
 import { error } from '@sveltejs/kit';
+import type { SnapshotDataV1Dao } from '$lib/types/project-snapshot-v1';
 
 export const load: PageServerLoad = async (event) => {
 	const user = requireAuth(event);
@@ -11,18 +12,34 @@ export const load: PageServerLoad = async (event) => {
 
 	try {
 		// Fetch the project and verify ownership
-		const projectData = await db
+		const projectInfo = await db
 			.select()
 			.from(project)
 			.where(and(eq(project.id, projectId), eq(project.userId, user.id)))
 			.limit(1);
 
-		if (projectData.length === 0) {
+		if (projectInfo.length === 0) {
 			throw error(404, 'Project not found');
 		}
 
+		const snapshotData = await db
+			.select()
+			.from(projectSnapshot)
+			.where(eq(projectSnapshot.projectId, projectId))
+			.limit(1);
+
+		if (snapshotData.length === 0) {
+			throw error(404, 'No project data found');
+		}
+
+		const blocksList = (snapshotData[0].body_dao as SnapshotDataV1Dao).blocks.map((block) => ({
+			id: block.id,
+			name: block.name
+		}));
+
 		return {
-			project: projectData[0],
+			project: projectInfo[0],
+			blocksList,
 			user
 		};
 	} catch (err) {
