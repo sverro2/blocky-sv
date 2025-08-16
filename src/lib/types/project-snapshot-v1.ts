@@ -48,21 +48,23 @@ export function createNewSnapshot(): SnapshotDataV1Dao {
 }
 
 export function addBlock(snapshot: SnapshotDataV1Dao, newBlockIndex: number): SnapshotDataV1Dao {
+	const newBlockId = crypto.randomUUID();
+	const newAlternativeId = crypto.randomUUID();
 	snapshot.blocks.splice(newBlockIndex, 0, {
-		id: crypto.randomUUID(),
+		id: newBlockId,
 		name: generateSlug(2, { format: 'title' }),
 		description: '',
 		disable: false,
 		alternatives: [
 			{
-				id: crypto.randomUUID(),
+				id: newAlternativeId,
 				name: generateSlug(1, { format: 'title' }),
 				description: '',
 				modifiedAtIsoString: new Date().toISOString(),
 				recording: undefined
 			}
 		],
-		currentAltId: ''
+		currentAltId: newAlternativeId
 	});
 	return snapshot;
 }
