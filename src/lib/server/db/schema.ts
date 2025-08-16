@@ -48,13 +48,22 @@ export const projectSnapshot = pgTable(
 	'project_snapshot',
 	{
 		id: uuid('id').primaryKey(),
+		projectId: uuid('project_id')
+			.notNull()
+			.references(() => project.id),
 		modifiedAt: timestamp('modified_at', { withTimezone: true, mode: 'date' }).notNull(),
 		name: varchar('name', { length: 32 }),
 		isAutosafe: boolean('is_autosafe').notNull(),
-		body: jsonb('body').notNull(),
-		body_version: projectSnapshotVersionEnum('version').notNull()
+		body_dao: jsonb('body').notNull(),
+		body_dao_version: projectSnapshotVersionEnum('version').notNull()
 	},
-	(table) => [index('project_snapshot_id_modified_at_idx').on(table.id, table.modifiedAt)]
+	(table) => [
+		index('project_snapshot_id_project_id_modified_at_idx').on(
+			table.id,
+			table.projectId,
+			table.modifiedAt
+		)
+	]
 );
 
 export type Session = typeof session.$inferSelect;

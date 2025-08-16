@@ -1,5 +1,5 @@
 import { db } from '$lib/server/db';
-import { project } from '$lib/server/db/schema';
+import { project, projectSnapshot } from '$lib/server/db/schema';
 import { requireAuth } from '$lib/server/auth';
 import { fail, redirect } from '@sveltejs/kit';
 import { zod } from 'sveltekit-superforms/adapters';
@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { randomUUID } from 'crypto';
 import type { PageServerLoad, Actions } from './$types';
 import { logger } from '$lib/utils/logger';
+import { createNewSnapshot } from '$lib/types/project-snapshot-v1';
 
 const createProjectSchema = z.object({
 	name: z
@@ -47,19 +48,31 @@ export const actions: Actions = {
 
 		let newProjectId = null;
 		try {
-			const now = new Date();
-			const [newProject] = await db
-				.insert(project)
-				.values({
-					id: randomUUID(),
-					name: form.data.name,
-					mediaType: form.data.mediaType,
-					userId: user.id,
-					createdAt: now
-				})
-				.returning();
+			await db.transaction(async (tx) => {
+				const now = new Date();
+				const [newProject] = await tx
+					.insert(project)
+					.values({
+						id: randomUUID(),
+						name: form.data.name,
+						mediaType: form.data.mediaType,
+						userId: user.id,
+						createdAt: now
+					})
+					.returning();
 
-			newProjectId = newProject.id;
+				newProjectId = newProject.id;
+
+				await tx.insert(projectSnapshot).values({
+					id: randomUUID(),
+					projectId: newProjectId,
+					modifiedAt: now,
+					name: undefined,
+					isAutosafe: true,
+					body_dao: createNewSnapshot(),
+					body_dao_version: 'V1'
+				});
+			});
 		} catch (error) {
 			logger.error('Error creating project:', error);
 			return fail(500, { form, error: 'Failed to create project' });
