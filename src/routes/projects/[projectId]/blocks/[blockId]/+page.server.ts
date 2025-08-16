@@ -22,17 +22,19 @@ export const load: PageServerLoad = async (event) => {
 			throw error(404, 'Project not found');
 		}
 
-		const snapshotData = await db
+		const rawProjectSnapshot = await db
 			.select()
 			.from(projectSnapshot)
 			.where(eq(projectSnapshot.projectId, projectId))
 			.limit(1);
 
-		if (snapshotData.length === 0) {
+		if (rawProjectSnapshot.length === 0) {
 			throw error(404, 'No project data found');
 		}
 
-		const blocksList = (snapshotData[0].body_dao as SnapshotDataV1Dao).blocks.map((block) => ({
+		const snapshotDao = rawProjectSnapshot[0].body_dao as SnapshotDataV1Dao;
+
+		const blocksList = snapshotDao.blocks.map((block) => ({
 			id: block.id,
 			name: block.name
 		}));
