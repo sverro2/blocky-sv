@@ -4,9 +4,8 @@ import { eq, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 import type { SnapshotDataV1Dao } from '$lib/types/project-snapshot-v1';
 import { uuidValid } from '$lib/utils/uuid-checker';
-import z from 'zod';
 
-async function getProjectDetails(projectId: unknown, userId: string) {
+export async function getProjectDetails(projectId: unknown, userId: string) {
 	if (!uuidValid(projectId)) {
 		throw error(404, 'Invalid project ID');
 	}
@@ -18,22 +17,43 @@ async function getProjectDetails(projectId: unknown, userId: string) {
 		.limit(1);
 
 	if (projectRows.length === 0) {
-		throw error(404, 'No project info found');
+		throw error(404, 'Project not found');
+	} else {
+		return projectRows[0];
 	}
+}
 
-	return projectRows[0];
+export async function getBlockList(projectId: unknown) {
+	const snapshot = await getProjectSnapshot(projectId);
+	const blocksList = snapshot.blocks.map((block) => {
+		const currentAlternativeName = block.alternatives.find(
+			(i) => block.currentAltId === i.id
+		)?.name;
+
+		if (!currentAlternativeName) {
+			throw error(500, 'Block missing current alternative!');
+		}
+
+		return {
+			id: block.id,
+			name: block.name,
+			currentAlternativeName
+		};
+	});
+
+	return blocksList;
 }
 
 /**
  * Fetches just the project snapshot data without project info.
  * Useful when you only need the snapshot and have already verified project access.
+ * Make sure the user actually has access to the project, before using this method!
  * @param projectId - The project ID to fetch snapshot for
  * @returns Snapshot data
- * @throws 404 error if snapshot not found
  */
 async function getProjectSnapshot(projectId: unknown): Promise<SnapshotDataV1Dao> {
 	if (!uuidValid(projectId)) {
-		throw error(400, 'Invalid project ID');
+		throw error(404, 'Ivalid project ID');
 	}
 
 	const rawProjectSnapshot = await db
@@ -43,8 +63,8 @@ async function getProjectSnapshot(projectId: unknown): Promise<SnapshotDataV1Dao
 		.limit(1);
 
 	if (rawProjectSnapshot.length === 0) {
-		throw error(404, 'No project data found');
+		throw error(404, 'Project not found');
+	} else {
+		return rawProjectSnapshot[0].body_dao as SnapshotDataV1Dao;
 	}
-
-	return rawProjectSnapshot[0].body_dao as SnapshotDataV1Dao;
 }

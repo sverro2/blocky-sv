@@ -81,7 +81,13 @@ export function deleteSessionTokenCookie(event: RequestEvent) {
 	});
 }
 
-export function requireAuth(event: RequestEvent) {
+/**
+ * Requires authentication and returns the authenticated user.
+ * @param event - The request event containing user session data
+ * @returns The authenticated user object with id and username
+ * @throws Redirect to login page if user is not authenticated
+ */
+export function requireAuth(event: RequestEvent): NonNullable<SessionValidationResult['user']> {
 	if (!event.locals.user) {
 		const returnUrl = encodeURIComponent(event.url.pathname + event.url.search);
 		throw redirect(302, `/login?returnUrl=${returnUrl}`);
