@@ -12,8 +12,15 @@
 	import { Button } from '$lib/components/ui/button';
 	import { Combobox, type ComboboxOption } from '$lib/components/ui/combobox';
 	import { page } from '$app/state';
+	import { error } from '@sveltejs/kit';
+
+	let { data }: PageProps = $props();
 
 	onMount(async () => {
+		await reloadBlocks();
+	});
+
+	async function reloadBlocks() {
 		const projectId = page.params.projectId;
 		try {
 			const res = await fetch(`/api/project`, {
@@ -26,43 +33,25 @@
 				throw new Error(`HTTP error! status: ${res.status}`);
 			}
 			const blocks = await res.json();
-			console.log('Fetched blocks:', blocks);
+			currentSnapshotBlocks = blocks;
 		} catch (error) {
 			console.error('Error fetching blocks:', error);
 		}
-	});
+	}
 
-	let { data }: PageProps = $props();
-
-	let currentSnapshotBlocks: BlockListItem[] = [];
 	let selectedBlockId = '';
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
-	// Stub data for combobox (about 20 items)
-	const comboboxOptions: ComboboxOption[] = [
-		{ value: 'option1', label: 'First Option Item' },
-		{ value: 'option2', label: 'Second Option Item' },
-		{ value: 'option3', label: 'Third Option Item' },
-		{ value: 'option4', label: 'Fourth Option Item' },
-		{ value: 'option5', label: 'Fifth Option Item' },
-		{ value: 'option6', label: 'Sixth Option Item' },
-		{ value: 'option7', label: 'Seventh Option Item' },
-		{ value: 'option8', label: 'Eighth Option Item' },
-		{ value: 'option9', label: 'Ninth Option Item' },
-		{ value: 'option10', label: 'Tenth Option Item' },
-		{ value: 'option11', label: 'Eleventh Option Item' },
-		{ value: 'option12', label: 'Twelfth Option Item' },
-		{ value: 'option13', label: 'Thirteenth Option Item' },
-		{ value: 'option14', label: 'Fourteenth Option Item' },
-		{ value: 'option15', label: 'Fifteenth Option Item' },
-		{ value: 'option16', label: 'Sixteenth Option Item' },
-		{ value: 'option17', label: 'Seventeenth Option Item' },
-		{ value: 'option18', label: 'Eighteenth Option Item' },
-		{ value: 'option19', label: 'Nineteenth Option Item' },
-		{ value: 'option20', label: 'Twentieth Option Item' }
-	];
+	let currentSnapshotBlocks: BlockListItem[] = $state([]);
 
+	// Stub data for combobox (about 20 items)
+	const comboboxOptions = $derived(
+		currentSnapshotBlocks.map((block) => ({
+			value: block.id,
+			label: block.blockName
+		}))
+	);
 	let selectedValue = $state<string>('');
 
 	let selectedMediaId = $state<string | null>(null);
