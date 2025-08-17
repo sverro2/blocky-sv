@@ -19,19 +19,16 @@
 		}))
 	);
 
-	let selectedBlockId = $state<string | null>(null);
-
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
 	function handleSelectBlock(id: string) {
-		selectedBlockId = id;
 		selectedBlockStore.set(id);
 	}
 
-	// Update selectedBlockId when currentSnapshotBlocks changes
+	// Update store when currentSnapshotBlocks changes
 	$effect(() => {
 		const validId = getSelectedBlockId(currentSnapshotBlocks);
-		selectedBlockId = validId;
+		selectedBlockStore.set(validId);
 	});
 </script>
 
@@ -49,14 +46,14 @@
 				bind:this={mediaPlayer}
 				projectId={data.project.id}
 				blocks={currentSnapshotBlocks}
-				{selectedBlockId}
+				selectedBlockId={$selectedBlockStore}
 			/>
 		</div>
 		<div class="h-full">
 			<div class="mt-8">
 				<BlocksList
 					blocks={currentSnapshotBlocks}
-					{selectedBlockId}
+					selectedBlockId={$selectedBlockStore}
 					onSelectItem={handleSelectBlock}
 				/>
 			</div>
