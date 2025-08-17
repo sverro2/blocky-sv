@@ -1,25 +1,26 @@
 <script lang="ts">
 	import { CSS, styleObjectToString } from '@dnd-kit-svelte/utilities';
 	import { useSortable } from '@dnd-kit-svelte/sortable';
-	import type { Block } from '$lib/client/idb';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { GripVertical, Play, Pause } from 'lucide-svelte';
+	import { GripVertical, Play, Pause, CrosshairIcon } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
 
 	interface Props {
-		block: Block;
-		selectedMediaId?: string | null;
+		block: BlockListItem;
+		selectedBlockId?: string | null;
 		onSelectItem?: (mediaId: string) => void;
 	}
 
-	let { block, selectedMediaId, onSelectItem }: Props = $props();
+	let { block, selectedBlockId, onSelectItem }: Props = $props();
 
 	const { attributes, listeners, node, transform, transition, isDragging, isSorting } = useSortable(
 		{
 			id: block.id
 		}
 	);
+
+	let isSelected = $derived(block.id === selectedBlockId);
 
 	const style = $derived(
 		styleObjectToString({
@@ -29,12 +30,10 @@
 		})
 	);
 
-	const isSelected = $derived(selectedMediaId === block.currentMediaId);
-
 	function handlePlay(event: MouseEvent) {
 		event.stopPropagation();
 		if (onSelectItem) {
-			onSelectItem(block.currentMediaId);
+			// onSelectItem(block.currentMediaId);
 		}
 	}
 </script>
@@ -59,14 +58,14 @@
 
 				<!-- Block info -->
 				<div class="flex-1">
-					<p class="font-medium">{block.id}</p>
+					<p class="font-medium">{block.blockName}</p>
 				</div>
 			</div>
 
 			<!-- Play button -->
 			<Button variant="outline" size="sm" onclick={handlePlay} class="-m-2 shrink-0">
 				{#if isSelected}
-					<Pause class="h-4 w-4" />
+					<CrosshairIcon class="h-4 w-4" />
 				{:else}
 					<Play class="h-4 w-4" />
 				{/if}

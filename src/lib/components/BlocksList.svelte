@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { sensors, dropAnimation } from '$lib';
-	import type { Block } from '$lib/client/idb';
 	import {
 		DndContext,
 		DragOverlay,
@@ -16,14 +15,14 @@
 	import { crossfade } from 'svelte/transition';
 
 	interface Props {
-		blocks: Block[];
-		selectedMediaId?: string | null;
+		blocks: BlockListItem[];
+		selectedBlockId?: string | null;
 		onSelectItem?: (mediaId: string) => void;
 		onDragStart?(event: DragEndEvent): void;
 		onDragEnd?(event: DragEndEvent): void;
 	}
 
-	let { blocks, selectedMediaId, onSelectItem, onDragStart, onDragEnd }: Props = $props();
+	let { blocks, selectedBlockId, onSelectItem, onDragStart, onDragEnd }: Props = $props();
 
 	function selectItem(mediaId: string) {
 		if (onSelectItem) {
@@ -82,7 +81,7 @@
 							<Card.Content class="flex items-center gap-3">
 								<GripVertical class="text-muted-foreground h-4 w-4" />
 								<div class="flex-1">
-									<p class="font-medium">{activeBlock.id}</p>
+									<p class="font-medium">{activeBlock.blockName}</p>
 								</div>
 							</Card.Content>
 						</Card.Root>
@@ -93,7 +92,7 @@
 	</DndContext>
 </div>
 
-{#snippet taskList(id: string, title: string, blocks: Block[])}
+{#snippet taskList(id: string, title: string, blocks: BlockListItem[])}
 	<SortableContext items={blocks}>
 		<Droppable {id}>
 			{#if blocks.length === 0}
@@ -107,7 +106,7 @@
 				<div class="space-y-3">
 					{#each blocks as block (block.id)}
 						<div in:recieve={{ key: block.id }} out:send={{ key: block.id }}>
-							<SortableBlock {block} {selectedMediaId} {onSelectItem} />
+							<SortableBlock {block} {selectedBlockId} {onSelectItem} />
 						</div>
 					{/each}
 				</div>

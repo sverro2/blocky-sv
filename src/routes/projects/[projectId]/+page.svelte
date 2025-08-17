@@ -13,21 +13,20 @@
 
 	let { data }: PageProps = $props();
 
-	let currentSnapshot = $state<Snapshot | undefined>(undefined);
-
-	let currentSnapshotBlocks = $derived(
-		currentSnapshot === undefined ? [] : currentSnapshot?.data.blocks
+	let currentSnapshotBlocks: BlockListItem[] = $derived(
+		data.blocksList.map((block) => ({
+			id: block.id,
+			blockName: block.name,
+			currentAlternativeName: block.currentAlternativeName
+		}))
 	);
+
+	let selectedBlockId = $derived(data.blocksList.map((s) => s.id)[0]);
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
-	let selectedMediaId = $state<string | null>(null);
-
-	function handleSelectItem(id: string) {
-		selectedMediaId = id;
-		if (mediaPlayer) {
-			mediaPlayer.playMedia();
-		}
+	function handleSelectBlock(id: string) {
+		selectedBlockId = id;
 	}
 </script>
 
@@ -41,14 +40,19 @@
 				{desktopMenuItems}
 				backButton={{ icon: ListIcon, href: '../' }}
 			/>
-			<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
+			<MediaPlayer
+				bind:this={mediaPlayer}
+				projectId={data.project.id}
+				blocks={currentSnapshotBlocks}
+				{selectedBlockId}
+			/>
 		</div>
 		<div class="h-full">
 			<div class="mt-8">
 				<BlocksList
 					blocks={currentSnapshotBlocks}
-					{selectedMediaId}
-					onSelectItem={handleSelectItem}
+					{selectedBlockId}
+					onSelectItem={handleSelectBlock}
 				/>
 			</div>
 		</div>

@@ -1,4 +1,4 @@
-import { requireAuth } from '$lib/server/auth';
+import { requireAuth } from '$lib/server/repo/auth';
 import { db } from '$lib/server/db';
 import { project } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
