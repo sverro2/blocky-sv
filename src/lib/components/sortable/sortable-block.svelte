@@ -64,11 +64,7 @@
 
 			<!-- Play button -->
 			<Button variant="outline" size="sm" onclick={handlePlay} class="-m-2 shrink-0">
-				{#if isSelected}
-					<CrosshairIcon class="h-4 w-4" />
-				{:else}
-					<Play class="h-4 w-4" />
-				{/if}
+				<CrosshairIcon class="h-4 w-4" />
 			</Button>
 		</Card.Content>
 	</Card.Root>
