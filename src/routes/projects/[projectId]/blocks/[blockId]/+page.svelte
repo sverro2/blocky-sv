@@ -11,6 +11,26 @@
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Combobox, type ComboboxOption } from '$lib/components/ui/combobox';
+	import { page } from '$app/state';
+
+	onMount(async () => {
+		const projectId = page.params.projectId;
+		try {
+			const res = await fetch(`/api/project`, {
+				method: 'POST',
+				body: JSON.stringify({
+					projectId
+				})
+			});
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+			const blocks = await res.json();
+			console.log('Fetched blocks:', blocks);
+		} catch (error) {
+			console.error('Error fetching blocks:', error);
+		}
+	});
 
 	let { data }: PageProps = $props();
 
