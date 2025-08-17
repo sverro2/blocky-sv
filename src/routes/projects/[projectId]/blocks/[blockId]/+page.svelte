@@ -14,11 +14,8 @@
 
 	let { data }: PageProps = $props();
 
-	let currentSnapshot = $state<Snapshot | undefined>(undefined);
-
-	let currentSnapshotBlocks = $derived(
-		currentSnapshot === undefined ? [] : currentSnapshot?.data.blocks
-	);
+	let currentSnapshotBlocks: BlockListItem[] = [];
+	let selectedBlockId = '';
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
@@ -48,63 +45,6 @@
 
 	let selectedValue = $state<string>('');
 
-	onMount(async () => {
-		await refreshItems();
-	});
-
-	async function refreshItems() {
-		// let media = await getCurrentSnapshot(data.project.id);
-		currentSnapshot = {
-			version: 1,
-			snapshotId: 'asdf',
-			projectId: 'moeka',
-			data: {
-				blocks: [
-					{
-						currentMediaId: 'ab',
-						id: 'bc',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'ef',
-						id: 'efg',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'asdf',
-						id: 'fdsa',
-						media: [{ mediaId: 'zxcv' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'fgh',
-						id: 'mnbv',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'dfgh',
-						id: 'uiy',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'm,k.m',
-						id: 'hjf',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'aoipub',
-						id: 'bjfgc',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					},
-					{
-						currentMediaId: 'vbvcef',
-						id: 'efliug',
-						media: [{ mediaId: 'masdfsd' }, { mediaId: 'asdf' }]
-					}
-				]
-			}
-		};
-	}
-
 	let selectedMediaId = $state<string | null>(null);
 
 	function handleSelectItem(id: string) {
@@ -125,7 +65,12 @@
 				{desktopMenuItems}
 				backButton={{ icon: ListIcon, href: '../' }}
 			/>
-			<MediaPlayer bind:this={mediaPlayer} blocks={currentSnapshotBlocks} {selectedMediaId} />
+			<MediaPlayer
+				bind:this={mediaPlayer}
+				projectId={data.project.id}
+				blocks={currentSnapshotBlocks}
+				{selectedBlockId}
+			/>
 		</div>
 		<div class="h-full">
 			<div class="mt-8 p-5">

@@ -1,8 +1,5 @@
 <script lang="ts">
-	import type { Snapshot } from '$lib/client/idb';
-
 	import type { PageProps } from './$types';
-	import { onMount } from 'svelte';
 
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
 	import BlocksList from '$lib/components/BlocksList.svelte';
@@ -10,6 +7,7 @@
 	import { ListIcon, LogOutIcon, Settings } from 'lucide-svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
+	import { selectedBlockStore, getSelectedBlockId } from '$lib/stores';
 
 	let { data }: PageProps = $props();
 
@@ -21,13 +19,20 @@
 		}))
 	);
 
-	let selectedBlockId = $derived(data.blocksList.map((s) => s.id)[0]);
+	let selectedBlockId = $state<string | null>(null);
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
 	function handleSelectBlock(id: string) {
 		selectedBlockId = id;
+		selectedBlockStore.set(id);
 	}
+
+	// Update selectedBlockId when currentSnapshotBlocks changes
+	$effect(() => {
+		const validId = getSelectedBlockId(currentSnapshotBlocks);
+		selectedBlockId = validId;
+	});
 </script>
 
 <PageLayout>
