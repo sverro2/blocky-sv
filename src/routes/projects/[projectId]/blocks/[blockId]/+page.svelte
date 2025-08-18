@@ -7,52 +7,94 @@
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
 	import BlocksList from '$lib/components/BlocksList.svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
-	import { ListIcon, LogOutIcon, Settings } from 'lucide-svelte';
+	import {
+		ListIcon,
+		LogOutIcon,
+		PlusIcon,
+		Settings,
+		StepBackIcon,
+		StepForwardIcon
+	} from 'lucide-svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Combobox, type ComboboxOption } from '$lib/components/ui/combobox';
 	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
+	import { goto } from '$app/navigation';
+	import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
+	import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
 
 	let { data }: PageProps = $props();
 
+	let projectId = $state(data.project.id);
+	let currentBlockId = $state(page.params.blockId);
+	let currentAlternativeId = $state('');
+
 	onMount(async () => {
 		await reloadBlocks();
+		await reloadAlternatives();
+
+		if (!blocksList.find((block) => block.id === currentBlockId)) {
+			goto(`/projects/${data.project.id}`);
+		}
 	});
 
 	async function reloadBlocks() {
-		const projectId = page.params.projectId;
 		try {
-			const res = await fetch(`/api/project`, {
-				method: 'POST',
-				body: JSON.stringify({
-					projectId
-				})
+			const res = await fetch(`/api/projects/${projectId}/blocks`, {
+				method: 'GET'
 			});
 			if (!res.ok) {
 				throw new Error(`HTTP error! status: ${res.status}`);
 			}
-			const blocks = await res.json();
-			currentSnapshotBlocks = blocks;
+			const blocks = (await res.json()) as BlockListItemDto[];
+
+			const parsedBlocks: BlockListItem[] = blocks.map((block: BlockListItemDto) => ({
+				id: block.id,
+				blockName: block.name,
+				currentAlternativeName: block.currentAlternativeName
+			}));
+
+			// Make sure the current selected alternative is updated with the new data
+			const currentBlock = blocks.find((block) => block.id === currentBlockId)!;
+			currentAlternativeId = currentBlock.currentAlternativeId;
+
+			blocksList = parsedBlocks;
 		} catch (error) {
 			console.error('Error fetching blocks:', error);
 		}
 	}
 
-	let selectedBlockId = '';
+	async function reloadAlternatives() {
+		try {
+			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
+				method: 'GET'
+			});
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+			const alternatives = await res.json();
+			alternativeList = alternatives.map((alternative: AlternativeListItemDto) => ({
+				value: alternative.id,
+				label: alternative.name
+			}));
+		} catch (error) {
+			console.error('Error fetching alternatives:', error);
+		}
+	}
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
-	let currentSnapshotBlocks: BlockListItem[] = $state([]);
+	let blocksList: BlockListItem[] = $state([]);
+	let alternativeList: ComboboxOption[] = $state([]);
 
 	// Stub data for combobox (about 20 items)
 	const comboboxOptions = $derived(
-		currentSnapshotBlocks.map((block) => ({
+		blocksList.map((block) => ({
 			value: block.id,
 			label: block.blockName
 		}))
 	);
-	let selectedValue = $state<string>('');
 
 	let selectedMediaId = $state<string | null>(null);
 
@@ -77,23 +119,44 @@
 			<MediaPlayer
 				bind:this={mediaPlayer}
 				projectId={data.project.id}
-				blocks={currentSnapshotBlocks}
-				{selectedBlockId}
+				blocks={blocksList}
+				selectedBlockId={currentBlockId}
 			/>
 		</div>
 		<div class="h-full">
-			<div class="mt-8 p-5">
-				<div class="mt-24 max-w-sm">
+			<div class="mt-8 flex flex-col gap-4 p-5">
+				<div>
 					<label for="option-combobox" class="mb-2 block text-sm font-medium">
-						Select an option:
+						Currently editing block:
 					</label>
-					<Combobox
-						id="option-combobox"
-						options={comboboxOptions}
-						bind:value={selectedValue}
-						placeholder="Choose an option..."
-						searchPlaceholder="Search options..."
-					/>
+					<div class="flex max-w-sm items-end gap-4">
+						<Button><PlusIcon /><StepBackIcon /></Button>
+						<div class="grow">
+							<Combobox
+								id="option-combobox"
+								options={comboboxOptions}
+								bind:value={currentBlockId}
+								placeholder="Choose an option..."
+								searchPlaceholder="Search options..."
+							/>
+						</div>
+						<Button><StepForwardIcon /><PlusIcon /></Button>
+					</div>
+				</div>
+				<div class="flex max-w-sm items-end gap-4">
+					<div class="max-w-sm grow">
+						<label for="option-combobox" class="mb-2 block text-sm font-medium">
+							Pick your alternative for this block:
+						</label>
+						<Combobox
+							id="option-combobox"
+							options={alternativeList}
+							bind:value={currentAlternativeId}
+							placeholder="Choose an option..."
+							searchPlaceholder="Search options..."
+						/>
+					</div>
+					<Button><PlusIcon /></Button>
 				</div>
 			</div>
 		</div>

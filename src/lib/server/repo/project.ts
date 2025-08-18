@@ -2,8 +2,10 @@ import { db } from '$lib/server/db';
 import { project, projectSnapshot } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
-import type { SnapshotDataV1Dao } from '$lib/types/project-snapshot-v1';
+import type { BlockV1Dao, SnapshotDataV1Dao } from '$lib/types/project-snapshot-v1';
 import { uuidValid } from '$lib/utils/uuid-checker';
+import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
+import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
 
 export async function getProjectDetails(projectId: unknown, userId: string) {
 	if (!uuidValid(projectId)) {
@@ -23,25 +25,45 @@ export async function getProjectDetails(projectId: unknown, userId: string) {
 	}
 }
 
-export async function getBlockList(projectId: unknown) {
+export async function getBlockList(projectId: unknown): Promise<BlockListItemDto[]> {
 	const snapshot = await getProjectSnapshot(projectId);
 	const blocksList = snapshot.blocks.map((block) => {
-		const currentAlternativeName = block.alternatives.find(
-			(i) => block.currentAltId === i.id
-		)?.name;
+		const currentAlternative = block.alternatives.find((i) => block.currentAltId === i.id);
 
-		if (!currentAlternativeName) {
+		if (!currentAlternative) {
 			throw error(500, 'Block missing current alternative!');
 		}
 
 		return {
 			id: block.id,
 			name: block.name,
-			currentAlternativeName
+			currentAlternativeId: currentAlternative!.id,
+			currentAlternativeName: currentAlternative!.name
 		};
 	});
 
 	return blocksList;
+}
+
+export async function getAlternativeList(
+	projectId: unknown,
+	blockId: unknown
+): Promise<AlternativeListItemDto[]> {
+	const snapshot = await getProjectSnapshot(projectId);
+
+	if (!uuidValid(blockId)) {
+		throw error(422, 'Blockid not valid');
+	}
+
+	const blockData = snapshot.blocks.find((block) => block.id === blockId);
+
+	const alternativeList: AlternativeListItemDto[] =
+		blockData?.alternatives.map((alt) => ({
+			id: alt.id,
+			name: alt.name
+		})) ?? [];
+
+	return alternativeList;
 }
 
 /**

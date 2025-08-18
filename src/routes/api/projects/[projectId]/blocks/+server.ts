@@ -3,12 +3,10 @@ import { getProjectDetails, getBlockList } from '$lib/server/repo/project';
 import { json, error } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 
-export async function POST(event: RequestEvent) {
-	// Check if user is logged in
+export async function GET(event: RequestEvent) {
 	const user = requireAuth(event);
 
-	// Get projectId from request body
-	const { projectId } = await event.request.json();
+	const projectId = event.params.projectId;
 
 	if (!projectId) {
 		throw error(400, 'Project ID is required');
