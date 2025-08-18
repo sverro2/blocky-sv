@@ -23,6 +23,9 @@
 	import { goto } from '$app/navigation';
 	import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
 	import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
+	import { Input } from '$lib/components/ui/input';
+	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import { Separator } from '$lib/components/ui/separator/index.js';
 
 	let { data }: PageProps = $props();
 
@@ -148,6 +151,10 @@
 						<Button><StepForwardIcon /><PlusIcon /></Button>
 					</div>
 				</div>
+				<Input type="text" value="halloy" />
+				<Textarea placeholder="No description added yet." rows={4} />
+
+				<Separator orientation="horizontal" />
 				<div class="flex max-w-sm items-end gap-4">
 					<div class="max-w-sm grow">
 						<label for="option-combobox" class="mb-2 block text-sm font-medium">
@@ -163,6 +170,8 @@
 					</div>
 					<Button><PlusIcon /></Button>
 				</div>
+				<Input type="text" value="halloy" />
+				<Textarea placeholder="No description added yet." rows={4} />
 			</div>
 		</div>
 	</div>
