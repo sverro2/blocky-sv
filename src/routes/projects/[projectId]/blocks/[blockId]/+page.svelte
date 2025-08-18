@@ -110,7 +110,7 @@
 	<div class="flex flex-col">
 		<div class="sticky top-0 z-10">
 			<ResponsiveHeader
-				title={data.project.name}
+				title="Block editor"
 				{desktopActions}
 				{mobileMenuItems}
 				{desktopMenuItems}
@@ -138,6 +138,11 @@
 								bind:value={currentBlockId}
 								placeholder="Choose an option..."
 								searchPlaceholder="Search options..."
+								onchange={async (value) => {
+									if (value) {
+										console.log(`You changed the value to ${value}`);
+									}
+								}}
 							/>
 						</div>
 						<Button><StepForwardIcon /><PlusIcon /></Button>

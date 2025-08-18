@@ -17,6 +17,7 @@
 		class: className = '',
 		disabled = false,
 		id,
+		onchange,
 		...restProps
 	}: {
 		options: ComboboxOption[];
@@ -26,6 +27,7 @@
 		class?: string;
 		disabled?: boolean;
 		id?: string;
+		onchange?: (value: string) => void;
 	} = $props();
 
 	let open = $state(false);
@@ -43,6 +45,7 @@
 		value = option.value;
 		search = '';
 		open = false;
+		onchange?.(option.value);
 	}
 
 	function handleOpenChange(newOpen: boolean) {
