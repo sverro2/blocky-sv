@@ -26,6 +26,7 @@
 	import { Input } from '$lib/components/ui/input';
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { Separator } from '$lib/components/ui/separator/index.js';
+	import DebouncedTextarea from '$lib/components/ui/textarea/DebouncedTextarea.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -151,8 +152,14 @@
 						<Button><StepForwardIcon /><PlusIcon /></Button>
 					</div>
 				</div>
-				<Input type="text" value="halloy" />
-				<Textarea placeholder="No description added yet." rows={4} />
+				<Input type="text" value="halloy" class="max-w-96" />
+				<DebouncedTextarea
+					placeholder="No description added yet."
+					rows={4}
+					isValid={(input) => input === 'alleen dit'}
+					onvalidchange={(test) => console.log(`Valid change! ${test}`)}
+					class="max-w-96"
+				/>
 
 				<Separator orientation="horizontal" />
 				<div class="flex max-w-sm items-end gap-4">
