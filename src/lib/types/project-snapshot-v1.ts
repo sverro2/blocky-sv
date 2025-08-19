@@ -113,29 +113,27 @@ export function updateAlternative(
 		throw error(500, `Block with id ${blockId} not found. Can not update alternative in it.`);
 	}
 
-	const alternativeIndex = snapshot.blocks[blockIndex].alternatives.findIndex(
+	const targetBlock = snapshot.blocks[blockIndex];
+	const alternativeIndex = targetBlock.alternatives.findIndex(
 		(alternative) => alternative.id === alternativeId
 	);
 
 	if (alternativeIndex === -1) {
-		throw error(500, `Alternative with id ${blockId} not found. Can not update this alternative.`);
+		throw error(
+			500,
+			`Alternative with id ${alternativeId} not found. Can not update this alternative.`
+		);
 	}
 
 	const updatedBlocks = snapshot.blocks.map((block, index) => {
 		if (index === blockIndex) {
 			return {
 				...block,
-				alternatives: block.alternatives.map((alternative, index) => {
-					if (index === alternativeIndex) {
-						return {
-							...alternative,
-							name: updatedAlternative.name,
-							description: updatedAlternative.description
-						};
-					} else {
-						return alternative;
-					}
-				})
+				alternatives: updateAlternativeInBlock(
+					block.alternatives,
+					alternativeIndex,
+					updatedAlternative
+				)
 			};
 		}
 		return block;
@@ -145,4 +143,21 @@ export function updateAlternative(
 		...snapshot,
 		blocks: updatedBlocks
 	};
+}
+
+function updateAlternativeInBlock(
+	alternatives: AlternativeV1Dao[],
+	alternativeIndex: number,
+	updatedAlternative: AlternativeMetaUpdateDto
+) {
+	return alternatives.map((alternative, index) => {
+		if (index === alternativeIndex) {
+			return {
+				...alternative,
+				name: updatedAlternative.name,
+				description: updatedAlternative.description
+			};
+		}
+		return alternative;
+	});
 }
