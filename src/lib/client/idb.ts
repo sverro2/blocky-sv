@@ -98,8 +98,6 @@ export async function getCurrentSnapshot(projectId: string): Promise<Snapshot | 
 export async function putSnapshot(snapshot: Snapshot): Promise<void> {
 	const connection = await db();
 
-	console.log('putting snapshot!', snapshot);
-
 	await connection.put('snapshotStore', snapshot);
 }
 

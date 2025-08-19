@@ -71,7 +71,6 @@
 
 		recorder.addEventListener('stop', async () => {
 			await testFileWritable.close();
-			console.log('Recording finished');
 		});
 
 		recorder.addEventListener('error', (e) => {
