@@ -239,9 +239,9 @@
 			</Button>
 
 			<!-- Mute toggle -->
-			<Button variant="ghost" size="icon" class="h-10 w-10 text-white hover:bg-white/20">
+			<!-- <Button variant="ghost" size="icon" class="h-10 w-10 text-white hover:bg-white/20">
 				<VolumeX class="h-5 w-5" />
-			</Button>
+			</Button> -->
 		</div>
 	</div>
 </div>

@@ -27,7 +27,7 @@
 			if (isValid(value || '')) {
 				onvalidchange(value || '');
 			}
-		}, 1500);
+		}, 1000);
 	}
 
 	function handleBlur() {

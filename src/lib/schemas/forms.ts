@@ -8,4 +8,13 @@ export const createProjectSchema = z.object({
 	mediaType: z.enum(['audio', 'video'])
 });
 
+export const blockMetaUpdateSchema = z.object({
+	name: z
+		.string()
+		.min(1, 'Block name is required')
+		.max(100, 'Block name must be 100 characters or less'),
+	description: z.string().max(1000, 'Description must be 500 characters or less').optional(),
+	alternativeId: z.string().uuid('Invalid alternative ID format')
+}) satisfies z.ZodType<import('$lib/api/block-meta-update-dto').BlockMetaUpdateDto>;
+
 export type CreateProjectForm = z.infer<typeof createProjectSchema>;

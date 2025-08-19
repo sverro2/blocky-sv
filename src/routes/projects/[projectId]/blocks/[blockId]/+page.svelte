@@ -27,17 +27,23 @@
 	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import DebouncedTextarea from '$lib/components/ui/textarea/DebouncedTextarea.svelte';
+	import DebouncedInput from '$lib/components/ui/input/DebouncedInput.svelte';
 
 	let { data }: PageProps = $props();
 
 	let projectId = $state(data.project.id);
 	let currentBlockId = $state(page.params.blockId);
+	let currentBlockName: string = $state('');
+	let currentBlockDescription: string | undefined = $state('');
 	let currentAlternativeId = $state('');
+	let currentAlternativeName: string = $state('');
+	let currentAlternativeDescription: string | undefined = $state('');
 
 	onMount(async () => {
 		await reloadBlocks();
 		await reloadAlternatives();
 
+		// If block requested in url can not be found in current block list, return!
 		if (!blocksList.find((block) => block.id === currentBlockId)) {
 			goto(`/projects/${data.project.id}`);
 		}
@@ -59,10 +65,19 @@
 				currentAlternativeName: block.currentAlternativeName
 			}));
 
-			// Make sure the current selected alternative is updated with the new data
+			// Make sure the currently selected alternative is updated with the new data
 			const currentBlock = blocks.find((block) => block.id === currentBlockId)!;
 			currentAlternativeId = currentBlock.currentAlternativeId;
 
+			// Also figure out the name of the current block
+			currentBlockName = currentBlock.name;
+			currentBlockDescription = currentBlock.blockDescription;
+
+			// And the name of current alternative
+			currentAlternativeName = currentBlock.currentAlternativeName;
+			currentAlternativeDescription = currentBlock.alternativeDescription;
+
+			// Then update the whole list
 			blocksList = parsedBlocks;
 		} catch (error) {
 			console.error('Error fetching blocks:', error);
@@ -108,6 +123,38 @@
 			mediaPlayer.playMedia();
 		}
 	}
+
+	function handleBlockNameInputChange(input: string) {
+		blocksList = blocksList.map((block) => {
+			if (block.id === currentBlockId) {
+				return { ...block, blockName: input };
+			} else {
+				return block;
+			}
+		});
+	}
+
+	function handleAlternativeInputChange(input: string) {
+		alternativeList = alternativeList.map((alternative) => {
+			if (alternative.value === currentAlternativeId) {
+				return { ...alternative, label: input };
+			} else {
+				return alternative;
+			}
+		});
+
+		blocksList = blocksList.map((block) => {
+			if (block.id === currentBlockId) {
+				return { ...block, currentAlternativeName: input };
+			} else {
+				return block;
+			}
+		});
+	}
+
+	function checkNameValidity(input: string) {
+		return input.length > 1;
+	}
 </script>
 
 <PageLayout>
@@ -126,9 +173,12 @@
 				blocks={blocksList}
 				selectedBlockId={currentBlockId}
 			/>
+			<div class="flex justify-center bg-amber-400 p-2 text-center sm:mx-5">
+				Alternative recorded at 13-02-2025
+			</div>
 		</div>
 		<div class="h-full">
-			<div class="mt-8 flex flex-col gap-4 p-5">
+			<div class="flex flex-col gap-4 px-5 pt-4">
 				<div>
 					<label for="option-combobox" class="mb-2 block text-sm font-medium">
 						Currently editing block:
@@ -152,7 +202,14 @@
 						<Button><StepForwardIcon /><PlusIcon /></Button>
 					</div>
 				</div>
-				<Input type="text" value="halloy" class="max-w-96" />
+				<DebouncedInput
+					placeholder="Block name"
+					type="text"
+					value={currentBlockName}
+					class="max-w-96"
+					isValid={checkNameValidity}
+					onvalidchange={handleBlockNameInputChange}
+				/>
 				<DebouncedTextarea
 					placeholder="No description added yet."
 					rows={4}
@@ -177,7 +234,12 @@
 					</div>
 					<Button><PlusIcon /></Button>
 				</div>
-				<Input type="text" value="halloy" />
+				<DebouncedInput
+					type="text"
+					value={currentAlternativeName}
+					isValid={checkNameValidity}
+					onvalidchange={handleAlternativeInputChange}
+				/>
 				<Textarea placeholder="No description added yet." rows={4} />
 			</div>
 		</div>

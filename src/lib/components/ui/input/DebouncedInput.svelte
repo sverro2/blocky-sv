@@ -31,7 +31,7 @@
 			if (isValid(value || '')) {
 				onvalidchange(value || '');
 			}
-		}, 1500);
+		}, 1000);
 	}
 
 	function handleBlur() {
@@ -44,6 +44,11 @@
 			onvalidchange(value || '');
 		}
 	}
+
+	function handleFocus(event: FocusEvent) {
+		const target = event.target as HTMLInputElement;
+		target.select();
+	}
 </script>
 
 {#if type === 'file'}
@@ -55,6 +60,7 @@
 		class={className}
 		oninput={handleInput}
 		onblur={handleBlur}
+		onfocus={handleFocus}
 		{...restProps}
 	/>
 {:else}
@@ -65,6 +71,7 @@
 		class={className}
 		oninput={handleInput}
 		onblur={handleBlur}
+		onfocus={handleFocus}
 		{...restProps}
 	/>
 {/if}

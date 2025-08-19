@@ -1,3 +1,5 @@
+import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
+import { error } from '@sveltejs/kit';
 import { generateSlug } from 'random-word-slugs';
 
 export interface SnapshotDataV1Dao {
@@ -66,5 +68,27 @@ export function addBlock(snapshot: SnapshotDataV1Dao, newBlockIndex: number): Sn
 		],
 		currentAltId: newAlternativeId
 	});
+	return snapshot;
+}
+
+export function updateBlock(
+	snapshot: SnapshotDataV1Dao,
+	blockId: string,
+	updatedBlock: BlockMetaUpdateDto
+): SnapshotDataV1Dao {
+	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
+
+	if (blockIndex === -1) {
+		throw error(500, `Block with id ${blockId} not found. Can not update this block.`);
+	}
+
+	const block = snapshot.blocks[blockIndex];
+
+	block.name = updatedBlock.name;
+	block.description = updatedBlock.description;
+	block.currentAltId = updatedBlock.alternativeId;
+	
+	
+
 	return snapshot;
 }

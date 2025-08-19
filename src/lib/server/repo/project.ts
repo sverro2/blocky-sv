@@ -6,6 +6,7 @@ import type { BlockV1Dao, SnapshotDataV1Dao } from '$lib/types/project-snapshot-
 import { uuidValid } from '$lib/utils/uuid-checker';
 import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
 import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
+import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 
 export async function getProjectDetails(projectId: unknown, userId: string) {
 	if (!uuidValid(projectId)) {
@@ -37,12 +38,40 @@ export async function getBlockList(projectId: unknown): Promise<BlockListItemDto
 		return {
 			id: block.id,
 			name: block.name,
+			blockDescription: block.description,
 			currentAlternativeId: currentAlternative!.id,
-			currentAlternativeName: currentAlternative!.name
+			currentAlternativeName: currentAlternative!.name,
+			alternativeDescription: currentAlternative!.description
 		};
 	});
 
 	return blocksList;
+}
+
+export async function updateBlockInfo(
+	projectId: string,
+	blockId: string,
+	blockMetaUpdate: BlockMetaUpdateDto
+): Promise<void> {
+	const snapshot = await getProjectSnapshot(projectId);
+	
+
+	const now = new Date();
+
+	await db
+		.update(projectSnapshot)
+		.set({ modifiedAt: now, body_dao: null })
+		.where(eq(projectSnapshot.projectId, projectId));
+
+	// .values({
+	// 	id: randomUUID(),
+	// 	projectId: newProject.id,
+	// 	modifiedAt: now,
+	// 	name: undefined,
+	// 	isAutosafe: true,
+	// 	body_dao: snapshot,
+	// 	body_dao_version: 'V1'
+	// });
 }
 
 export async function getAlternativeList(
