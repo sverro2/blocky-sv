@@ -2,11 +2,17 @@ import { db } from '$lib/server/db';
 import { project, projectSnapshot } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
-import type { BlockV1Dao, SnapshotDataV1Dao } from '$lib/types/project-snapshot-v1';
+import {
+	updateAlternative,
+	updateBlock,
+	type BlockV1Dao,
+	type SnapshotDataV1Dao
+} from '$lib/types/project-snapshot-v1';
 import { uuidValid } from '$lib/utils/uuid-checker';
 import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
 import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
 import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
+import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 
 export async function getProjectDetails(projectId: unknown, userId: string) {
 	if (!uuidValid(projectId)) {
@@ -54,36 +60,25 @@ export async function updateBlockInfo(
 	blockMetaUpdate: BlockMetaUpdateDto
 ): Promise<void> {
 	const snapshot = await getProjectSnapshot(projectId);
-	
+	const updatedSnapshot = updateBlock(snapshot, blockId, blockMetaUpdate);
 
 	const now = new Date();
 
 	await db
 		.update(projectSnapshot)
-		.set({ modifiedAt: now, body_dao: null })
+		.set({ modifiedAt: now, body_dao: updatedSnapshot })
 		.where(eq(projectSnapshot.projectId, projectId));
-
-	// .values({
-	// 	id: randomUUID(),
-	// 	projectId: newProject.id,
-	// 	modifiedAt: now,
-	// 	name: undefined,
-	// 	isAutosafe: true,
-	// 	body_dao: snapshot,
-	// 	body_dao_version: 'V1'
-	// });
 }
 
 export async function getAlternativeList(
 	projectId: unknown,
 	blockId: unknown
 ): Promise<AlternativeListItemDto[]> {
-	const snapshot = await getProjectSnapshot(projectId);
-
 	if (!uuidValid(blockId)) {
 		throw error(422, 'Blockid not valid');
 	}
 
+	const snapshot = await getProjectSnapshot(projectId);
 	const blockData = snapshot.blocks.find((block) => block.id === blockId);
 
 	const alternativeList: AlternativeListItemDto[] =
@@ -93,6 +88,28 @@ export async function getAlternativeList(
 		})) ?? [];
 
 	return alternativeList;
+}
+
+export async function updateAlternativeInfo(
+	projectId: string,
+	blockId: string,
+	alternativeId: string,
+	alternativeMetaUpdate: AlternativeMetaUpdateDto
+): Promise<void> {
+	const snapshot = await getProjectSnapshot(projectId);
+	const updatedSnapshot = updateAlternative(
+		snapshot,
+		blockId,
+		alternativeId,
+		alternativeMetaUpdate
+	);
+
+	const now = new Date();
+
+	await db
+		.update(projectSnapshot)
+		.set({ modifiedAt: now, body_dao: updatedSnapshot })
+		.where(eq(projectSnapshot.projectId, projectId));
 }
 
 /**

@@ -28,6 +28,8 @@
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import DebouncedTextarea from '$lib/components/ui/textarea/DebouncedTextarea.svelte';
 	import DebouncedInput from '$lib/components/ui/input/DebouncedInput.svelte';
+	import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
+	import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 
 	let { data }: PageProps = $props();
 
@@ -102,6 +104,46 @@
 		}
 	}
 
+	async function updateBlockInfo() {
+		const updated: BlockMetaUpdateDto = {
+			name: currentBlockName,
+			alternativeId: currentAlternativeId,
+			description: currentBlockDescription
+		};
+		try {
+			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
+				method: 'PUT',
+				body: JSON.stringify(updated)
+			});
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+		} catch (error) {
+			console.error('Error fetching alternatives:', error);
+		}
+	}
+
+	async function updateAlternativeInfo() {
+		const updated: AlternativeMetaUpdateDto = {
+			name: currentAlternativeName,
+			description: currentAlternativeDescription
+		};
+		try {
+			const res = await fetch(
+				`/api/projects/${projectId}/blocks/${currentBlockId}/alternatives/${currentAlternativeId}`,
+				{
+					method: 'PUT',
+					body: JSON.stringify(updated)
+				}
+			);
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+		} catch (error) {
+			console.error('Error fetching alternatives:', error);
+		}
+	}
+
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
 	let blocksList: BlockListItem[] = $state([]);
@@ -124,7 +166,10 @@
 		}
 	}
 
-	function handleBlockNameInputChange(input: string) {
+	async function handleBlockNameInputChange(input: string) {
+		await updateBlockInfo();
+
+		// Update current view without reloading data (to prevent inputs from being overriden while still typing)
 		blocksList = blocksList.map((block) => {
 			if (block.id === currentBlockId) {
 				return { ...block, blockName: input };
@@ -134,7 +179,8 @@
 		});
 	}
 
-	function handleAlternativeInputChange(input: string) {
+	async function handleAlternativeInputChange(input: string) {
+		await updateAlternativeInfo();
 		alternativeList = alternativeList.map((alternative) => {
 			if (alternative.value === currentAlternativeId) {
 				return { ...alternative, label: input };
@@ -194,7 +240,7 @@
 								searchPlaceholder="Search options..."
 								onchange={async (value) => {
 									if (value) {
-										console.log(`You changed the value to ${value}`);
+										console.log(`You changed block value to ${value}`);
 									}
 								}}
 							/>
@@ -205,17 +251,17 @@
 				<DebouncedInput
 					placeholder="Block name"
 					type="text"
-					value={currentBlockName}
+					bind:value={currentBlockName}
 					class="max-w-96"
 					isValid={checkNameValidity}
 					onvalidchange={handleBlockNameInputChange}
 				/>
 				<DebouncedTextarea
 					placeholder="No description added yet."
+					bind:value={currentBlockDescription}
 					rows={4}
-					isValid={(input) => input === 'alleen dit'}
-					onvalidchange={(test) => console.log(`Valid change! ${test}`)}
-					class="max-w-96"
+					onvalidchange={updateBlockInfo}
+					class="max-w-[50em]"
 				/>
 
 				<Separator orientation="horizontal" />
@@ -236,11 +282,18 @@
 				</div>
 				<DebouncedInput
 					type="text"
-					value={currentAlternativeName}
+					bind:value={currentAlternativeName}
 					isValid={checkNameValidity}
 					onvalidchange={handleAlternativeInputChange}
+					class="max-w-96"
 				/>
-				<Textarea placeholder="No description added yet." rows={4} />
+				<DebouncedTextarea
+					bind:value={currentAlternativeDescription}
+					onvalidchange={updateAlternativeInfo}
+					placeholder="No description added yet."
+					class="max-w-[50em]"
+					rows={4}
+				/>
 			</div>
 		</div>
 	</div>

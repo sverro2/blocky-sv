@@ -1,3 +1,4 @@
+import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 import { error } from '@sveltejs/kit';
 import { generateSlug } from 'random-word-slugs';
@@ -82,13 +83,66 @@ export function updateBlock(
 		throw error(500, `Block with id ${blockId} not found. Can not update this block.`);
 	}
 
-	const block = snapshot.blocks[blockIndex];
+	const updatedBlocks = snapshot.blocks.map((block, index) => {
+		if (index === blockIndex) {
+			return {
+				...block,
+				name: updatedBlock.name,
+				description: updatedBlock.description,
+				currentAltId: updatedBlock.alternativeId
+			};
+		}
+		return block;
+	});
 
-	block.name = updatedBlock.name;
-	block.description = updatedBlock.description;
-	block.currentAltId = updatedBlock.alternativeId;
-	
-	
+	return {
+		...snapshot,
+		blocks: updatedBlocks
+	};
+}
 
-	return snapshot;
+export function updateAlternative(
+	snapshot: SnapshotDataV1Dao,
+	blockId: string,
+	alternativeId: string,
+	updatedAlternative: AlternativeMetaUpdateDto
+): SnapshotDataV1Dao {
+	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
+
+	if (blockIndex === -1) {
+		throw error(500, `Block with id ${blockId} not found. Can not update alternative in it.`);
+	}
+
+	const alternativeIndex = snapshot.blocks[blockIndex].alternatives.findIndex(
+		(alternative) => alternative.id === alternativeId
+	);
+
+	if (alternativeIndex === -1) {
+		throw error(500, `Alternative with id ${blockId} not found. Can not update this alternative.`);
+	}
+
+	const updatedBlocks = snapshot.blocks.map((block, index) => {
+		if (index === blockIndex) {
+			return {
+				...block,
+				alternatives: block.alternatives.map((alternative, index) => {
+					if (index === alternativeIndex) {
+						return {
+							...alternative,
+							name: updatedAlternative.name,
+							description: updatedAlternative.description
+						};
+					} else {
+						return alternative;
+					}
+				})
+			};
+		}
+		return block;
+	});
+
+	return {
+		...snapshot,
+		blocks: updatedBlocks
+	};
 }

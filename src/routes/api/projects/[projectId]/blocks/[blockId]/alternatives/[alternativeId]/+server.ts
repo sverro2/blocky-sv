@@ -1,15 +1,21 @@
+import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
+import { alternativeMetaUpdateSchema } from '$lib/schemas/forms';
 import { requireAuth } from '$lib/server/repo/auth';
-import { getProjectDetails, getAlternativeList, updateBlockInfo } from '$lib/server/repo/project';
+import {
+	getProjectDetails,
+	getAlternativeList,
+	updateBlockInfo,
+	updateAlternativeInfo
+} from '$lib/server/repo/project';
 import { json, error } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { blockMetaUpdateSchema } from '$lib/schemas/forms';
-import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 
-export async function GET(event: RequestEvent) {
+export async function POST(event: RequestEvent) {
 	const user = requireAuth(event);
 
 	const projectId = event.params.projectId;
 	const blockId = event.params.blockId;
+	const alternativeId = event.params.alternativeId;
 
 	if (!projectId || !blockId) {
 		throw error(400, 'Missing ids in request');
@@ -27,23 +33,29 @@ export async function PUT(event: RequestEvent) {
 	const user = requireAuth(event);
 	const projectId = event.params.projectId;
 	const blockId = event.params.blockId;
+	const alternativeId = event.params.alternativeId;
 	const requestBody = await event.request.json();
 
-	const validation = blockMetaUpdateSchema.safeParse(requestBody);
+	const validation = alternativeMetaUpdateSchema.safeParse(requestBody);
 	if (!validation.success) {
 		throw error(400, `Invalid request data: ${validation.error.message}`);
 	}
 
-	const updatedInfo: BlockMetaUpdateDto = validation.data;
+	const updatedInfo: AlternativeMetaUpdateDto = validation.data;
 
-	if (!projectId || !blockId) {
+	if (!projectId || !blockId || !alternativeId) {
 		throw error(400, 'Missing ids in request');
 	}
 
 	// Fetch the project and verify ownership for this user
 	const project = await getProjectDetails(projectId, user.id);
 
-	const alternativeList = await updateBlockInfo(project.id, blockId, updatedInfo);
+	const alternativeList = await updateAlternativeInfo(
+		project.id,
+		blockId,
+		alternativeId,
+		updatedInfo
+	);
 
 	return json(alternativeList);
 }
