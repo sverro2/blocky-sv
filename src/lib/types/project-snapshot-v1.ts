@@ -1,3 +1,4 @@
+import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
 import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 import { error } from '@sveltejs/kit';
@@ -47,29 +48,73 @@ export function createNewSnapshot(): SnapshotDataV1Dao {
 	const completelyEmpty = {
 		blocks: []
 	};
-	return addBlock(completelyEmpty, 0);
+	return addBlock(completelyEmpty, 0)[0];
 }
 
-export function addBlock(snapshot: SnapshotDataV1Dao, newBlockIndex: number): SnapshotDataV1Dao {
-	const newBlockId = crypto.randomUUID();
+function newAlternative(): AlternativeV1Dao {
 	const newAlternativeId = crypto.randomUUID();
+	return {
+		id: newAlternativeId,
+		name: generateSlug(1, { format: 'title' }),
+		description: '',
+		modifiedAtIsoString: new Date().toISOString(),
+		recording: undefined
+	};
+}
+
+export function addBlock(
+	snapshot: SnapshotDataV1Dao,
+	newBlockIndex: number
+): [SnapshotDataV1Dao, string] {
+	const newBlockId = crypto.randomUUID();
+	const alternative = newAlternative();
 	snapshot.blocks.splice(newBlockIndex, 0, {
 		id: newBlockId,
 		name: generateSlug(2, { format: 'title' }),
 		description: '',
 		disable: false,
-		alternatives: [
-			{
-				id: newAlternativeId,
-				name: generateSlug(1, { format: 'title' }),
-				description: '',
-				modifiedAtIsoString: new Date().toISOString(),
-				recording: undefined
-			}
-		],
-		currentAltId: newAlternativeId
+		alternatives: [alternative],
+		currentAltId: alternative.id
 	});
-	return snapshot;
+	return [snapshot, newBlockId];
+}
+
+export function addAroundBlock(
+	snapshot: SnapshotDataV1Dao,
+	relativeToBlockId: string,
+	addBlockDto: AddBlockDto
+): [SnapshotDataV1Dao, string] {
+	const blockIndex = snapshot.blocks.findIndex((block) => block.id === relativeToBlockId);
+
+	if (blockIndex === -1) {
+		throw error(
+			500,
+			`Block with id ${relativeToBlockId} not found. Can't add new block around non-existing block.`
+		);
+	}
+
+	const newBlockIndex =
+		addBlockDto.location === AddBlockLocationDto.Before ? blockIndex : blockIndex + 1;
+
+	return addBlock(snapshot, newBlockIndex);
+}
+
+export function deleteBlock(snapshot: SnapshotDataV1Dao, blockId: string) {
+	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
+
+	if (blockIndex === -1) {
+		throw error(500, `Block with id ${blockId} not found. Can not delete this block.`);
+	}
+
+	// actual removal of block
+	snapshot.blocks.splice(blockIndex, 1);
+
+	// Blocks should never be empty. If that is the case, add a new block
+	if (snapshot.blocks.length === 0) {
+		return addBlock(snapshot, 0);
+	} else {
+		return snapshot;
+	}
 }
 
 export function updateBlock(
@@ -99,6 +144,79 @@ export function updateBlock(
 		...snapshot,
 		blocks: updatedBlocks
 	};
+}
+
+export function addAlternative(snapshot: SnapshotDataV1Dao, blockId: string): SnapshotDataV1Dao {
+	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
+
+	if (blockIndex === -1) {
+		throw error(500, `Block with id ${blockId} not found. Can not add alternative to it.`);
+	}
+
+	const alternative = newAlternative();
+
+	// Add new alternative to end of block's alternative list.
+	const updatedBlocks = snapshot.blocks.map((block, index) => {
+		if (index === blockIndex) {
+			return {
+				...block,
+				currentAltId: alternative.id,
+				alternatives: [...block.alternatives, alternative]
+			};
+		}
+		return block;
+	});
+
+	return {
+		...snapshot,
+		blocks: updatedBlocks
+	};
+}
+
+// TODO: make sure we can not remove last alternative/block!!!!
+export function removeAlternative(
+	snapshot: SnapshotDataV1Dao,
+	blockId: string,
+	alternativeId: string
+): SnapshotDataV1Dao {
+	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
+
+	if (blockIndex === -1) {
+		throw error(500, `Block with id ${blockId} not found. Can not remove alternative from it.`);
+	}
+
+	const targetBlock = snapshot.blocks[blockIndex];
+	const alternativeIndex = targetBlock.alternatives.findIndex(
+		(alternative) => alternative.id === alternativeId
+	);
+
+	if (alternativeIndex === -1) {
+		throw error(
+			500,
+			`Alternative with id ${alternativeId} not found in ${blockId}. Can not remove this alternative.`
+		);
+	}
+
+	const updatedBlocks = snapshot.blocks.map((block, index) => {
+		if (index === blockIndex) {
+			return {
+				...block,
+				alternatives: block.alternatives.filter((_, i) => i !== alternativeIndex)
+			};
+		}
+		return block;
+	});
+
+	const deletedAlternativeSnapshot = {
+		...snapshot,
+		blocks: updatedBlocks
+	};
+
+	if (snapshot.blocks[blockIndex].alternatives.length === 0) {
+		return addAlternative(deletedAlternativeSnapshot, blockId);
+	} else {
+		return deletedAlternativeSnapshot;
+	}
 }
 
 export function updateAlternative(

@@ -43,7 +43,6 @@
 		title="Configure Project"
 		{mobileMenuItems}
 		{desktopMenuItems}
-		{desktopActions}
 	/>
 
 	<div class="container max-w-2xl space-y-6 p-5">
@@ -168,10 +167,6 @@
 </AlertDialog.Root>
 
 {#snippet mobileMenuItems()}
-	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
-		<ArrowLeft class="mr-2 h-4 w-4" />
-		Back to Project
-	</Button>
 	<Button
 		variant="ghost"
 		href="/logout"
@@ -184,10 +179,6 @@
 {/snippet}
 
 {#snippet desktopMenuItems()}
-	<Button variant="ghost" href="/projects/{data.project.id}" class="w-full justify-start">
-		<ArrowLeft class="mr-2 h-4 w-4" />
-		Back to Project
-	</Button>
 	<Button
 		variant="ghost"
 		href="/logout"
@@ -199,9 +190,9 @@
 	</Button>
 {/snippet}
 
-{#snippet desktopActions()}
+<!-- {#snippet desktopActions()}
 	<div class="text-muted-foreground flex items-center gap-1">
 		<User size={16}></User>
 		{data.user.username}
 	</div>
-{/snippet}
+{/snippet} -->

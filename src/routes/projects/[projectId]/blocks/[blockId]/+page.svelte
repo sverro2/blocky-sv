@@ -30,11 +30,12 @@
 	import DebouncedInput from '$lib/components/ui/input/DebouncedInput.svelte';
 	import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 	import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
+	import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
 
 	let { data }: PageProps = $props();
 
 	let projectId = $state(data.project.id);
-	let currentBlockId = $state(page.params.blockId);
+	let currentBlockId = $state(data.blockId);
 	let currentBlockName: string = $state('');
 	let currentBlockDescription: string | undefined = $state('');
 	let currentAlternativeId = $state('');
@@ -159,12 +160,12 @@
 
 	let selectedMediaId = $state<string | null>(null);
 
-	function handleSelectItem(id: string) {
-		selectedMediaId = id;
-		if (mediaPlayer) {
-			mediaPlayer.playMedia();
-		}
-	}
+	// function handleSelectItem(id: string) {
+	// 	selectedMediaId = id;
+	// 	if (mediaPlayer) {
+	// 		mediaPlayer.playMedia();
+	// 	}
+	// }
 
 	async function handleBlockNameInputChange(input: string) {
 		await updateBlockInfo();
@@ -201,6 +202,28 @@
 	function checkNameValidity(input: string) {
 		return input.length > 1;
 	}
+
+	async function addBlockAround(location: AddBlockLocationDto) {
+		console.log(`adding block to ${location}`);
+		const input: AddBlockDto = {
+			location
+		};
+		try {
+			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
+				method: 'POST',
+				body: JSON.stringify(input)
+			});
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+
+			const response = (await res.json()) as NewBlockIdDto;
+			await goto(`/projects/${projectId}/blocks/${response.newBlockId}`);
+			console.log(`The response was ${response}`);
+		} catch (error) {
+			console.error('Error adding new block:', error);
+		}
+	}
 </script>
 
 <PageLayout>
@@ -230,7 +253,9 @@
 						Currently editing block:
 					</label>
 					<div class="flex max-w-sm items-end gap-4">
-						<Button><PlusIcon /><StepBackIcon /></Button>
+						<Button onclick={() => addBlockAround(AddBlockLocationDto.Before)}>
+							<PlusIcon /><StepBackIcon></StepBackIcon>
+						</Button>
 						<div class="grow">
 							<Combobox
 								id="option-combobox"
@@ -245,7 +270,9 @@
 								}}
 							/>
 						</div>
-						<Button><StepForwardIcon /><PlusIcon /></Button>
+						<Button onclick={() => addBlockAround(AddBlockLocationDto.After)}>
+							<StepForwardIcon /><PlusIcon />
+						</Button>
 					</div>
 				</div>
 				<DebouncedInput

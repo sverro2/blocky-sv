@@ -1,3 +1,4 @@
+import { AddBlockLocationDto } from '$lib/api/add-block-dto';
 import { z } from 'zod';
 
 export const createProjectSchema = z.object({
@@ -16,6 +17,10 @@ export const blockMetaUpdateSchema = z.object({
 	description: z.string().max(1000, 'Description must be 500 characters or less').optional(),
 	alternativeId: z.string().uuid('Invalid alternative ID format')
 }) satisfies z.ZodType<import('$lib/api/block-meta-update-dto').BlockMetaUpdateDto>;
+
+export const blockAddUpdateSchema = z.object({
+	location: z.nativeEnum(AddBlockLocationDto)
+}) satisfies z.ZodType<import('$lib/api/add-block-dto').AddBlockDto>;
 
 export const alternativeMetaUpdateSchema = z.object({
 	name: z
