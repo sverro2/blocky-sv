@@ -13,7 +13,8 @@
 		PlusIcon,
 		Settings,
 		StepBackIcon,
-		StepForwardIcon
+		StepForwardIcon,
+		TrashIcon
 	} from 'lucide-svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
@@ -306,12 +307,23 @@
 </PageLayout>
 
 {#snippet mobileMenuItems()}
+	<button
+		title="Remove block"
+		class="flex w-full cursor-pointer items-center rounded p-2 text-left hover:bg-gray-100"
+	>
+		<TrashIcon class="mr-2 h-4 w-4" />
+		Remove block
+	</button>
 	<a
 		href="/projects/{projectId}/config"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
 	>
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
+	</a>
+	<a href="/logout" class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100">
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Logout
 	</a>
 {/snippet}
 
