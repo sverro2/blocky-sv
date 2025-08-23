@@ -18,9 +18,11 @@
 		blocks: BlockListItem[];
 		selectedBlockId?: string | null;
 		onPlayingStateChange?: (isPlaying: boolean) => void;
+		showEditButton: boolean;
 	}
 
-	let { projectId, blocks, selectedBlockId, onPlayingStateChange }: Props = $props();
+	let { projectId, blocks, selectedBlockId, onPlayingStateChange, showEditButton }: Props =
+		$props();
 
 	let selectedBlock = $derived(blocks.find((block) => block.id === selectedBlockId));
 	let selectedBlockNumber = $derived(blocks.findIndex((block) => block.id === selectedBlockId) + 1);
@@ -174,16 +176,18 @@
 	</div>
 
 	<!-- Top Right - Edit Button -->
-	<div
-		class="absolute top-3 right-3 rounded-md bg-gradient-to-br from-orange-500 to-red-500 p-1 shadow-lg ring-2 ring-orange-400/50 ring-offset-2 ring-offset-black/20"
-	>
-		<a
-			href="{projectId}/blocks/{selectedBlockId}"
-			class="flex h-12 w-12 items-center justify-center rounded-md text-white transition-transform duration-200 hover:scale-105 hover:bg-white/20"
+	{#if showEditButton}
+		<div
+			class="absolute top-3 right-3 rounded-md bg-gradient-to-br from-orange-500 to-red-500 p-1 shadow-lg ring-2 ring-orange-400/50 ring-offset-2 ring-offset-black/20"
 		>
-			<Edit class="h-7 w-7" />
-		</a>
-	</div>
+			<a
+				href="{projectId}/blocks/{selectedBlockId}"
+				class="flex h-12 w-12 items-center justify-center rounded-md text-white transition-transform duration-200 hover:scale-105 hover:bg-white/20"
+			>
+				<Edit class="h-7 w-7" />
+			</a>
+		</div>
+	{/if}
 
 	<!-- Custom Media Controls -->
 	<div class="pointer-events-none absolute inset-x-0 bottom-4 flex justify-center">

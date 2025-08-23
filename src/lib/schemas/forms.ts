@@ -18,7 +18,7 @@ export const blockMetaUpdateSchema = z.object({
 	alternativeId: z.string().uuid('Invalid alternative ID format')
 }) satisfies z.ZodType<import('$lib/api/block-meta-update-dto').BlockMetaUpdateDto>;
 
-export const blockAddUpdateSchema = z.object({
+export const blockAddSchema = z.object({
 	location: z.nativeEnum(AddBlockLocationDto)
 }) satisfies z.ZodType<import('$lib/api/add-block-dto').AddBlockDto>;
 

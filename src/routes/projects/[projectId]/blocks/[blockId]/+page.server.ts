@@ -81,8 +81,6 @@ export const load: PageServerLoad = async (event) => {
 		console.error('Error fetching alternatives:', error);
 	}
 
-	console.log(projectId, currentBlockId, currentBlockName, currentBlockDescription);
-
 	return {
 		projectId,
 		currentBlockId,

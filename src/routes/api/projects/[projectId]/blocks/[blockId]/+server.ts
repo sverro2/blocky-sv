@@ -7,7 +7,7 @@ import {
 } from '$lib/server/repo/project';
 import { json, error } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
-import { blockMetaUpdateSchema, blockAddUpdateSchema } from '$lib/schemas/forms';
+import { blockMetaUpdateSchema, blockAddSchema } from '$lib/schemas/forms';
 import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 import type { AddBlockDto } from '$lib/api/add-block-dto';
 
@@ -60,7 +60,7 @@ export async function POST(event: RequestEvent) {
 	const blockId = event.params.blockId;
 	const requestBody = await event.request.json();
 
-	const validation = blockAddUpdateSchema.safeParse(requestBody);
+	const validation = blockAddSchema.safeParse(requestBody);
 	if (!validation.success) {
 		throw error(400, `Invalid request data: ${validation.error.message}`);
 	}

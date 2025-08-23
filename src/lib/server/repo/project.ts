@@ -3,6 +3,7 @@ import { project, projectSnapshot } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 import {
+	addAlternative,
 	addAroundBlock,
 	moveBlock,
 	updateAlternative,
@@ -124,6 +125,14 @@ export async function updateAlternativeInfo(
 		alternativeId,
 		alternativeMetaUpdate
 	);
+
+	await storeProjectSnapshot(projectId, updatedSnapshot);
+}
+
+export async function addAlternativeToBlock(projectId: string, blockId: string) {
+	const snapshot = await getProjectSnapshot(projectId);
+
+	const updatedSnapshot = addAlternative(snapshot, blockId);
 
 	await storeProjectSnapshot(projectId, updatedSnapshot);
 }

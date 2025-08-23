@@ -31,6 +31,7 @@
 	import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 	import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 	import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
+	import { selectedBlockStore } from '$lib/stores';
 
 	let { data }: PageProps = $props();
 
@@ -46,6 +47,10 @@
 
 	let blocksList: BlockListItem[] = $derived(data.blocksList);
 	let alternativeList: ComboboxOption[] = $derived(data.alternativeList);
+
+	$effect(() => {
+		selectedBlockStore.set(currentBlockId);
+	});
 
 	async function updateBlockInfo() {
 		const updated: BlockMetaUpdateDto = {
@@ -141,12 +146,17 @@
 		});
 	}
 
+	async function handleAlternativeChange() {
+		await updateBlockInfo();
+
+		invalidateAll();
+	}
+
 	function checkNameValidity(input: string) {
 		return input.length > 1;
 	}
 
 	async function addBlockAround(location: AddBlockLocationDto) {
-		console.log(`adding block to ${location}`);
 		const input: AddBlockDto = {
 			location
 		};
@@ -161,10 +171,27 @@
 
 			const response = (await res.json()) as NewBlockIdDto;
 			await goto(`/projects/${projectId}/blocks/${response.newBlockId}`);
-			console.log(`The response was ${response}`);
 		} catch (error) {
 			console.error('Error adding new block:', error);
 		}
+	}
+
+	async function addAlternative() {
+		try {
+			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}/alternatives`, {
+				method: 'POST'
+			});
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+			await reloadPage();
+		} catch (error) {
+			console.error('Error adding new alternative:', error);
+		}
+	}
+
+	async function reloadPage() {
+		await goto(`/projects/${projectId}/blocks/${currentBlockId}`, { invalidateAll: true });
 	}
 </script>
 
@@ -183,6 +210,7 @@
 				{projectId}
 				blocks={blocksList}
 				selectedBlockId={currentBlockId}
+				showEditButton={false}
 			/>
 			<div class="flex justify-center bg-amber-400 p-2 text-center sm:mx-5">
 				Alternative recorded at 13-02-2025
@@ -195,7 +223,10 @@
 						Currently editing block:
 					</label>
 					<div class="flex max-w-sm items-end gap-4">
-						<Button onclick={() => addBlockAround(AddBlockLocationDto.Before)}>
+						<Button
+							title="Add block before"
+							onclick={() => addBlockAround(AddBlockLocationDto.Before)}
+						>
 							<PlusIcon /><StepBackIcon></StepBackIcon>
 						</Button>
 						<div class="grow">
@@ -212,7 +243,10 @@
 								}}
 							/>
 						</div>
-						<Button onclick={() => addBlockAround(AddBlockLocationDto.After)}>
+						<Button
+							title="Add block after"
+							onclick={() => addBlockAround(AddBlockLocationDto.After)}
+						>
 							<StepForwardIcon /><PlusIcon />
 						</Button>
 					</div>
@@ -245,9 +279,12 @@
 							bind:value={currentAlternativeId}
 							placeholder="Choose an option..."
 							searchPlaceholder="Search options..."
+							onchange={handleAlternativeChange}
 						/>
 					</div>
-					<Button><PlusIcon /></Button>
+					<Button title="Add alternative to block" onclick={() => addAlternative()}>
+						<PlusIcon />
+					</Button>
 				</div>
 				<DebouncedInput
 					type="text"

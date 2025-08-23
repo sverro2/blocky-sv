@@ -48,6 +48,7 @@
 				projectId={data.project.id}
 				blocks={currentSnapshotBlocks}
 				selectedBlockId={$selectedBlockStore}
+				showEditButton={true}
 			/>
 		</div>
 		<div class="h-full">
