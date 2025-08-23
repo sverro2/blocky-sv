@@ -20,7 +20,7 @@
 	import { Combobox, type ComboboxOption } from '$lib/components/ui/combobox';
 	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
-	import { goto } from '$app/navigation';
+	import { goto, invalidateAll, refreshAll } from '$app/navigation';
 	import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
 	import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
 	import { Input } from '$lib/components/ui/input';
@@ -34,122 +34,24 @@
 
 	let { data }: PageProps = $props();
 
-	let projectId = $state(data.project.id);
-	let currentBlockId = $state(data.blockId);
-	let currentBlockName: string = $state('');
-	let currentBlockDescription: string | undefined = $state('');
-	let currentAlternativeId = $state('');
-	let currentAlternativeName: string = $state('');
-	let currentAlternativeDescription: string | undefined = $state('');
+	let projectId = $derived(data.projectId);
+	let currentBlockId = $derived(data.currentBlockId);
+	let currentBlockName: string = $derived(data.currentBlockName);
+	let currentBlockDescription: string | undefined = $derived(data.currentBlockDescription);
+	let currentAlternativeId = $derived(data.currentAlternativeId);
+	let currentAlternativeName: string = $derived(data.currentAlternativeName);
+	let currentAlternativeDescription: string | undefined = $derived(
+		data.currentAlternativeDescription
+	);
 
-	onMount(async () => {
-		await reloadBlocks();
-		await reloadAlternatives();
+	let blocksList: BlockListItem[] = $derived(data.blocksList);
+	let alternativeList: ComboboxOption[] = $derived(data.alternativeList);
 
-		// If block requested in url can not be found in current block list, return!
-		if (!blocksList.find((block) => block.id === currentBlockId)) {
-			goto(`/projects/${data.project.id}`);
-		}
-	});
+	async function updateBlockInfo() {}
 
-	async function reloadBlocks() {
-		try {
-			const res = await fetch(`/api/projects/${projectId}/blocks`, {
-				method: 'GET'
-			});
-			if (!res.ok) {
-				throw new Error(`HTTP error! status: ${res.status}`);
-			}
-			const blocks = (await res.json()) as BlockListItemDto[];
-
-			const parsedBlocks: BlockListItem[] = blocks.map((block: BlockListItemDto) => ({
-				id: block.id,
-				blockName: block.name,
-				currentAlternativeName: block.currentAlternativeName,
-				alternativeCount: block.alternativeCount
-			}));
-
-			// Make sure the currently selected alternative is updated with the new data
-			const currentBlock = blocks.find((block) => block.id === currentBlockId)!;
-			currentAlternativeId = currentBlock.currentAlternativeId;
-
-			// Also figure out the name of the current block
-			currentBlockName = currentBlock.name;
-			currentBlockDescription = currentBlock.blockDescription;
-
-			// And the name of current alternative
-			currentAlternativeName = currentBlock.currentAlternativeName;
-			currentAlternativeDescription = currentBlock.alternativeDescription;
-
-			// Then update the whole list
-			blocksList = parsedBlocks;
-		} catch (error) {
-			console.error('Error fetching blocks:', error);
-		}
-	}
-
-	async function reloadAlternatives() {
-		try {
-			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
-				method: 'GET'
-			});
-			if (!res.ok) {
-				throw new Error(`HTTP error! status: ${res.status}`);
-			}
-			const alternatives = await res.json();
-			alternativeList = alternatives.map((alternative: AlternativeListItemDto) => ({
-				value: alternative.id,
-				label: alternative.name
-			}));
-		} catch (error) {
-			console.error('Error fetching alternatives:', error);
-		}
-	}
-
-	async function updateBlockInfo() {
-		const updated: BlockMetaUpdateDto = {
-			name: currentBlockName,
-			alternativeId: currentAlternativeId,
-			description: currentBlockDescription
-		};
-		try {
-			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
-				method: 'PUT',
-				body: JSON.stringify(updated)
-			});
-			if (!res.ok) {
-				throw new Error(`HTTP error! status: ${res.status}`);
-			}
-		} catch (error) {
-			console.error('Error fetching alternatives:', error);
-		}
-	}
-
-	async function updateAlternativeInfo() {
-		const updated: AlternativeMetaUpdateDto = {
-			name: currentAlternativeName,
-			description: currentAlternativeDescription
-		};
-		try {
-			const res = await fetch(
-				`/api/projects/${projectId}/blocks/${currentBlockId}/alternatives/${currentAlternativeId}`,
-				{
-					method: 'PUT',
-					body: JSON.stringify(updated)
-				}
-			);
-			if (!res.ok) {
-				throw new Error(`HTTP error! status: ${res.status}`);
-			}
-		} catch (error) {
-			console.error('Error fetching alternatives:', error);
-		}
-	}
+	async function updateAlternativeInfo() {}
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
-
-	let blocksList: BlockListItem[] = $state([]);
-	let alternativeList: ComboboxOption[] = $state([]);
 
 	// Stub data for combobox (about 20 items)
 	const comboboxOptions = $derived(
@@ -158,8 +60,6 @@
 			label: block.blockName
 		}))
 	);
-
-	let selectedMediaId = $state<string | null>(null);
 
 	// function handleSelectItem(id: string) {
 	// 	selectedMediaId = id;
@@ -239,7 +139,7 @@
 			/>
 			<MediaPlayer
 				bind:this={mediaPlayer}
-				projectId={data.project.id}
+				{projectId}
 				blocks={blocksList}
 				selectedBlockId={currentBlockId}
 			/>
@@ -266,7 +166,7 @@
 								searchPlaceholder="Search options..."
 								onchange={async (value) => {
 									if (value) {
-										console.log(`You changed block value to ${value}`);
+										await goto(`/projects/${projectId}/blocks/${value}`);
 									}
 								}}
 							/>
@@ -329,7 +229,7 @@
 
 {#snippet mobileMenuItems()}
 	<a
-		href="/projects/{data.project.id}/config"
+		href="/projects/{projectId}/config"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
 	>
 		<Settings class="mr-2 h-4 w-4" />
@@ -338,7 +238,7 @@
 {/snippet}
 
 {#snippet desktopMenuItems()}
-	<Button variant="ghost" href="/projects/{data.project.id}/config" class="w-full justify-start">
+	<Button variant="ghost" href="/projects/{projectId}/config" class="w-full justify-start">
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
 	</Button>

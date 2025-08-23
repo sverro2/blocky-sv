@@ -29,7 +29,7 @@ export async function getProjectDetails(projectId: unknown, userId: string) {
 		.limit(1);
 
 	if (projectRows.length === 0) {
-		throw error(404, 'Project not found');
+		throw error(404, 'Project data not found');
 	} else {
 		return projectRows[0];
 	}
