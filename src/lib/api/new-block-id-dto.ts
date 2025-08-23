@@ -1,3 +1,3 @@
-interface NewBlockIdDto {
+export interface NewBlockIdDto {
 	newBlockId: string;
 }

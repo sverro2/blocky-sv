@@ -6,6 +6,7 @@ import {
 	addAlternative,
 	addAroundBlock,
 	moveBlock,
+	removeBlock as removeBlockFromSnapshot,
 	updateAlternative,
 	updateBlock,
 	type SnapshotDataV1Dao
@@ -89,6 +90,18 @@ export async function addBlock(
 	await storeProjectSnapshot(projectId, updatedSnapshot);
 
 	return newBlockId;
+}
+
+export async function removeBlock(projectId: string, blockId: string): Promise<string> {
+	const snapshot = await getProjectSnapshot(projectId);
+
+	// Handle both possible return types from removeBlockFromSnapshot
+	const [updatedSnapshot, selectableId] = removeBlockFromSnapshot(snapshot, blockId);
+
+	await storeProjectSnapshot(projectId, updatedSnapshot);
+
+	// Return the first block ID if there are blocks remaining, null if no blocks left
+	return selectableId;
 }
 
 export async function getAlternativeList(

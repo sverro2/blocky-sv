@@ -101,7 +101,10 @@ export function addAroundBlock(
 	return addBlock(snapshot, newBlockIndex);
 }
 
-export function removeBlock(snapshot: SnapshotDataV1Dao, blockId: string) {
+export function removeBlock(
+	snapshot: SnapshotDataV1Dao,
+	blockId: string
+): [SnapshotDataV1Dao, string] {
 	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
 
 	if (blockIndex === -1) {
@@ -115,7 +118,8 @@ export function removeBlock(snapshot: SnapshotDataV1Dao, blockId: string) {
 	if (snapshot.blocks.length === 0) {
 		return addBlock(snapshot, 0);
 	} else {
-		return snapshot;
+		const nextSelectableBlock = snapshot.blocks[Math.max(0, blockIndex - 1)].id;
+		return [snapshot, nextSelectableBlock];
 	}
 }
 

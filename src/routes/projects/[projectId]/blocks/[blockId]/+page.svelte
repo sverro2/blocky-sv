@@ -32,6 +32,7 @@
 	import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 	import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 	import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
+	import type { NewBlockIdDto } from '$lib/api/new-block-id-dto';
 	import { selectedBlockStore } from '$lib/stores';
 
 	let { data }: PageProps = $props();
@@ -77,14 +78,19 @@
 	async function removeBlock() {
 		try {
 			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
-				method: 'DELETE',
+				method: 'DELETE'
 			});
 
 			if (!res.ok) {
 				throw new Error(`HTTP error! status: ${res.status}`);
 			}
+
+			const response = await res.json();
+
+			// Redirect to the remaining block or back to project list
+			await goto(`/projects/${projectId}/blocks/${response.redirectToBlockId}`);
 		} catch (error) {
-			console.error('Error fetching alternatives:', error);
+			console.error('Error deleting block:', error);
 		}
 	}
 
@@ -324,6 +330,7 @@
 	<button
 		title="Remove block"
 		class="flex w-full cursor-pointer items-center rounded p-2 text-left hover:bg-gray-100"
+		onclick={removeBlock}
 	>
 		<TrashIcon class="mr-2 h-4 w-4" />
 		Remove block
