@@ -359,8 +359,10 @@
 					onclick={() => {
 						confirmRemoveBlock();
 						closeDrawer();
-					}}>Delete Block</AlertDialogAction
+					}}
 				>
+					Delete Block
+				</AlertDialogAction>
 			</AlertDialogFooter>
 		</AlertDialogContent>
 	</AlertDialog>
