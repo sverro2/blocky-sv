@@ -19,6 +19,17 @@
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { Combobox, type ComboboxOption } from '$lib/components/ui/combobox';
+	import {
+		AlertDialog,
+		AlertDialogAction,
+		AlertDialogCancel,
+		AlertDialogContent,
+		AlertDialogDescription,
+		AlertDialogFooter,
+		AlertDialogHeader,
+		AlertDialogTitle,
+		AlertDialogTrigger
+	} from '$lib/components/ui/alert-dialog';
 	import { page } from '$app/state';
 	import { error } from '@sveltejs/kit';
 	import { goto, invalidateAll, refreshAll } from '$app/navigation';
@@ -75,7 +86,7 @@
 		}
 	}
 
-	async function removeBlock() {
+	async function confirmRemoveBlock() {
 		try {
 			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
 				method: 'DELETE'
@@ -327,14 +338,27 @@
 </PageLayout>
 
 {#snippet mobileMenuItems()}
-	<button
-		title="Remove block"
-		class="flex w-full cursor-pointer items-center rounded p-2 text-left hover:bg-gray-100"
-		onclick={removeBlock}
-	>
-		<TrashIcon class="mr-2 h-4 w-4" />
-		Remove block
-	</button>
+	<AlertDialog>
+		<AlertDialogTrigger
+			class="flex w-full cursor-pointer items-center rounded p-2 text-left hover:bg-gray-100"
+		>
+			<TrashIcon class="mr-2 h-4 w-4" />
+			Remove block
+		</AlertDialogTrigger>
+		<AlertDialogContent>
+			<AlertDialogHeader>
+				<AlertDialogTitle>Are you sure you want to delete this block?</AlertDialogTitle>
+				<AlertDialogDescription>
+					This action cannot be undone. This will permanently delete the block "{currentBlockName}"
+					and all its alternatives.
+				</AlertDialogDescription>
+			</AlertDialogHeader>
+			<AlertDialogFooter>
+				<AlertDialogCancel>Cancel</AlertDialogCancel>
+				<AlertDialogAction onclick={confirmRemoveBlock}>Delete Block</AlertDialogAction>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+	</AlertDialog>
 	<a
 		href="/projects/{projectId}/config"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
@@ -349,6 +373,27 @@
 {/snippet}
 
 {#snippet desktopMenuItems()}
+	<AlertDialog>
+		<AlertDialogTrigger class="w-full">
+			<Button variant="ghost" class="w-full justify-start">
+				<TrashIcon class="mr-2 h-4 w-4" />
+				Remove block
+			</Button>
+		</AlertDialogTrigger>
+		<AlertDialogContent>
+			<AlertDialogHeader>
+				<AlertDialogTitle>Are you sure you want to delete this block?</AlertDialogTitle>
+				<AlertDialogDescription>
+					This action cannot be undone. This will permanently delete the block "{currentBlockName}"
+					and all its alternatives.
+				</AlertDialogDescription>
+			</AlertDialogHeader>
+			<AlertDialogFooter>
+				<AlertDialogCancel>Cancel</AlertDialogCancel>
+				<AlertDialogAction onclick={confirmRemoveBlock}>Delete Block</AlertDialogAction>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+	</AlertDialog>
 	<Button variant="ghost" href="/projects/{projectId}/config" class="w-full justify-start">
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
