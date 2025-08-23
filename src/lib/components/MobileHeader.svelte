@@ -15,7 +15,7 @@
 
 	interface Props {
 		title: string;
-		menuItems?: Snippet;
+		menuItems?: Snippet<[() => void]>;
 		backButton?: {
 			icon: typeof LucideIcon;
 			href?: string;
@@ -24,6 +24,11 @@
 	}
 
 	let { title, menuItems, backButton }: Props = $props();
+	let drawerOpen = $state(false);
+
+	function closeDrawer() {
+		drawerOpen = false;
+	}
 </script>
 
 <div class="bg-background sticky top-0 px-5">
@@ -53,7 +58,7 @@
 		<!-- Right Side Actions - Always stay on the right -->
 		<div class="flex shrink-0 items-center gap-2">
 			<!-- Hamburger Menu (Right Side) -->
-			<Drawer direction="top">
+			<Drawer direction="top" bind:open={drawerOpen}>
 				<DrawerTrigger>
 					<Button variant="ghost" size="icon">
 						<Menu class="mt-2 -mr-5 h-5 w-5" />
@@ -66,7 +71,7 @@
 					</DrawerHeader>
 					<div class="space-y-4 p-4 pb-8">
 						{#if menuItems}
-							{@render menuItems()}
+							{@render menuItems(closeDrawer)}
 						{/if}
 					</div>
 				</DrawerContent>

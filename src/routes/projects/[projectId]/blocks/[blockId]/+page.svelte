@@ -337,7 +337,7 @@
 	</div>
 </PageLayout>
 
-{#snippet mobileMenuItems()}
+{#snippet mobileMenuItems(closeDrawer: () => void)}
 	<AlertDialog>
 		<AlertDialogTrigger
 			class="flex w-full cursor-pointer items-center rounded p-2 text-left hover:bg-gray-100"
@@ -354,19 +354,29 @@
 				</AlertDialogDescription>
 			</AlertDialogHeader>
 			<AlertDialogFooter>
-				<AlertDialogCancel>Cancel</AlertDialogCancel>
-				<AlertDialogAction onclick={confirmRemoveBlock}>Delete Block</AlertDialogAction>
+				<AlertDialogCancel onclick={closeDrawer}>Cancel</AlertDialogCancel>
+				<AlertDialogAction
+					onclick={() => {
+						confirmRemoveBlock();
+						closeDrawer();
+					}}>Delete Block</AlertDialogAction
+				>
 			</AlertDialogFooter>
 		</AlertDialogContent>
 	</AlertDialog>
 	<a
 		href="/projects/{projectId}/config"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+		onclick={closeDrawer}
 	>
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
 	</a>
-	<a href="/logout" class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100">
+	<a
+		href="/logout"
+		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+		onclick={closeDrawer}
+	>
 		<LogOutIcon class="mr-2 h-4 w-4" />
 		Logout
 	</a>

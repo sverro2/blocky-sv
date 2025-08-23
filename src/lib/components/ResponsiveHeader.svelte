@@ -12,7 +12,7 @@
 			onclick?: () => void;
 		};
 		title: string;
-		mobileMenuItems?: Snippet;
+		mobileMenuItems?: Snippet<[() => void]>;
 		desktopMenuItems?: Snippet;
 		desktopActions?: Snippet;
 	}
