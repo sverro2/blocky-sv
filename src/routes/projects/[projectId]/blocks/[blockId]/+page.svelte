@@ -47,9 +47,50 @@
 	let blocksList: BlockListItem[] = $derived(data.blocksList);
 	let alternativeList: ComboboxOption[] = $derived(data.alternativeList);
 
-	async function updateBlockInfo() {}
+	async function updateBlockInfo() {
+		const updated: BlockMetaUpdateDto = {
+			name: currentBlockName,
+			alternativeId: currentAlternativeId,
+			description: currentBlockDescription
+		};
 
-	async function updateAlternativeInfo() {}
+		try {
+			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
+				method: 'PUT',
+				body: JSON.stringify(updated)
+			});
+
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+		} catch (error) {
+			console.error('Error fetching alternatives:', error);
+		}
+	}
+
+	async function updateAlternativeInfo() {
+		const updated: AlternativeMetaUpdateDto = {
+			name: currentAlternativeName,
+			description: currentAlternativeDescription
+		};
+
+		try {
+			const res = await fetch(
+				`/api/projects/${projectId}/blocks/${currentBlockId}/alternatives/${currentAlternativeId}`,
+
+				{
+					method: 'PUT',
+					body: JSON.stringify(updated)
+				}
+			);
+
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+		} catch (error) {
+			console.error('Error fetching alternatives:', error);
+		}
+	}
 
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
