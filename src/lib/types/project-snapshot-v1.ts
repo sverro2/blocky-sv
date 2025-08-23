@@ -101,7 +101,7 @@ export function addAroundBlock(
 	return addBlock(snapshot, newBlockIndex);
 }
 
-export function deleteBlock(snapshot: SnapshotDataV1Dao, blockId: string) {
+export function removeBlock(snapshot: SnapshotDataV1Dao, blockId: string) {
 	const blockIndex = snapshot.blocks.findIndex((block) => block.id === blockId);
 
 	if (blockIndex === -1) {
@@ -187,7 +187,6 @@ export function addAlternative(snapshot: SnapshotDataV1Dao, blockId: string): Sn
 	};
 }
 
-// TODO: make sure we can not remove last alternative/block!!!!
 export function removeAlternative(
 	snapshot: SnapshotDataV1Dao,
 	blockId: string,

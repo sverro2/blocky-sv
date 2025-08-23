@@ -74,6 +74,20 @@
 		}
 	}
 
+	async function removeBlock() {
+		try {
+			const res = await fetch(`/api/projects/${projectId}/blocks/${currentBlockId}`, {
+				method: 'DELETE',
+			});
+
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+		} catch (error) {
+			console.error('Error fetching alternatives:', error);
+		}
+	}
+
 	async function updateAlternativeInfo() {
 		const updated: AlternativeMetaUpdateDto = {
 			name: currentAlternativeName,
