@@ -23,6 +23,7 @@
 	let { projectId, blocks, selectedBlockId, onPlayingStateChange }: Props = $props();
 
 	let selectedBlock = $derived(blocks.find((block) => block.id === selectedBlockId));
+	let selectedBlockNumber = $derived(blocks.findIndex((block) => block.id === selectedBlockId) + 1);
 
 	let isPlaying = $state(false);
 	let isMuted = $state(false);
@@ -163,7 +164,7 @@
 	<div class="absolute top-3 left-3">
 		<div class="flex items-center gap-2 rounded bg-black/50 p-2 text-white backdrop-blur-sm">
 			<div>
-				<div class="text-xs text-gray-400">1 / {blocks.length}</div>
+				<div class="text-xs text-gray-400">{selectedBlockNumber} / {blocks.length}</div>
 			</div>
 			<div>
 				<div class="text-sm font-medium">{selectedBlock?.blockName}</div>

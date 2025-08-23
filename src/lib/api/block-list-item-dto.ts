@@ -5,4 +5,5 @@ export interface BlockListItemDto {
 	currentAlternativeId: string;
 	currentAlternativeName: string;
 	alternativeDescription?: string;
+	alternativeCount: number;
 }

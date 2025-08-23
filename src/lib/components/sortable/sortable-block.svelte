@@ -3,8 +3,9 @@
 	import { useSortable } from '@dnd-kit-svelte/sortable';
 	import * as Card from '$lib/components/ui/card';
 	import { Button } from '$lib/components/ui/button';
-	import { GripVertical, Play, Pause, CrosshairIcon } from 'lucide-svelte';
+	import { GripVertical, CrosshairIcon, ArrowDownUpIcon } from 'lucide-svelte';
 	import { cn } from '$lib/utils';
+	import Badge from '../ui/badge/badge.svelte';
 
 	interface Props {
 		block: BlockListItem;
@@ -30,9 +31,10 @@
 		})
 	);
 
-	function handlePlay(event: MouseEvent) {
+	function onSelect(event: MouseEvent) {
 		event.stopPropagation();
 		if (onSelectItem) {
+			onSelectItem(block.id);
 			// onSelectItem(block.currentMediaId);
 		}
 	}
@@ -57,13 +59,19 @@
 				</button>
 
 				<!-- Block info -->
-				<div class="flex-1">
+				<div class="flex gap-2">
 					<p class="font-medium">{block.blockName}</p>
+					{#if block.alternativeCount > 1}
+						<Badge variant="outline">
+							{block.alternativeCount}
+							<ArrowDownUpIcon />
+						</Badge>
+					{/if}
 				</div>
 			</div>
 
 			<!-- Play button -->
-			<Button variant="outline" size="sm" onclick={handlePlay} class="-m-2 shrink-0">
+			<Button variant="outline" size="sm" onclick={onSelect} class="-m-2 shrink-0">
 				<CrosshairIcon class="h-4 w-4" />
 			</Button>
 		</Card.Content>

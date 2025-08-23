@@ -1,8 +1,10 @@
 import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
 import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
+import type { BlockMovedDto } from '$lib/api/block-moved-dto';
 import { error } from '@sveltejs/kit';
 import { generateSlug } from 'random-word-slugs';
+import { arrayMove } from '@dnd-kit-svelte/sortable';
 
 export interface SnapshotDataV1Dao {
 	blocks: BlockV1Dao[];
@@ -143,6 +145,18 @@ export function updateBlock(
 	return {
 		...snapshot,
 		blocks: updatedBlocks
+	};
+}
+
+export function moveBlock(snapshot: SnapshotDataV1Dao, move: BlockMovedDto): SnapshotDataV1Dao {
+	// find target index of new block
+	const targetIndex = snapshot.blocks.findIndex((block) => block.id === move.blockId);
+
+	const newOrderingBlocks = arrayMove(snapshot.blocks, targetIndex, move.newIndex);
+
+	return {
+		...snapshot,
+		blocks: newOrderingBlocks
 	};
 }
 

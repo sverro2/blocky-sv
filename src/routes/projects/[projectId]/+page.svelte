@@ -15,7 +15,8 @@
 		data.blocksList.map((block) => ({
 			id: block.id,
 			blockName: block.name,
-			currentAlternativeName: block.currentAlternativeName
+			currentAlternativeName: block.currentAlternativeName,
+			alternativeCount: block.alternativeCount
 		}))
 	);
 
@@ -27,8 +28,8 @@
 
 	// Update store when currentSnapshotBlocks changes
 	$effect(() => {
-		const validId = getSelectedBlockId(currentSnapshotBlocks);
-		selectedBlockStore.set(validId);
+		// When blocks change, ensure current selection is still valid.
+		getSelectedBlockId(currentSnapshotBlocks);
 	});
 </script>
 
@@ -52,6 +53,7 @@
 		<div class="h-full">
 			<div class="mt-8">
 				<BlocksList
+					projectId={data.project.id}
 					blocks={currentSnapshotBlocks}
 					selectedBlockId={$selectedBlockStore}
 					onSelectItem={handleSelectBlock}

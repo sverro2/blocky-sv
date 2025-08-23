@@ -13,25 +13,23 @@
 	import Droppable from './droppable.svelte';
 	import SortableBlock from './sortable/sortable-block.svelte';
 	import { crossfade } from 'svelte/transition';
+	import type { BlockMovedDto } from '$lib/api/block-moved-dto';
+	import { invalidateAll } from '$app/navigation';
 
 	interface Props {
+		projectId: string;
 		blocks: BlockListItem[];
 		selectedBlockId?: string | null;
 		onSelectItem?: (mediaId: string) => void;
-		onDragStart?(event: DragEndEvent): void;
+		onDragStart?(event: DragStartEvent): void;
 		onDragEnd?(event: DragEndEvent): void;
 	}
 
-	let { blocks, selectedBlockId, onSelectItem, onDragStart, onDragEnd }: Props = $props();
+	let { projectId, blocks, selectedBlockId, onSelectItem, onDragStart, onDragEnd }: Props =
+		$props();
 
-	function selectItem(mediaId: string) {
-		if (onSelectItem) {
-			onSelectItem(mediaId);
-		}
-	}
-
-	let activeId = $state<string | null>(null);
-	const activeBlock = $derived(blocks.find((block) => block.id === activeId));
+	let draggedId = $state<string | null>(null);
+	const activeBlock = $derived(blocks.find((block) => block.id === draggedId));
 
 	let scrollContainer: HTMLElement;
 	let scrollY = $state(0);
@@ -43,20 +41,46 @@
 	}
 
 	function handleDragStart(event: DragStartEvent) {
-		activeId = event.active.id as string;
+		draggedId = event.active.id as string;
 	}
 
-	function handleDragEnd({ active, over }: DragEndEvent) {
+	async function handleDragEnd({ active, over }: DragEndEvent) {
 		if (!over) return;
 
 		const overBlock = $state.snapshot(blocks.find((block) => block.id === over?.id));
-		if (!overBlock || activeId === overBlock.id) return;
+		if (!overBlock || draggedId === overBlock.id) return;
 
 		const oldIndex = blocks.findIndex((block) => block.id === active.id);
 		const newIndex = blocks.findIndex((block) => block.id === over.id);
+		// blocks = arrayMove(blocks, oldIndex, newIndex);
+
+		const blockMoved: BlockMovedDto = {
+			blockId: active.id as string,
+			newIndex
+		};
+
 		blocks = arrayMove(blocks, oldIndex, newIndex);
 
-		activeId = null;
+		const response = await fetch(`/api/projects/${projectId}/blocks/reorder`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(blockMoved)
+		});
+
+		invalidateAll();
+
+		// If something went wrong when reordering, returns items to their old position.
+		if (!response.ok) {
+			blocks = arrayMove(blocks, newIndex, oldIndex);
+		}
+
+		// if (onDragEnd) {
+		// 	onDragEnd(event);
+		// }
+
+		draggedId = null;
 	}
 	const [send, recieve] = crossfade({ duration: 200 });
 </script>
@@ -75,7 +99,7 @@
 			{@render taskList('blocks', 'Audio Blocks', blocks)}
 
 			<DragOverlay {dropAnimation}>
-				{#if activeBlock && activeId}
+				{#if activeBlock && draggedId}
 					<div style="transform: translateY({scrollY}px);">
 						<Card.Root class="shadow-lg">
 							<Card.Content class="flex items-center gap-3">

@@ -22,6 +22,11 @@ export const blockAddUpdateSchema = z.object({
 	location: z.nativeEnum(AddBlockLocationDto)
 }) satisfies z.ZodType<import('$lib/api/add-block-dto').AddBlockDto>;
 
+export const blockMoveSchema = z.object({
+	blockId: z.string(),
+	newIndex: z.number().min(0)
+}) satisfies z.ZodType<import('$lib/api/block-moved-dto').BlockMovedDto>;
+
 export const alternativeMetaUpdateSchema = z.object({
 	name: z
 		.string()

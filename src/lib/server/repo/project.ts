@@ -4,6 +4,7 @@ import { eq, and } from 'drizzle-orm';
 import { error } from '@sveltejs/kit';
 import {
 	addAroundBlock,
+	moveBlock,
 	updateAlternative,
 	updateBlock,
 	type SnapshotDataV1Dao
@@ -14,6 +15,7 @@ import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto'
 import type { BlockMetaUpdateDto } from '$lib/api/block-meta-update-dto';
 import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 import type { AddBlockDto } from '$lib/api/add-block-dto';
+import type { BlockMovedDto } from '$lib/api/block-moved-dto';
 
 export async function getProjectDetails(projectId: unknown, userId: string) {
 	if (!uuidValid(projectId)) {
@@ -48,11 +50,20 @@ export async function getBlockList(projectId: unknown): Promise<BlockListItemDto
 			blockDescription: block.description,
 			currentAlternativeId: currentAlternative!.id,
 			currentAlternativeName: currentAlternative!.name,
-			alternativeDescription: currentAlternative!.description
+			alternativeDescription: currentAlternative!.description,
+			alternativeCount: block.alternatives.length
 		};
 	});
 
 	return blocksList;
+}
+
+export async function moveBlockInList(projectId: unknown, move: BlockMovedDto): Promise<void> {
+	const snapshot = await getProjectSnapshot(projectId);
+
+	const updatedSnapshot = moveBlock(snapshot, move);
+
+	await storeProjectSnapshot(projectId, updatedSnapshot);
 }
 
 export async function updateBlockInfo(
@@ -63,12 +74,7 @@ export async function updateBlockInfo(
 	const snapshot = await getProjectSnapshot(projectId);
 	const updatedSnapshot = updateBlock(snapshot, blockId, blockMetaUpdate);
 
-	const now = new Date();
-
-	await db
-		.update(projectSnapshot)
-		.set({ modifiedAt: now, body_dao: updatedSnapshot })
-		.where(eq(projectSnapshot.projectId, projectId));
+	await storeProjectSnapshot(projectId, updatedSnapshot);
 }
 
 export async function addBlock(
@@ -79,12 +85,7 @@ export async function addBlock(
 	const snapshot = await getProjectSnapshot(projectId);
 	const [updatedSnapshot, newBlockId] = addAroundBlock(snapshot, blockId, addBlockParameters);
 
-	const now = new Date();
-
-	await db
-		.update(projectSnapshot)
-		.set({ modifiedAt: now, body_dao: updatedSnapshot })
-		.where(eq(projectSnapshot.projectId, projectId));
+	await storeProjectSnapshot(projectId, updatedSnapshot);
 
 	return newBlockId;
 }
@@ -116,6 +117,7 @@ export async function updateAlternativeInfo(
 	alternativeMetaUpdate: AlternativeMetaUpdateDto
 ): Promise<void> {
 	const snapshot = await getProjectSnapshot(projectId);
+
 	const updatedSnapshot = updateAlternative(
 		snapshot,
 		blockId,
@@ -123,12 +125,7 @@ export async function updateAlternativeInfo(
 		alternativeMetaUpdate
 	);
 
-	const now = new Date();
-
-	await db
-		.update(projectSnapshot)
-		.set({ modifiedAt: now, body_dao: updatedSnapshot })
-		.where(eq(projectSnapshot.projectId, projectId));
+	await storeProjectSnapshot(projectId, updatedSnapshot);
 }
 
 /**
@@ -154,4 +151,24 @@ async function getProjectSnapshot(projectId: unknown): Promise<SnapshotDataV1Dao
 	} else {
 		return rawProjectSnapshot[0].body_dao as SnapshotDataV1Dao;
 	}
+}
+
+/**
+ * Save project snapshot.
+ * @param projectId - The project ID to fetch snapshot for
+ * @returns Snapshot data
+ */
+async function storeProjectSnapshot(
+	projectId: unknown,
+	snapshot: SnapshotDataV1Dao
+): Promise<void> {
+	if (!uuidValid(projectId)) {
+		throw error(404, 'Ivalid project ID');
+	}
+
+	const now = new Date();
+	await db
+		.update(projectSnapshot)
+		.set({ modifiedAt: now, body_dao: snapshot })
+		.where(eq(projectSnapshot.projectId, projectId));
 }

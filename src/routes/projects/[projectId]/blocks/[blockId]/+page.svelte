@@ -65,7 +65,8 @@
 			const parsedBlocks: BlockListItem[] = blocks.map((block: BlockListItemDto) => ({
 				id: block.id,
 				blockName: block.name,
-				currentAlternativeName: block.currentAlternativeName
+				currentAlternativeName: block.currentAlternativeName,
+				alternativeCount: block.alternativeCount
 			}));
 
 			// Make sure the currently selected alternative is updated with the new data
