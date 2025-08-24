@@ -6,6 +6,7 @@ import {
 	addAlternative,
 	addAroundBlock,
 	moveBlock,
+	removeAlternative as removeAlternativeFromSnapshot,
 	removeBlock as removeBlockFromSnapshot,
 	updateAlternative,
 	updateBlock,
@@ -148,6 +149,21 @@ export async function addAlternativeToBlock(projectId: string, blockId: string) 
 	const updatedSnapshot = addAlternative(snapshot, blockId);
 
 	await storeProjectSnapshot(projectId, updatedSnapshot);
+}
+
+export async function removeAlternativeFromBlock(
+	projectId: string,
+	blockId: string,
+	alternativeId: string
+): Promise<string | null> {
+	const snapshot = await getProjectSnapshot(projectId);
+	const updatedSnapshot = removeAlternativeFromSnapshot(snapshot, blockId, alternativeId);
+
+	await storeProjectSnapshot(projectId, updatedSnapshot);
+
+	// Find the block and return the current alternative ID after removal
+	const block = updatedSnapshot.blocks.find((b) => b.id === blockId);
+	return block ? block.currentAltId : null;
 }
 
 /**

@@ -129,6 +129,26 @@
 		}
 	}
 
+	async function confirmRemoveAlternative() {
+		try {
+			const res = await fetch(
+				`/api/projects/${projectId}/blocks/${currentBlockId}/alternatives/${currentAlternativeId}`,
+				{
+					method: 'DELETE'
+				}
+			);
+
+			if (!res.ok) {
+				throw new Error(`HTTP error! status: ${res.status}`);
+			}
+
+			// Reload the page to show the new current alternative
+			await goto(`/projects/${projectId}/blocks/${currentBlockId}`, { invalidateAll: true });
+		} catch (error) {
+			console.error('Error deleting alternative:', error);
+		}
+	}
+
 	let mediaPlayer = $state<MediaPlayer | null>(null);
 
 	// Stub data for combobox (about 20 items)
@@ -366,6 +386,31 @@
 			</AlertDialogFooter>
 		</AlertDialogContent>
 	</AlertDialog>
+	<AlertDialog>
+		<AlertDialogTrigger
+			class="flex w-full cursor-pointer items-center rounded p-2 text-left hover:bg-gray-100"
+		>
+			<TrashIcon class="mr-2 h-4 w-4" />
+			Remove alternative
+		</AlertDialogTrigger>
+		<AlertDialogContent>
+			<AlertDialogHeader>
+				<AlertDialogTitle>Are you sure you want to delete this alternative?</AlertDialogTitle>
+				<AlertDialogDescription>
+					This action cannot be undone. This will permanently delete the alternative "{currentAlternativeName}".
+				</AlertDialogDescription>
+			</AlertDialogHeader>
+			<AlertDialogFooter>
+				<AlertDialogCancel onclick={closeDrawer}>Cancel</AlertDialogCancel>
+				<AlertDialogAction
+					onclick={() => {
+						confirmRemoveAlternative();
+						closeDrawer();
+					}}>Delete Alternative</AlertDialogAction
+				>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+	</AlertDialog>
 	<a
 		href="/projects/{projectId}/config"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
@@ -403,6 +448,26 @@
 			<AlertDialogFooter>
 				<AlertDialogCancel>Cancel</AlertDialogCancel>
 				<AlertDialogAction onclick={confirmRemoveBlock}>Delete Block</AlertDialogAction>
+			</AlertDialogFooter>
+		</AlertDialogContent>
+	</AlertDialog>
+	<AlertDialog>
+		<AlertDialogTrigger class="w-full">
+			<Button variant="ghost" class="w-full justify-start">
+				<TrashIcon class="mr-2 h-4 w-4" />
+				Remove alternative
+			</Button>
+		</AlertDialogTrigger>
+		<AlertDialogContent>
+			<AlertDialogHeader>
+				<AlertDialogTitle>Are you sure you want to delete this alternative?</AlertDialogTitle>
+				<AlertDialogDescription>
+					This action cannot be undone. This will permanently delete the alternative "{currentAlternativeName}".
+				</AlertDialogDescription>
+			</AlertDialogHeader>
+			<AlertDialogFooter>
+				<AlertDialogCancel>Cancel</AlertDialogCancel>
+				<AlertDialogAction onclick={confirmRemoveAlternative}>Delete Alternative</AlertDialogAction>
 			</AlertDialogFooter>
 		</AlertDialogContent>
 	</AlertDialog>
