@@ -214,11 +214,24 @@ export function removeAlternative(
 		);
 	}
 
+	// Determine new current alternative ID if we're removing the current one
+	const isRemovingCurrent = targetBlock.currentAltId === alternativeId;
+	let newCurrentAltId = targetBlock.currentAltId;
+
+	if (isRemovingCurrent && targetBlock.alternatives.length > 1) {
+		// Use max(indexOfRemovedAlternative - 1, 0) logic
+		const newIndex = Math.max(alternativeIndex - 1, 0);
+		// If we're removing index 0, use index 1 (the next alternative)
+		const targetIndex = alternativeIndex === 0 ? 1 : newIndex;
+		newCurrentAltId = targetBlock.alternatives[targetIndex].id;
+	}
+
 	const updatedBlocks = snapshot.blocks.map((block, index) => {
 		if (index === blockIndex) {
 			return {
 				...block,
-				alternatives: block.alternatives.filter((_, i) => i !== alternativeIndex)
+				alternatives: block.alternatives.filter((_, i) => i !== alternativeIndex),
+				currentAltId: newCurrentAltId
 			};
 		}
 		return block;
@@ -229,7 +242,8 @@ export function removeAlternative(
 		blocks: updatedBlocks
 	};
 
-	if (snapshot.blocks[blockIndex].alternatives.length === 0) {
+	// If no alternatives left, add a new one (this will also set it as current)
+	if (updatedBlocks[blockIndex].alternatives.length === 0) {
 		return addAlternative(deletedAlternativeSnapshot, blockId);
 	} else {
 		return deletedAlternativeSnapshot;
