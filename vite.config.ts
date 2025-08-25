@@ -14,6 +14,20 @@ export default defineConfig({
 			outdir: './src/lib/paraglide'
 		})
 	],
+	build: {
+		rollupOptions: {
+			onwarn: (warning, warn) => {
+				// Suppress circular dependency warnings from zod-to-json-schema
+				if (
+					warning.code === 'CIRCULAR_DEPENDENCY' &&
+					warning.message?.includes('zod-to-json-schema')
+				) {
+					return;
+				}
+				warn(warning);
+			}
+		}
+	},
 	test: {
 		projects: [
 			{
