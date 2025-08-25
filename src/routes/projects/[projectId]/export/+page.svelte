@@ -20,43 +20,30 @@
 		{ value: 'current-descriptions-txt', label: 'Current alternate descriptions to TXT' }
 	];
 
-	async function handleExport() {
+	function handleExport() {
 		if (
 			selectedExportType === 'descriptions-txt' ||
 			selectedExportType === 'current-descriptions-txt'
 		) {
 			isExporting = true;
-			try {
-				const endpoint =
-					selectedExportType === 'current-descriptions-txt'
-						? `/api/projects/${data.project.id}/export/current-descriptions`
-						: `/api/projects/${data.project.id}/export/descriptions`;
 
-				const response = await fetch(endpoint);
+			const endpoint =
+				selectedExportType === 'current-descriptions-txt'
+					? `/api/projects/${data.project.id}/export/current-descriptions`
+					: `/api/projects/${data.project.id}/export/descriptions`;
 
-				if (response.ok) {
-					const blob = await response.blob();
-					const url = window.URL.createObjectURL(blob);
-					const a = document.createElement('a');
-					a.href = url;
-					const filename =
-						selectedExportType === 'current-descriptions-txt'
-							? `${data.project.name}_current_descriptions.zip`
-							: `${data.project.name}_descriptions.zip`;
-					a.download = filename;
-					document.body.appendChild(a);
-					a.click();
-					window.URL.revokeObjectURL(url);
-					document.body.removeChild(a);
-				} else {
-					alert('Failed to export descriptions');
-				}
-			} catch (error) {
-				console.error('Export failed:', error);
-				alert('Failed to export descriptions');
-			} finally {
+			// Create a hidden link and trigger download directly
+			const a = document.createElement('a');
+			a.href = endpoint;
+			a.style.display = 'none';
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+
+			// Reset loading state after a short delay
+			setTimeout(() => {
 				isExporting = false;
-			}
+			}, 1000);
 		} else {
 			alert('Sorry Bernd, dit is nog niet geimplementeerd :(');
 		}
