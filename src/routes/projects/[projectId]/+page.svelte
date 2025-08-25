@@ -4,7 +4,7 @@
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
 	import BlocksList from '$lib/components/BlocksList.svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
-	import { ListIcon, LogOutIcon, Settings } from 'lucide-svelte';
+	import { ListIcon, LogOutIcon, Settings, Download } from 'lucide-svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import { selectedBlockStore, getSelectedBlockId } from '$lib/stores';
@@ -72,12 +72,23 @@
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
 	</a>
+	<a
+		href="/projects/{data.project.id}/export"
+		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+	>
+		<Download class="mr-2 h-4 w-4" />
+		Export
+	</a>
 {/snippet}
 
 {#snippet desktopMenuItems()}
 	<Button variant="ghost" href="/projects/{data.project.id}/config" class="w-full justify-start">
 		<Settings class="mr-2 h-4 w-4" />
 		Settings
+	</Button>
+	<Button variant="ghost" href="/projects/{data.project.id}/export" class="w-full justify-start">
+		<Download class="mr-2 h-4 w-4" />
+		Export
 	</Button>
 	<Button
 		variant="ghost"
