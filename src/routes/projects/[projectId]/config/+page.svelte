@@ -7,16 +7,7 @@
 	import * as AlertDialog from '$lib/components/ui/alert-dialog';
 	import PageLayout from '$lib/components/PageLayout.svelte';
 	import ResponsiveHeader from '$lib/components/ResponsiveHeader.svelte';
-	import {
-		ArrowLeft,
-		Save,
-		Trash2,
-		AudioWaveform,
-		Video,
-		User,
-		LogOutIcon,
-		ListIcon
-	} from 'lucide-svelte';
+	import { Save, Trash2, AudioWaveform, Video, LogOutIcon, ListIcon } from 'lucide-svelte';
 	import type { PageData } from './$types';
 	import type { User as UserType } from '$lib/server/db/schema';
 

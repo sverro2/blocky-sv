@@ -34,7 +34,7 @@
 	import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 	import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
 	import type { NewBlockIdDto } from '$lib/api/new-block-id-dto';
-	import { getSelectedBlockId, selectedBlockStore } from '$lib/stores';
+	import { selectedBlockStore } from '$lib/stores';
 
 	let { data }: PageProps = $props();
 
