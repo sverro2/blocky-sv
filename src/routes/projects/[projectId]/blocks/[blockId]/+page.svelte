@@ -34,7 +34,7 @@
 	import type { AlternativeMetaUpdateDto } from '$lib/api/alternative-meta-update-dto';
 	import { AddBlockLocationDto, type AddBlockDto } from '$lib/api/add-block-dto';
 	import type { NewBlockIdDto } from '$lib/api/new-block-id-dto';
-	import { selectedBlockStore } from '$lib/stores';
+	import { getSelectedBlockId, selectedBlockStore } from '$lib/stores';
 
 	let { data }: PageProps = $props();
 
@@ -232,8 +232,9 @@
 		}
 	}
 
-	async function reloadPage() {
-		await goto(`/projects/${projectId}/blocks/${currentBlockId}`, { invalidateAll: true });
+	async function reloadPage(blockId: string | undefined = undefined) {
+		let reloadBlockId = blockId ?? currentBlockId;
+		await goto(`/projects/${projectId}/blocks/${reloadBlockId}`, { invalidateAll: true });
 	}
 </script>
 
@@ -252,6 +253,7 @@
 				{projectId}
 				blocks={blocksList}
 				selectedBlockId={currentBlockId}
+				onBlockChange={(blockId) => reloadPage(blockId)}
 				showEditButton={false}
 			/>
 			<div class="flex justify-center bg-amber-400 p-2 text-center sm:mx-5">

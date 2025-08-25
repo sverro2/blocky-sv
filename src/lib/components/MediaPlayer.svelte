@@ -12,17 +12,25 @@
 		StepForward,
 		StepBack
 	} from 'lucide-svelte';
+	import { selectedBlockStore } from '$lib/stores';
 
 	interface Props {
 		projectId: string;
 		blocks: BlockListItem[];
 		selectedBlockId?: string | null;
 		onPlayingStateChange?: (isPlaying: boolean) => void;
+		onBlockChange?: (newBlockId: string) => void;
 		showEditButton: boolean;
 	}
 
-	let { projectId, blocks, selectedBlockId, onPlayingStateChange, showEditButton }: Props =
-		$props();
+	let {
+		projectId,
+		blocks,
+		selectedBlockId,
+		onPlayingStateChange,
+		onBlockChange,
+		showEditButton
+	}: Props = $props();
 
 	let selectedBlock = $derived(blocks.find((block) => block.id === selectedBlockId));
 	let selectedBlockIndex = $derived(blocks.findIndex((block) => block.id === selectedBlockId));
@@ -153,6 +161,15 @@
 		// 		console.log('MediaSource ended');
 		// 	});
 	}
+
+	function changeSelectedBlock(blockId: string) {
+		// selectedBlockId = blockId;
+		selectedBlockStore.set(blockId);
+
+		if (onBlockChange) {
+			onBlockChange(blockId);
+		}
+	}
 </script>
 
 <div class="relative sm:mx-5">
@@ -202,7 +219,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoToStart}
-				onclick={() => (selectedBlockId = blocks[0].id)}
+				onclick={() => changeSelectedBlock((selectedBlockId = blocks[0].id))}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<SkipBack class="h-5 w-5" />
@@ -213,7 +230,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoBack}
-				onclick={() => (selectedBlockId = blocks[selectedBlockIndex - 1].id)}
+				onclick={() => changeSelectedBlock((selectedBlockId = blocks[selectedBlockIndex - 1].id))}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<StepBack class="h-5 w-5" />
@@ -233,7 +250,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoForward}
-				onclick={() => (selectedBlockId = blocks[selectedBlockIndex + 1].id)}
+				onclick={() => changeSelectedBlock((selectedBlockId = blocks[selectedBlockIndex + 1].id))}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<StepForward class="h-5 w-5" />
@@ -244,7 +261,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoToEnd}
-				onclick={() => (selectedBlockId = blocks[blocks.length - 1].id)}
+				onclick={() => changeSelectedBlock((selectedBlockId = blocks[blocks.length - 1].id))}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<SkipForward class="h-5 w-5" />
