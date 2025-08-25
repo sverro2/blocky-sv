@@ -414,6 +414,7 @@
 	<a
 		href="/logout"
 		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+		data-sveltekit-preload-data="off"
 		onclick={closeDrawer}
 	>
 		<LogOutIcon class="mr-2 h-4 w-4" />
@@ -478,6 +479,4 @@
 	</Button>
 {/snippet}
 
-{#snippet desktopActions()}
-	<Button variant="ghost">Save Project</Button>
-{/snippet}
+{#snippet desktopActions()}{/snippet}

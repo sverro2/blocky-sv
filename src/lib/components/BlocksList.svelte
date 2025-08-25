@@ -21,12 +21,9 @@
 		blocks: BlockListItem[];
 		selectedBlockId?: string | null;
 		onSelectItem?: (mediaId: string) => void;
-		onDragStart?(event: DragStartEvent): void;
-		onDragEnd?(event: DragEndEvent): void;
 	}
 
-	let { projectId, blocks, selectedBlockId, onSelectItem, onDragStart, onDragEnd }: Props =
-		$props();
+	let { projectId, blocks, selectedBlockId, onSelectItem }: Props = $props();
 
 	let draggedId = $state<string | null>(null);
 	const activeBlock = $derived(blocks.find((block) => block.id === draggedId));

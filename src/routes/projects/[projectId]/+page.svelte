@@ -41,7 +41,6 @@
 				{desktopActions}
 				{mobileMenuItems}
 				{desktopMenuItems}
-				backButton={{ icon: ListIcon, href: '../' }}
 			/>
 			<MediaPlayer
 				bind:this={mediaPlayer}
@@ -79,6 +78,22 @@
 		<Download class="mr-2 h-4 w-4" />
 		Export
 	</a>
+	<a
+		href="/projects"
+		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+		data-sveltekit-preload-data="off"
+	>
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Quit project
+	</a>
+	<a
+		href="/logout"
+		class="flex w-full items-center rounded p-2 text-left hover:bg-gray-100"
+		data-sveltekit-preload-data="off"
+	>
+		<LogOutIcon class="mr-2 h-4 w-4" />
+		Logout
+	</a>
 {/snippet}
 
 {#snippet desktopMenuItems()}
@@ -102,5 +117,5 @@
 {/snippet}
 
 {#snippet desktopActions()}
-	<Button variant="ghost">Save Project</Button>
+	<Button variant="ghost" href="/projects">Quit Project</Button>
 {/snippet}
