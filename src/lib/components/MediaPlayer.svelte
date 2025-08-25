@@ -25,17 +25,20 @@
 		$props();
 
 	let selectedBlock = $derived(blocks.find((block) => block.id === selectedBlockId));
-	let selectedBlockNumber = $derived(blocks.findIndex((block) => block.id === selectedBlockId) + 1);
+	let selectedBlockIndex = $derived(blocks.findIndex((block) => block.id === selectedBlockId));
+	let selectedBlockNumber = $derived(selectedBlockIndex + 1);
 
 	let isPlaying = $state(false);
 	let isMuted = $state(false);
 	let videoElement = $state<HTMLVideoElement | null>(null);
 
 	// Control button states
-	let canGoToStart = $state(true);
-	let canGoBack = $state(true);
-	let canGoForward = $state(true);
-	let canGoToEnd = $state(true);
+	let firstBlockId = $derived(blocks[0].id);
+	let lastBlockId = $derived(blocks[blocks.length - 1].id);
+	let canGoToStart = $derived(selectedBlockId !== firstBlockId);
+	let canGoBack = $derived(selectedBlockId !== firstBlockId);
+	let canGoForward = $derived(selectedBlockId !== lastBlockId);
+	let canGoToEnd = $derived(selectedBlockId !== lastBlockId);
 
 	$effect(() => {
 		if (onPlayingStateChange) {
@@ -199,6 +202,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoToStart}
+				onclick={() => (selectedBlockId = blocks[0].id)}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<SkipBack class="h-5 w-5" />
@@ -209,13 +213,14 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoBack}
+				onclick={() => (selectedBlockId = blocks[selectedBlockIndex - 1].id)}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<StepBack class="h-5 w-5" />
 			</Button>
 
 			<!-- Play/Pause -->
-			<Button variant="ghost" size="icon" class="h-12 w-12 text-white hover:bg-white/20">
+			<Button variant="ghost" size="icon" class="h-12 w-12 text-white hover:bg-white/20" disabled>
 				{#if isPlaying}
 					<Pause class="h-6 w-6" />
 				{:else}
@@ -228,6 +233,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoForward}
+				onclick={() => (selectedBlockId = blocks[selectedBlockIndex + 1].id)}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<StepForward class="h-5 w-5" />
@@ -238,6 +244,7 @@
 				variant="ghost"
 				size="icon"
 				disabled={!canGoToEnd}
+				onclick={() => (selectedBlockId = blocks[blocks.length - 1].id)}
 				class="h-10 w-10 text-white hover:bg-white/20 disabled:opacity-50 disabled:hover:bg-transparent"
 			>
 				<SkipForward class="h-5 w-5" />

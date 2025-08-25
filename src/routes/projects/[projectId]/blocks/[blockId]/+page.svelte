@@ -1,11 +1,7 @@
 <script lang="ts">
-	import type { Snapshot } from '$lib/client/idb';
-
 	import type { PageProps } from './$types';
-	import { onMount } from 'svelte';
 
 	import MediaPlayer from '$lib/components/MediaPlayer.svelte';
-	import BlocksList from '$lib/components/BlocksList.svelte';
 	import PageLayout from '$lib/components/PageLayout.svelte';
 	import {
 		ListIcon,
@@ -30,13 +26,7 @@
 		AlertDialogTitle,
 		AlertDialogTrigger
 	} from '$lib/components/ui/alert-dialog';
-	import { page } from '$app/state';
-	import { error } from '@sveltejs/kit';
-	import { goto, invalidateAll, refreshAll } from '$app/navigation';
-	import type { BlockListItemDto } from '$lib/api/block-list-item-dto';
-	import type { AlternativeListItemDto } from '$lib/api/alternative-list-item-dto';
-	import { Input } from '$lib/components/ui/input';
-	import Textarea from '$lib/components/ui/textarea/textarea.svelte';
+	import { goto, invalidateAll } from '$app/navigation';
 	import { Separator } from '$lib/components/ui/separator/index.js';
 	import DebouncedTextarea from '$lib/components/ui/textarea/DebouncedTextarea.svelte';
 	import DebouncedInput from '$lib/components/ui/input/DebouncedInput.svelte';
