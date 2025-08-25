@@ -12,17 +12,38 @@
 	let { data }: { data: PageData & { user: UserType } } = $props();
 
 	let selectedExportType = $state('');
+	let isExporting = $state(false);
 
 	const exportOptions = [
 		{ value: 'project-mp3', label: 'Project to MP3' },
 		{ value: 'descriptions-txt', label: 'Alternate descriptions to TXT' }
 	];
 
-	function handleExport() {
-		// TODO: Implement export functionality
-		console.log('Export clicked for:', selectedExportType);
+	async function handleExport() {
 		if (selectedExportType === 'descriptions-txt') {
-			console.log(`Exporting as: ${selectedExportType}`);
+			isExporting = true;
+			try {
+				const response = await fetch(`/api/projects/${data.project.id}/export/descriptions`);
+
+				if (response.ok) {
+					const blob = await response.blob();
+					const url = window.URL.createObjectURL(blob);
+					const a = document.createElement('a');
+					a.href = url;
+					a.download = `${data.project.name}_descriptions.zip`;
+					document.body.appendChild(a);
+					a.click();
+					window.URL.revokeObjectURL(url);
+					document.body.removeChild(a);
+				} else {
+					alert('Failed to export descriptions');
+				}
+			} catch (error) {
+				console.error('Export failed:', error);
+				alert('Failed to export descriptions');
+			} finally {
+				isExporting = false;
+			}
 		} else {
 			alert('Sorry Bernd, dit is nog niet geimplementeerd :(');
 		}
@@ -58,9 +79,16 @@
 					</div>
 
 					<div class="flex justify-end">
-						<Button onclick={handleExport} disabled={!selectedExportType}>
-							<Download class="mr-2 h-4 w-4" />
-							Export
+						<Button onclick={handleExport} disabled={!selectedExportType || isExporting}>
+							{#if isExporting}
+								<div
+									class="border-primary mr-2 h-4 w-4 animate-spin rounded-full border-2 border-t-transparent"
+								></div>
+								Exporting...
+							{:else}
+								<Download class="mr-2 h-4 w-4" />
+								Export
+							{/if}
 						</Button>
 					</div>
 				</div>
