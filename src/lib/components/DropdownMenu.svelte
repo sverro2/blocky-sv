@@ -69,7 +69,17 @@
 			<div
 				role="button"
 				tabindex="0"
-				onclick={closeDropdown}
+				onclick={(e) => {
+					// Don't close dropdown if clicking on dialog triggers or their children
+					const target = e.target as HTMLElement;
+					if (
+						target.closest('[data-slot="alert-dialog-trigger"]') ||
+						target.closest('button[data-state]')
+					) {
+						return;
+					}
+					closeDropdown();
+				}}
 				onkeydown={(e) => e.key === 'Enter' && closeDropdown()}
 			>
 				{@render content()}
