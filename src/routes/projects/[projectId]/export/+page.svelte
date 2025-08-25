@@ -16,21 +16,34 @@
 
 	const exportOptions = [
 		{ value: 'project-mp3', label: 'Project to MP3' },
-		{ value: 'descriptions-txt', label: 'Alternate descriptions to TXT' }
+		{ value: 'descriptions-txt', label: 'Alternate descriptions to TXT' },
+		{ value: 'current-descriptions-txt', label: 'Current alternate descriptions to TXT' }
 	];
 
 	async function handleExport() {
-		if (selectedExportType === 'descriptions-txt') {
+		if (
+			selectedExportType === 'descriptions-txt' ||
+			selectedExportType === 'current-descriptions-txt'
+		) {
 			isExporting = true;
 			try {
-				const response = await fetch(`/api/projects/${data.project.id}/export/descriptions`);
+				const endpoint =
+					selectedExportType === 'current-descriptions-txt'
+						? `/api/projects/${data.project.id}/export/current-descriptions`
+						: `/api/projects/${data.project.id}/export/descriptions`;
+
+				const response = await fetch(endpoint);
 
 				if (response.ok) {
 					const blob = await response.blob();
 					const url = window.URL.createObjectURL(blob);
 					const a = document.createElement('a');
 					a.href = url;
-					a.download = `${data.project.name}_descriptions.zip`;
+					const filename =
+						selectedExportType === 'current-descriptions-txt'
+							? `${data.project.name}_current_descriptions.zip`
+							: `${data.project.name}_descriptions.zip`;
+					a.download = filename;
 					document.body.appendChild(a);
 					a.click();
 					window.URL.revokeObjectURL(url);
