@@ -78,6 +78,7 @@
 					placeholder="Enter project name..."
 					bind:value={$form.name}
 					aria-invalid={$errors.name ? 'true' : undefined}
+					autocomplete="off"
 				/>
 				{#if $errors.name}
 					<p class="text-destructive text-sm">{$errors.name}</p>

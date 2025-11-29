@@ -1,6 +1,4 @@
 <script lang="ts">
-	import { opfsManager } from '$lib/client/opfs';
-	import type { Block } from '$lib/client/idb';
 	import { Button } from '$lib/components/ui/button';
 	import {
 		SkipBack,

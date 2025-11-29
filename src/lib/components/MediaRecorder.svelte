@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { MicIcon, SaveIcon } from 'lucide-svelte';
-	import { opfsManager } from '$lib/client/opfs';
 	import type { MediaRecorderSession } from '$lib/types/current-recorder-session';
-	import { addMedia } from '$lib/client/idb';
 	import { logMedia } from '$lib/utils/logger';
 
 	interface Props {
@@ -58,19 +56,15 @@
 			filename
 		};
 
-		let recorderCacheDirHandle = await opfsManager.getDirectoryHandle('recorder-cache', {
-			create: true
-		});
-
-		let testFileHandle = await recorderCacheDirHandle.getFileHandle(filename, { create: true });
-		let testFileWritable = await testFileHandle.createWritable({ keepExistingData: false });
+		// let testFileHandle = await recorderCacheDirHandle.getFileHandle(filename, { create: true });
+		// let testFileWritable = await testFileHandle.createWritable({ keepExistingData: false });
 
 		recorder.addEventListener('dataavailable', async (ev: BlobEvent) => {
-			await testFileWritable.write(ev.data);
+			// await testFileWritable.write(ev.data);
 		});
 
 		recorder.addEventListener('stop', async () => {
-			await testFileWritable.close();
+			// await testFileWritable.close();
 		});
 
 		recorder.addEventListener('error', (e) => {
@@ -90,8 +84,6 @@
 
 		// Stop all tracks to free up camera/mic
 		recorderSession.mediaDevices.getTracks().forEach((track) => track.stop());
-
-		await addMedia({ mediaId: recorderSession.filename, projectId });
 
 		recorderSession = null;
 

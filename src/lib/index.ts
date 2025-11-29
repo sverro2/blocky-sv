@@ -1,6 +1,3 @@
-// OPFS Manager
-export { opfsManager } from './client/opfs.js';
-
 // Drag and drop config
 import {
 	type DropAnimation,

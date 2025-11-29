@@ -256,6 +256,7 @@
 				onBlockChange={(blockId) => reloadPage(blockId)}
 				showEditButton={false}
 			/>
+
 			<div class="flex justify-center bg-amber-400 p-2 text-center sm:mx-5">
 				Alternative recorded at 13-02-2025
 			</div>

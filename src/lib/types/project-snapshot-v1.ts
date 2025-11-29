@@ -7,11 +7,18 @@ import { generateSlug } from 'random-word-slugs';
 import { arrayMove } from '@dnd-kit-svelte/sortable';
 
 export interface SnapshotDataV1Dao {
-	blocks: BlockV1Dao[];
+	blockOrder: VersionedIdentifier[]; // block id's
+	versionName?: string; // DateTime iso string
+	version?: string; // DateTime iso string
+}
+
+export interface VersionedIdentifier {
+	id: string;
+	version: string; // DateTime iso string
 }
 
 export interface BlockV1Dao {
-	id: string;
+	id: VersionedIdentifier;
 	name: string;
 	description?: string;
 	disable: boolean;
@@ -22,23 +29,45 @@ export interface BlockV1Dao {
 export interface AlternativeV1Dao {
 	id: string;
 	name: string;
+	modifiedAt: string; // DateTime iso string
 	description?: string;
-	modifiedAtIsoString: string;
-	recording?: RecordingV1Dao;
+	durationSeconds?: string;
+	clipped?: Clip;
+	recordingType: RecordingTypeV1Dao;
+	recordingId?: string;
+}
+
+export interface Clip {
+	offsetStartSeconds: number;
+	offsetEndSeconds: number;
+}
+
+export enum RecordingTypeV1Dao {
+	Audio,
+	Video,
+	Photo,
+	Text
 }
 
 export interface RecordingV1Dao {
-	exports: MediaFileV1Dao[];
-}
-
-export interface MediaFileV1Dao {
+	id: string;
+	alternativeId: string;
 	filename: string;
 	estimatedDurationMillis?: number;
 	codecInfo: MediaCodecInfoV1Dao;
+	usecase: RecordingUsecase;
+	extras?: object;
+}
+
+export enum RecordingUsecase {
+	Origional,
+	Proxy,
+	Render
 }
 
 export interface MediaCodecInfoV1Dao {
 	codec: CodecV1Dao;
+	resolution?: string;
 }
 
 export enum CodecV1Dao {
@@ -59,8 +88,9 @@ function newAlternative(): AlternativeV1Dao {
 		id: newAlternativeId,
 		name: generateSlug(1, { format: 'title' }),
 		description: '',
-		modifiedAtIsoString: new Date().toISOString(),
-		recording: undefined
+		modifiedAt: new Date().toISOString(),
+		recordingType: RecordingTypeV1Dao.Text,
+		recordingId: undefined
 	};
 }
 
