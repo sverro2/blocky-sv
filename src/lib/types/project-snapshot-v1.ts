@@ -6,10 +6,12 @@ import { error } from '@sveltejs/kit';
 import { generateSlug } from 'random-word-slugs';
 import { arrayMove } from '@dnd-kit-svelte/sortable';
 
-export interface SnapshotDataV1Dao {
-	blockOrder: VersionedIdentifier[]; // block id's
-	versionName?: string; // DateTime iso string
+// First things first... we probably need to go to a database structure instead of these Dao's...
+
+export interface ProjectSequenceV1Dao {
 	version?: string; // DateTime iso string
+	versionName?: string; // if you provide a version name, this version is persisted... and you can easily recognize the version
+	blockOrder: VersionedIdentifier[]; // block id's
 }
 
 export interface VersionedIdentifier {
@@ -19,11 +21,12 @@ export interface VersionedIdentifier {
 
 export interface BlockV1Dao {
 	id: VersionedIdentifier;
+	versionName?: string;
 	name: string;
 	description?: string;
-	disable: boolean;
+	disabled: boolean;
 	alternatives: AlternativeV1Dao[];
-	currentAltId: string;
+	currentAlternativeId: string;
 }
 
 export interface AlternativeV1Dao {
@@ -51,7 +54,7 @@ export enum RecordingTypeV1Dao {
 
 export interface RecordingV1Dao {
 	id: string;
-	alternativeId: string;
+	// alternativeId: string; // Is actually in the db, not showing up in dao
 	filename: string;
 	estimatedDurationMillis?: number;
 	codecInfo: MediaCodecInfoV1Dao;
@@ -75,7 +78,7 @@ export enum CodecV1Dao {
 	DefaultWebpV1
 }
 
-export function createNewSnapshot(): SnapshotDataV1Dao {
+export function createNewSnapshot(): ProjectSequenceV1Dao {
 	const completelyEmpty = {
 		blocks: []
 	};
@@ -95,9 +98,9 @@ function newAlternative(): AlternativeV1Dao {
 }
 
 export function addBlock(
-	snapshot: SnapshotDataV1Dao,
+	snapshot: ProjectSequenceV1Dao,
 	newBlockIndex: number
-): [SnapshotDataV1Dao, string] {
+): [ProjectSequenceV1Dao, string] {
 	const newBlockId = crypto.randomUUID();
 	const alternative = newAlternative();
 	snapshot.blocks.splice(newBlockIndex, 0, {
