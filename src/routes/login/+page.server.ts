@@ -2,6 +2,7 @@ import { hash, verify } from '@node-rs/argon2';
 import { encodeBase32LowerCase } from '@oslojs/encoding';
 import { fail, redirect } from '@sveltejs/kit';
 import { eq } from 'drizzle-orm';
+import { z } from 'zod';
 import * as auth from '$lib/server/repo/auth';
 import { db } from '$lib/server/db';
 import * as table from '$lib/server/db/schema';
@@ -61,6 +62,7 @@ export const actions: Actions = {
 		const formData = await event.request.formData();
 		const username = formData.get('username');
 		const password = formData.get('password');
+		const email = formData.get('email');
 		const returnUrl = formData.get('returnUrl') as string | null;
 
 		if (!validateUsername(username)) {
@@ -78,6 +80,12 @@ export const actions: Actions = {
 			return fail(400, { message: 'Invalid password' });
 		}
 
+		if (!validateEmail(email)) {
+			return fail(400, {
+				message: 'Invalid email (must be a valid email address, max 254 characters)'
+			});
+		}
+
 		const userId = generateUserId();
 		const passwordHash = await hash(password, {
 			// recommended minimum parameters
@@ -88,13 +96,15 @@ export const actions: Actions = {
 		});
 
 		try {
-			await db.insert(table.user).values({ id: userId, username, passwordHash });
+			await db
+				.insert(table.user)
+				.values({ id: userId, username, passwordHash, email, createdAt: new Date() });
 
 			const sessionToken = auth.generateSessionToken();
 			const session = await auth.createSession(sessionToken, userId);
 			auth.setSessionTokenCookie(event, sessionToken, session.expiresAt);
 		} catch {
-			return fail(500, { message: 'An error has occurred' });
+			return fail(500, { message: 'User with same name already exists!' });
 		}
 		return redirect(302, returnUrl || '/projects');
 	}
@@ -117,10 +127,16 @@ function validateUsername(username: unknown): username is string {
 }
 
 function validateUserIsInvitedInBeta(username: string): boolean {
-	const allowed_usernames = ['sven', 'bernd'];
+	const allowed_usernames = ['sven', 'bernd', 'sverro2'];
 	return allowed_usernames.includes(username);
 }
 
 function validatePassword(password: unknown): password is string {
 	return typeof password === 'string' && password.length >= 6 && password.length <= 255;
+}
+
+const emailSchema = z.string().email().max(254);
+
+function validateEmail(email: unknown): email is string {
+	return emailSchema.safeParse(email).success;
 }

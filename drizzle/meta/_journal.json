@@ -36,6 +36,13 @@
       "when": 1764761714414,
       "tag": "0004_minor_colossus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1764867544659,
+      "tag": "0005_curly_pete_wisdom",
+      "breakpoints": true
     }
   ]
 }

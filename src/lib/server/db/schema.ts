@@ -49,7 +49,6 @@ export const project = pgTable(
 		createdAt: timestamp('created_at', { withTimezone: true, mode: 'date' }).notNull(),
 		name: text('name').notNull(),
 		description: text('description'),
-		mediaType: mediaTypeEnum('media_type').notNull().default('audio'),
 		userId: text('user_id')
 			.notNull()
 			.references(() => user.id)
@@ -68,6 +67,29 @@ export const projectSnapshot = pgTable(
 			.notNull()
 			.references(() => project.id),
 		modifiedAt: timestamp('modified_at', { withTimezone: true, mode: 'date' }).notNull(),
+		name: text('name'),
+		isAutosafe: boolean('is_autosafe').notNull(),
+		body_dao: jsonb('body').notNull(),
+		body_dao_version: projectSnapshotVersionEnum('version').notNull()
+	},
+	(table) => [
+		check('project_snapshot_name_length', sql`length(${table.name}) <= 32`),
+		index('project_snapshot_id_project_id_modified_at_idx').on(
+			table.id,
+			table.projectId,
+			table.modifiedAt
+		)
+	]
+);
+
+export const projectState = pgTable(
+	'project_state',
+	{
+		id: uuid('id').primaryKey(),
+		version: timestamp('modified_at', { withTimezone: true, mode: 'date' }).notNull(),
+		projectId: uuid('project_id')
+			.notNull()
+			.references(() => project.id),
 		name: text('name'),
 		isAutosafe: boolean('is_autosafe').notNull(),
 		body_dao: jsonb('body').notNull(),
@@ -155,6 +177,8 @@ export type Session = typeof session.$inferSelect;
 export type User = typeof user.$inferSelect;
 
 export type Project = typeof project.$inferSelect;
+
+export type ProjectState = typeof project.$inferSelect;
 
 export type ProjectSnapshot = typeof projectSnapshot.$inferSelect;
 

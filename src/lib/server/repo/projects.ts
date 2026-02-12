@@ -26,8 +26,7 @@ export async function createProject(
 			.insert(project)
 			.values({
 				id: randomUUID(),
-				name: form.data.name,
-				mediaType: form.data.mediaType,
+				name: form.data.projectName,
 				userId: userId,
 				createdAt: now
 			})

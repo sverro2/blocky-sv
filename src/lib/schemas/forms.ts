@@ -2,11 +2,10 @@ import { AddBlockLocationDto } from '$lib/api/add-block-dto';
 import { z } from 'zod';
 
 export const createProjectSchema = z.object({
-	name: z
+	projectName: z
 		.string()
 		.min(1, 'Project name is required')
-		.max(32, 'Project name must be 32 characters or less'),
-	mediaType: z.enum(['audio', 'video'])
+		.max(32, 'Project name must be 32 characters or less')
 });
 
 export const blockMetaUpdateSchema = z.object({

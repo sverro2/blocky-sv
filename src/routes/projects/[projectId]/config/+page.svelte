@@ -71,24 +71,6 @@
 							></textarea>
 						</div>
 
-						<div class="space-y-2">
-							<Label for="mediaType">Project Type</Label>
-							<div
-								class="border-input bg-muted/50 flex items-center gap-3 rounded-md border px-3 py-2"
-							>
-								{#if data.project.mediaType === 'audio'}
-									<AudioWaveform class="text-muted-foreground h-4 w-4" />
-									<span class="text-sm">Audio</span>
-								{:else}
-									<Video class="text-muted-foreground h-4 w-4" />
-									<span class="text-sm">Video</span>
-								{/if}
-							</div>
-							<p class="text-primary text-xs">
-								Once the project is created, its type cannot be changed.
-							</p>
-						</div>
-
 						<div class="flex justify-end">
 							<Button type="submit" disabled={isSubmitting}>
 								{#if isSubmitting}

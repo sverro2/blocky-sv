@@ -71,38 +71,17 @@
 	<form method="POST" action="?/createProject" use:formEnhance class={isMobile ? 'px-4' : ''}>
 		<div class="space-y-4">
 			<div class="space-y-2">
-				<Label for={isMobile ? 'name-mobile' : 'name'}>Project Name</Label>
+				<Label for={isMobile ? 'name-mobile' : 'name-desktop'}>Project Name</Label>
 				<Input
-					id={isMobile ? 'name-mobile' : 'name'}
-					name="name"
+					id={isMobile ? 'name-mobile' : 'name-desktop'}
+					name="projectName"
 					placeholder="Enter project name..."
-					bind:value={$form.name}
-					aria-invalid={$errors.name ? 'true' : undefined}
+					bind:value={$form.projectName}
+					aria-invalid={$errors.projectName ? 'true' : undefined}
 					autocomplete="off"
 				/>
-				{#if $errors.name}
-					<p class="text-destructive text-sm">{$errors.name}</p>
-				{/if}
-			</div>
-
-			<div class="space-y-2">
-				<Label for={isMobile ? 'mediaType-mobile' : 'mediaType'}>Media Type</Label>
-				<Select.Root type="single" bind:value={$form.mediaType}>
-					<Select.Trigger class="w-full">
-						{$form.mediaType === 'audio'
-							? 'Audio'
-							: $form.mediaType === 'video'
-								? 'Video'
-								: 'Select media type'}
-					</Select.Trigger>
-					<Select.Content>
-						<Select.Item value="audio">Audio</Select.Item>
-						<Select.Item value="video" disabled>Video</Select.Item>
-					</Select.Content>
-				</Select.Root>
-				<input type="hidden" name="mediaType" bind:value={$form.mediaType} />
-				{#if $errors.mediaType}
-					<p class="text-destructive text-sm">{$errors.mediaType}</p>
+				{#if $errors.projectName}
+					<p class="text-destructive text-sm">{$errors.projectName}</p>
 				{/if}
 			</div>
 		</div>
