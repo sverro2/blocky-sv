@@ -1,6 +1,6 @@
 import { requireAuth } from '$lib/server/repo/auth';
 import { db } from '$lib/server/db';
-import { project } from '$lib/server/db/schema';
+import { project, projectSnapshot } from '$lib/server/db/schema';
 import { eq, and } from 'drizzle-orm';
 import { error, redirect } from '@sveltejs/kit';
 import type { PageServerLoad, Actions } from './$types';
@@ -107,8 +107,10 @@ export const actions = {
 			}
 
 			// Delete the project
+			// Delete the project and mindlessly also delete project data (without cleaning up files)
+			// TODO: CLEANUP MEDIA FILES!!!!!
+			await db.delete(projectSnapshot).where(eq(projectSnapshot.projectId, projectId));
 			await db.delete(project).where(eq(project.id, projectId));
-
 			redirect(302, '/projects');
 		} catch (err) {
 			// If it's already an error we threw, re-throw it

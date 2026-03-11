@@ -1,5 +1,5 @@
 import { requireAuth } from '$lib/server/repo/auth';
-import { getProjectDetails, addBlock, moveBlockInList } from '$lib/server/repo/project';
+import { getProjectDetails, moveBlockInList } from '$lib/server/repo/project';
 import { json, error } from '@sveltejs/kit';
 import type { RequestEvent } from '@sveltejs/kit';
 import { blockMoveSchema } from '$lib/schemas/forms';
